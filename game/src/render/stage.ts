@@ -81,6 +81,25 @@ export class Stage {
     a.needsUpdate = true;
   }
 
+  /** Graphics preset: resolution scale, shadow quality, rain density. */
+  applyQuality(q: 'low' | 'medium' | 'high'): void {
+    const cap = graphicsConfig.pixelRatioCap;
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio, q === 'low' ? 0.75 : q === 'medium' ? 1 : cap));
+    this.renderer.shadowMap.enabled = q !== 'low';
+    this.moon.castShadow = q !== 'low';
+    const size = q === 'high' ? 2048 : 1024;
+    if (this.moon.shadow.mapSize.x !== size) {
+      this.moon.shadow.mapSize.set(size, size);
+      this.moon.shadow.map?.dispose();
+      this.moon.shadow.map = null;
+    }
+    if (this.rain) this.rain.geometry.setDrawRange(0, (q === 'low' ? 0.3 : q === 'medium' ? 0.6 : 1) * this.rain.geometry.getAttribute('position').count);
+    this.scene.traverse((o) => {
+      const m = (o as THREE.Mesh).material as THREE.Material | undefined;
+      if (m) m.needsUpdate = true;
+    });
+  }
+
   render(): void {
     this.renderer.render(this.scene, this.camera);
   }

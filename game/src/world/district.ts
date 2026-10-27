@@ -28,6 +28,10 @@ function rng(seed: number): () => number {
  */
 export class District {
   readonly dynamic: { body: RAPIER.RigidBody; obj: THREE.Object3D }[] = [];
+  /** street lights (EMP, map) */
+  readonly lights: THREE.PointLight[] = [];
+  /** building footprints + road strips for the map screen (world XZ metres) */
+  readonly mapFeatures: { kind: 'building' | 'road' | 'portal' | 'billboard'; minX: number; minZ: number; maxX: number; maxZ: number }[] = [];
   private rand = rng(worldConfig.seed);
 
   constructor(private scene: THREE.Scene, private physics: Physics) {}
@@ -68,7 +72,8 @@ export class District {
         (lots.get(k2) ?? lots.set(k2, []).get(k2)!).push({ x: side * 15, z: i * 6, rotY: side > 0 ? -Math.PI / 2 : Math.PI / 2 });
       }
     }
-    for (const [id, list] of lots) await this.instanced(id, list, { collide: true });
+    for (const [id, list] of lots) await this.instanced(id, list, { collide: true, mapKind: 'building' });
+    this.mapFeatures.push({ kind: 'road', minX: -63, maxX: 63, minZ: -3, maxZ: 3 }, { kind: 'road', minX: -3, maxX: 3, minZ: -63, maxZ: 63 });
 
     // street lights with real lights near the spawn
     const lamps: Placement[] = [];
@@ -81,6 +86,7 @@ export class District {
       const light = new THREE.PointLight(0xffb070, 18, 22, 1.6);
       light.position.set(l.x, 3.6, l.z);
       this.scene.add(light);
+      this.lights.push(light);
     }
 
     const scatter = (ids: string[], n: number, r: number): Map<string, Placement[]> => {
@@ -161,7 +167,7 @@ export class District {
   /** Red Citadel entrance marker at config/world.json redCitadelPortal (traversable Citadel is M4). */
   private async citadelPortal(): Promise<void> {
     const [x, , z] = worldConfig.redCitadelPortal;
-    await this.instanced('landing_pad_v01', [{ x, z, scale: 2 }], { collide: true, texture: 'cavern_stone' });
+    await this.instanced('landing_pad_v01', [{ x, z, scale: 2 }], { collide: true, texture: 'cavern_stone', mapKind: 'portal' });
     const ring = new THREE.Mesh(
       new THREE.TorusGeometry(4, 0.12, 12, 64),
       new THREE.MeshStandardMaterial({ color: '#330000', emissive: '#ff2020', emissiveIntensity: 3 }),
@@ -196,7 +202,7 @@ export class District {
   }
 
   /** One InstancedMesh per sub-mesh of the asset; optional static bounds colliders. */
-  async instanced(id: string, list: Placement[], opts: { collide: boolean; shadow?: boolean; texture?: string }): Promise<void> {
+  async instanced(id: string, list: Placement[], opts: { collide: boolean; shadow?: boolean; texture?: string; mapKind?: 'building' | 'portal' }): Promise<void> {
     if (!list.length) return;
     const proto = await registry.instance(id, opts.texture);
     const localBox = new THREE.Box3().setFromObject(proto);
@@ -210,8 +216,10 @@ export class District {
       inst.computeBoundingSphere();
       this.scene.add(inst);
     });
-    if (opts.collide) {
-      for (const p of list) this.physics.addStaticBox(localBox.clone().applyMatrix4(this.matrixFor(p)));
+    for (const p of list) {
+      const box = localBox.clone().applyMatrix4(this.matrixFor(p));
+      if (opts.collide) this.physics.addStaticBox(box);
+      if (opts.mapKind) this.mapFeatures.push({ kind: opts.mapKind, minX: box.min.x, minZ: box.min.z, maxX: box.max.x, maxZ: box.max.z });
     }
   }
 

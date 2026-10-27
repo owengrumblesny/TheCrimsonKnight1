@@ -12,7 +12,7 @@ const ONE_SHOT_LOCK: Record<string, number> = {
   CK_LandHard: 0.75, CK_GadgetDraw: 0.45, CK_GadgetStow: 0.45, CK_Summon: 1.4, CK_Interact: 0.7,
 };
 
-type Mode = 'ground' | 'air' | 'glide' | 'action';
+type Mode = 'ground' | 'air' | 'glide' | 'action' | 'grapple';
 
 /**
  * Third-person player: Rapier kinematic character controller (fixed 60 Hz) driving the
@@ -21,7 +21,7 @@ type Mode = 'ground' | 'air' | 'glide' | 'action';
  */
 export class Player {
   private body: RAPIER.RigidBody;
-  private collider: RAPIER.Collider;
+  readonly collider: RAPIER.Collider;
   private controller: RAPIER.KinematicCharacterController;
   private prevPos = new THREE.Vector3();
   private pos = new THREE.Vector3();
@@ -34,6 +34,10 @@ export class Player {
   private crouched = false;
   private gadget: string | null = null;
   private aiming = false;
+  private grapplePoint: THREE.Vector3 | null = null;
+  private grappleTime = 0;
+  /** Set each frame by the game: false when suit energy is empty (no sprint / glide). */
+  canExert = true;
   heading = 0; // radians, 0 = facing +Z
   speed = 0;
   status = '';
@@ -69,32 +73,48 @@ export class Player {
     }
   }
 
-  /** Gadget menu: draw a gadget (or stow the one in hand). Returns false if busy/airborne. */
+  /** Equip animation when the hotbar selection changes (selection never uses the item). */
   setGadget(id: string | null): boolean {
-    if (this.mode !== 'ground' || id === this.gadget) return false;
-    this.oneShot(id ? 'CK_GadgetDraw' : 'CK_GadgetStow');
+    if (id === this.gadget) return false;
+    const was = this.gadget;
     this.gadget = id;
+    if (this.mode !== 'ground') return false;
+    this.oneShot(id ? 'CK_GadgetDraw' : was ? 'CK_GadgetStow' : 'CK_Idle');
     return true;
   }
 
-  /** Summon menu: plays the wrist-module call. Returns false if busy/airborne. */
-  summon(): boolean {
+  /** Play a one-shot action clip (equipment use, vehicle call). Only on the ground. */
+  act(clip: string, lock?: number): boolean {
     if (this.mode !== 'ground') return false;
-    this.oneShot('CK_Summon');
+    this.oneShot(clip, lock);
     return true;
+  }
+
+  /** Grapnel: reel the Knight toward a world point. */
+  grappleTo(point: THREE.Vector3): void {
+    this.grapplePoint = point.clone();
+    this.grappleTime = 0;
+    this.mode = 'grapple';
+    this.crouched = false;
+    this.jumpTimer = -1;
+    this.hero.play('CK_GrapplePull', { fade: 0.12, restart: true });
+  }
+
+  get grappleAnchor(): THREE.Vector3 | null {
+    return this.mode === 'grapple' ? this.grapplePoint : null;
   }
 
   /** Read-only state for the HUD. */
   get state() {
     return {
       mode: this.mode, crouched: this.crouched, aiming: this.aiming, walk: this.walkMode, gadget: this.gadget,
-      sprinting: this.mode === 'ground' && this.speed > P.runSpeed + 0.5, heading: this.heading, speed: this.speed,
+      sprinting: this.mode === 'ground' && this.speed > P.runSpeed + 0.5, grounded: this.grounded, heading: this.heading, speed: this.speed,
     };
   }
 
-  private oneShot(name: string): void {
+  private oneShot(name: string, lock?: number): void {
     this.mode = 'action';
-    this.lockTime = ONE_SHOT_LOCK[name] ?? 0.5;
+    this.lockTime = lock ?? ONE_SHOT_LOCK[name] ?? 0.5;
     this.hero.play(name, { fade: 0.15, restart: true });
   }
 
@@ -115,7 +135,7 @@ export class Player {
     let target = 0;
     if (this.mode === 'ground' && moving) {
       target = this.crouched ? 1.4 : this.aiming ? P.walkSpeed : this.walkMode ? P.walkSpeed
-        : input.held('sprint') ? P.sprintSpeed : P.runSpeed;
+        : input.held('sprint') && this.canExert ? P.sprintSpeed : P.runSpeed;
       target *= Math.min(1, wish.length());
     }
     if (this.mode === 'glide') target = 9;
@@ -154,9 +174,22 @@ export class Player {
       }
     }
     this.vel.y += physicsConfig.gravity[1] * dt;
-    if (this.mode === 'air' && glideHeld && this.vel.y < -2) this.mode = 'glide';
+    if (this.mode === 'grapple' && this.grapplePoint) {
+      // reel in along the line; release near the anchor, after 3 s, or with jump
+      const to = this.grapplePoint.clone().sub(this.pos);
+      this.grappleTime += dt;
+      if (to.length() < 1.6 || this.grappleTime > 3) {
+        this.mode = 'air';
+        this.vel.multiplyScalar(0.5).setY(Math.max(this.vel.y * 0.5, 4));
+        this.hero.play('CK_Airborne', { fade: 0.2 });
+      } else {
+        this.vel.copy(to.normalize().multiplyScalar(20));
+        if (Math.hypot(this.vel.x, this.vel.z) > 0.5) this.heading = Math.atan2(this.vel.x, this.vel.z);
+      }
+    }
+    if (this.mode === 'air' && glideHeld && this.vel.y < -2 && this.canExert) this.mode = 'glide';
     if (this.mode === 'glide') {
-      if (!glideHeld) this.mode = 'air';
+      if (!glideHeld || !this.canExert) this.mode = 'air';
       else this.vel.y = Math.max(this.vel.y, -P.glideFallSpeed);
     }
 
@@ -172,7 +205,7 @@ export class Player {
     if (this.grounded) {
       this.coyote = 0;
       if (this.vel.y <= 0) {
-        if (this.mode === 'air' || this.mode === 'glide') this.land(this.vel.y);
+        if (this.mode === 'air' || this.mode === 'glide' || this.mode === 'grapple') this.land(this.vel.y);
         this.vel.y = -0.5;
       }
     } else if (this.mode === 'ground' && this.jumpTimer < 0) {
@@ -195,11 +228,11 @@ export class Player {
 
   private coyote = 0;
 
-  /** Called on touchdown with the feet position (effects hook). */
-  onLand: ((hard: boolean, feet: THREE.Vector3) => void) | null = null;
+  /** Called on touchdown with vertical speed, hard flag and feet position (effects, audio, damage). */
+  onLand: ((vy: number, hard: boolean, feet: THREE.Vector3) => void) | null = null;
 
   private land(vy: number): void {
-    this.onLand?.(vy < -P.hardLandingSpeed, this.pos.clone().setY(this.pos.y - HALF - RADIUS));
+    this.onLand?.(vy, vy < -P.hardLandingSpeed, this.pos.clone().setY(this.pos.y - HALF - RADIUS));
     if (vy < -P.hardLandingSpeed) {
       this.oneShot('CK_LandHard');
       this.vel.x = this.vel.z = 0;
@@ -212,8 +245,9 @@ export class Player {
 
   private landTime = 0;
 
-  private respawn(): void {
-    this.teleport(new THREE.Vector3(0, 3, 0));
+  /** Return to a safe spot (fell out of the world, or suit critical). */
+  respawn(at = new THREE.Vector3(0, 3, 0)): void {
+    this.teleport(at);
   }
 
   /** Debug/sandbox: move the capsule (feet position) and drop into the air state. */
@@ -224,6 +258,7 @@ export class Player {
     this.pos.copy(c);
     this.prevPos.copy(c);
     this.mode = 'air';
+    this.grapplePoint = null;
     this.hero.play('CK_Airborne', { fade: 0.2 });
   }
 

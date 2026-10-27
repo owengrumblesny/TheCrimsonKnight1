@@ -25,8 +25,10 @@ export class Physics {
   }
 
   addGround(size: number): void {
-    const body = this.world.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(0, -0.5, 0));
-    this.world.createCollider(RAPIER.ColliderDesc.cuboid(size / 2, 0.5, size / 2), body);
+    // Observed in testing: with a 400 m slab centred on the spawn, the character controller sank
+    // through it at (0,0) (but not 1.5 m away). An offset, larger slab fixed it; root cause not isolated.
+    const body = this.world.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(37.3, -0.5, 41.9));
+    this.world.createCollider(RAPIER.ColliderDesc.cuboid(size / 2 + 50, 0.5, size / 2 + 50), body);
   }
 
   /** Static box collider matching an object's world-space bounds (initial collision proxy). */

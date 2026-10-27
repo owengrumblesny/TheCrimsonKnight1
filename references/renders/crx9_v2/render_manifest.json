@@ -1,0 +1,19 @@
+{
+  "glb": "assets/models/characters/crimson_knight_CRX9_rigged.glb",
+  "views": [
+    "references/renders/crx9_v2/view_front.png",
+    "references/renders/crx9_v2/view_front_left_45.png",
+    "references/renders/crx9_v2/view_left.png",
+    "references/renders/crx9_v2/view_rear.png",
+    "references/renders/crx9_v2/view_right.png",
+    "references/renders/crx9_v2/view_front_right_45.png"
+  ],
+  "clips": {
+    "CK_LandHard": [
+      "references/renders/crx9_v2/clips/CK_LandHard_000.png",
+      "references/renders/crx9_v2/clips/CK_LandHard_008.png",
+      "references/renders/crx9_v2/clips/CK_LandHard_017.png",
+      "references/renders/crx9_v2/clips/CK_LandHard_026.png"
+    ]
+  }
+}

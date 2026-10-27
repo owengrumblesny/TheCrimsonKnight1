@@ -5,12 +5,15 @@ import { Input, lockPointer } from './core/input';
 import { physicsConfig, worldConfig } from './data/registry';
 import { Effects } from './render/effects';
 import { FollowCamera } from './render/followCamera';
+import { PRESETS, detectDefaultQuality } from './render/quality';
 import { Stage } from './render/stage';
 import { AudioManager } from './systems/audio';
 import { Equipment } from './systems/equipment';
 import { Physics } from './systems/physics';
 import { Vitals } from './systems/vitals';
 import { runAssetLoadTest } from './testing/assetLoadTest';
+import { Benchmark, showBenchReport } from './testing/benchmark';
+import { PerfOverlay } from './ui/PerfOverlay';
 import { AnimDebug } from './ui/AnimDebug';
 import { Hotbar } from './ui/Hotbar';
 import { HudWidgets } from './ui/HudWidgets';
@@ -33,7 +36,15 @@ async function startGame(): Promise<void> {
   const inventory = new InventoryService();
   let quickVehicle = 'crx1_interceptor';
 
-  const stage = new Stage();
+  // first launch: pick LOW on integrated GPUs (the target laptop's Radeon 610M), HIGH otherwise
+  const probe = document.createElement('canvas').getContext('webgl2') ?? document.createElement('canvas').getContext('webgl');
+  const detected = probe ? detectDefaultQuality(probe) : { quality: 'low' as const, gpu: 'unknown' };
+  if (prefs.fresh) settings.quality = detected.quality;
+  // ?quality=low|medium|high|ultra forces a preset for this session only (benchmark runs); not saved
+  const forcedQuality = new URLSearchParams(location.search).get('quality');
+  const savedQuality = settings.quality;
+  if (forcedQuality && forcedQuality in PRESETS) settings.quality = forcedQuality as typeof settings.quality;
+  const stage = new Stage(PRESETS[settings.quality].antialias);
   const input = new Input(stage.renderer.domElement, bindings);
   const audio = new AudioManager(settings);
   const loading = new LoadingScreen();
@@ -77,18 +88,21 @@ async function startGame(): Promise<void> {
     setPhotoMode: (on) => document.body.classList.toggle('ck-hud-off', on || !settings.hudVisible),
   });
 
+  let lightPool = -1;
   const applySettings = () => {
     document.documentElement.style.setProperty('--ck-scale', String(settings.uiScale));
     document.body.classList.toggle('ck-reduce-motion', settings.reduceMotion);
     document.body.classList.toggle('ck-hud-off', !settings.hudVisible || equipment.photoMode);
     stage.applyQuality(settings.quality);
+    if (lightPool !== stage.preset.dynamicLights) district.setLightPool((lightPool = stage.preset.dynamicLights));
     audio.applySettings(settings);
-    saves.writeSettings(settings, bindings.overrides());
+    saves.writeSettings(forcedQuality ? { ...settings, quality: savedQuality } : settings, bindings.overrides());
   };
   applySettings();
 
   const snapshot = () => ({
-    inventory: inventory.snapshot(), bindings: bindings.overrides(), settings, quickVehicle,
+    inventory: inventory.snapshot(), bindings: bindings.overrides(), quickVehicle,
+    settings: forcedQuality ? { ...settings, quality: savedQuality } : settings,
     player: { position: player.position.toArray() as [number, number, number], heading: player.heading },
   });
   const saveNow = () => {
@@ -106,6 +120,28 @@ async function startGame(): Promise<void> {
     }
     notify('Save loaded', 'load');
   };
+
+  const perf = new PerfOverlay(stage.renderer, stage.scene, () => ({
+    quality: settings.quality, gpu: detected.gpu, sectors: `1 district (${district.lamps.length} lamps, ${district.dynamic.length} physics props)`,
+  }));
+  const bench = new Benchmark(stage.camera, stage.renderer, {
+    placeHero: (p) => {
+      player.teleport(p.clone().setY(p.y + 0.05));
+      player.heading = Math.PI / 4;
+    },
+    info: () => ({ quality: settings.quality, gpu: detected.gpu }),
+    done: (r) => {
+      showBenchReport(r, () => undefined);
+      // ?then=medium,high chains benchmark runs across presets (each run reloads with the next preset)
+      const q = new URLSearchParams(location.search);
+      const rest = (q.get('then') ?? '').split(',').filter((x) => x in PRESETS);
+      if (rest.length) {
+        q.set('quality', rest[0]);
+        q.set('then', rest.slice(1).join(','));
+        setTimeout(() => location.replace(`${location.pathname}?${q}`), 1500);
+      }
+    },
+  });
 
   let started = false;
   const menus = new MenuManager({
@@ -128,6 +164,11 @@ async function startGame(): Promise<void> {
     },
     saveNow,
     applySettings,
+    gpu: () => detected.gpu,
+    runBenchmark: () => {
+      started = true;
+      bench.start();
+    },
     captureKey: (cb) => {
       input.capture = cb;
     },
@@ -186,6 +227,7 @@ async function startGame(): Promise<void> {
     const now = performance.now();
     input.poll();
     if (input.hit('sandboxMenu') && !menus.open) animDebug.toggle();
+    if (input.hit('perfOverlay')) perf.toggle();
 
     // ---- menu hotkeys (Esc / Tab / M) ----
     if (menus.open) {
@@ -267,7 +309,9 @@ async function startGame(): Promise<void> {
       }
     }
     animDebug.update(dt);
-    cam.update(dt, input, player.position, input.held('grapple'));
+    district.updateLights(bench.active ? stage.camera.position : player.position, now, dt);
+    if (!bench.active) cam.update(dt, input, player.position, input.held('grapple'));
+    hero.updateLod(stage.camera.position.distanceTo(player.position), stage.preset.lodScale);
     stage.follow(player.position);
     if (live) stage.updateRain(dt);
     const sel = inventory.selectedItemId;
@@ -277,14 +321,22 @@ async function startGame(): Promise<void> {
     input.endFrame();
   };
   const loop = () => {
-    frame(Math.min(clock.getDelta(), 0.1));
+    const real = clock.getDelta();
+    frame(Math.min(real, 0.1));
+    perf.frame(real * 1000);
+    bench.frame(real * 1000);
     requestAnimationFrame(loop);
   };
+  if (new URLSearchParams(location.search).has('bench')) {
+    menus.closeAll();
+    started = true;
+    bench.start();
+  }
   loop();
   // test/debug handle: __CK__.advance(seconds) steps the game synchronously at 60 fps
   Object.assign(window, {
     __CK__: {
-      player, hero, inventory, bindings, menus, equipment, vitals, settings, audio, cam,
+      player, hero, inventory, bindings, menus, equipment, vitals, settings, audio, cam, stage, perf, bench, applySettings,
       selectSlot,
       start: () => menus.closeAll(),
       teleport: (x: number, y: number, z: number) => player.teleport(new THREE.Vector3(x, y, z)),

@@ -216,12 +216,9 @@ export class Equipment {
     },
     emp: (now) => {
       const p = this.feet;
-      const hit = this.ctx.district.lights.filter((l) => l.position.distanceTo(p) < 25);
-      for (const l of hit) {
-        const was = l.intensity;
-        l.intensity = 0;
-        this.addTimed(6000, now, () => (l.intensity = was));
-      }
+      const hit = this.ctx.district.lamps.filter((l) => l.pos.distanceTo(p) < 25);
+      for (const l of hit) l.offUntil = now + 6000;
+      this.ctx.district.updateLights(p, now, 1); // apply immediately
       this.ctx.effects.burst('electrical', p.clone().setY(1), 6, 2, 1.8, 0.6);
       const ring = this.ring(p, 0x6aa8ff);
       this.addTimed(700, now, () => this.ctx.scene.remove(ring), (t) => this.grow(ring, t, now, 700, 25));

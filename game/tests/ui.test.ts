@@ -191,10 +191,11 @@ describe('save service', () => {
   it('rejects corrupt and future-version saves, and sanitises settings', () => {
     expect(SaveService.migrate('garbage')).toBeNull();
     expect(SaveService.migrate({ version: SAVE_VERSION + 1 })).toBeNull();
-    const m = SaveService.migrate({ version: 1, settings: { uiScale: 9, quality: 'ultra', volumes: { master: -3 } }, quickVehicle: 'batarang' })!;
+    const m = SaveService.migrate({ version: 1, settings: { uiScale: 9, quality: 'cinematic', volumes: { master: -3 } }, quickVehicle: 'batarang' })!;
     expect(m.settings.uiScale).toBe(1.5);
     expect(m.settings.quality).toBe('high');
     expect(m.settings.volumes.master).toBe(0);
     expect(m.quickVehicle).toBeUndefined(); // not a vehicle
+    expect(SaveService.cleanSettings({ quality: 'ultra' }).quality).toBe('ultra');
   });
 });

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { registry, worldConfig } from '../data/registry';
+import { mergeByMaterial } from '../render/batching';
 import { pngMaterial } from '../render/materials';
 import type { Physics } from '../systems/physics';
 import type RAPIER from '@dimforge/rapier3d-compat';
@@ -28,8 +29,11 @@ function rng(seed: number): () => number {
  */
 export class District {
   readonly dynamic: { body: RAPIER.RigidBody; obj: THREE.Object3D }[] = [];
-  /** street lights (EMP, map) */
-  readonly lights: THREE.PointLight[] = [];
+  /** every street-lamp head; offUntil > now = knocked out (EMP) */
+  readonly lamps: { pos: THREE.Vector3; offUntil: number }[] = [];
+  /** fixed-size pool of real point lights moved to the nearest working lamps (size per graphics preset) */
+  private lightPool: THREE.PointLight[] = [];
+  private poolTimer = 0;
   /** building footprints + road strips for the map screen (world XZ metres) */
   readonly mapFeatures: { kind: 'building' | 'road' | 'portal' | 'billboard'; minX: number; minZ: number; maxX: number; maxZ: number }[] = [];
   private rand = rng(worldConfig.seed);
@@ -82,12 +86,7 @@ export class District {
       lamps.push({ x: i * 6, z: -7.5, rotY: Math.PI / 2 }, { x: 7.5, z: i * 6, rotY: Math.PI });
     }
     await this.instanced('street_light_v01', lamps, { collide: true });
-    for (const l of lamps.filter((p) => Math.hypot(p.x, p.z) < 40)) {
-      const light = new THREE.PointLight(0xffb070, 18, 22, 1.6);
-      light.position.set(l.x, 3.6, l.z);
-      this.scene.add(light);
-      this.lights.push(light);
-    }
+    for (const l of lamps) this.lamps.push({ pos: new THREE.Vector3(l.x, 3.6, l.z), offUntil: 0 });
 
     const scatter = (ids: string[], n: number, r: number): Map<string, Placement[]> => {
       const out = new Map<string, Placement[]>();
@@ -206,16 +205,15 @@ export class District {
     if (!list.length) return;
     const proto = await registry.instance(id, opts.texture);
     const localBox = new THREE.Box3().setFromObject(proto);
-    proto.traverse((o) => {
-      const mesh = o as THREE.Mesh;
-      if (!mesh.isMesh) return;
-      const inst = new THREE.InstancedMesh(mesh.geometry, mesh.material, list.length);
-      list.forEach((p, i) => inst.setMatrixAt(i, this.matrixFor(p).multiply(mesh.matrixWorld)));
+    // one InstancedMesh per MATERIAL (sub-meshes merged), not per sub-mesh — keeps draw calls low
+    for (const { geometry, material } of mergeByMaterial(proto)) {
+      const inst = new THREE.InstancedMesh(geometry, material, list.length);
+      list.forEach((p, i) => inst.setMatrixAt(i, this.matrixFor(p)));
       inst.castShadow = opts.shadow ?? true;
       inst.receiveShadow = true;
       inst.computeBoundingSphere();
       this.scene.add(inst);
-    });
+    }
     for (const p of list) {
       const box = localBox.clone().applyMatrix4(this.matrixFor(p));
       if (opts.collide) this.physics.addStaticBox(box);
@@ -238,6 +236,30 @@ export class District {
     const body = this.physics.addDynamicBox(placed, id.startsWith('traffic_cone') ? 3 : 25);
     this.scene.add(pivot);
     this.dynamic.push({ body, obj: pivot });
+  }
+
+  /** Resize the street-light pool (called when the graphics preset changes; causes one shader recompile). */
+  setLightPool(n: number): void {
+    for (const l of this.lightPool) this.scene.remove(l);
+    this.lightPool = Array.from({ length: n }, () => {
+      const l = new THREE.PointLight(0xffb070, 18, 22, 1.6);
+      this.scene.add(l);
+      return l;
+    });
+    this.poolTimer = 0;
+  }
+
+  /** Move pooled lights to the nearest working lamps (throttled). */
+  updateLights(center: THREE.Vector3, now: number, dt: number): void {
+    if ((this.poolTimer -= dt) > 0) return;
+    this.poolTimer = 0.25;
+    const live = this.lamps.filter((l) => l.offUntil <= now)
+      .sort((a, b) => a.pos.distanceToSquared(center) - b.pos.distanceToSquared(center));
+    this.lightPool.forEach((light, i) => {
+      const lamp = live[i];
+      light.intensity = lamp ? 18 : 0;
+      if (lamp) light.position.copy(lamp.pos);
+    });
   }
 
   /** Copy dynamic body transforms to their visuals. */

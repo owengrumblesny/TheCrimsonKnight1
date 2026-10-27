@@ -25,6 +25,8 @@ export interface MenuHooks {
   saveNow: () => void;
   applySettings: () => void;
   captureKey: (cb: (code: string) => void) => void;
+  gpu: () => string;
+  runBenchmark: () => void;
   selectSlot: (index: number) => void;
   quickVehicle: () => string;
   setQuickVehicle: (id: string) => void;
@@ -326,13 +328,18 @@ export class MenuManager {
     section('Graphics');
     const q = document.createElement('select');
     q.className = 'ck-select';
-    q.innerHTML = '<option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option>';
+    q.innerHTML = '<option value="low">Low — 720p, laptop target</option><option value="medium">Medium</option><option value="high">High</option><option value="ultra">Ultra</option>';
     q.value = s.quality;
     q.addEventListener('change', () => {
       s.quality = q.value as Quality;
       apply();
     });
-    body.appendChild(row('Quality preset', q, 'shadows · resolution · rain'));
+    body.appendChild(row('Quality preset', q, 'anti-aliasing changes apply after reload'));
+    body.insertAdjacentHTML('beforeend', `<p style="color:var(--ck-muted);font-size:12px">Detected GPU: ${this.h.gpu()}</p>`);
+    body.appendChild(row('Benchmark', this.btn('Run benchmark (~30 s)', 'graphics', () => {
+      this.closeAll();
+      this.h.runBenchmark();
+    }), 'keep this window visible'));
     const fs = this.btn(document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen', 'graphics',
       document.fullscreenEnabled ? () => {
         if (document.fullscreenElement) void document.exitFullscreen();

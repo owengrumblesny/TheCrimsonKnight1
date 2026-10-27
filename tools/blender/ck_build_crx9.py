@@ -656,6 +656,7 @@ class Poser:
             for j in range(CAPE_SEGS):
                 acc += P["capelift"] / CAPE_SEGS + P["capewave"] * sin(P["capeph"] - j * 0.9 - i * 0.35)
                 G[f"Cape_{i}_{j}"] = G["Chest"] @ Q(Y, -u * P["capespread"]) @ Q(X, acc)
+        self.extra(G, P)
         basis = {}
         for n in self.order:
             R, _h, _t, par = self.rest[n]
@@ -665,6 +666,9 @@ class Poser:
             basis[n] = R.inverted() @ gp.inverted() @ g @ R
         loc = self.rest["Hips"][0].inverted() @ off
         return basis, loc
+
+    def extra(self, G, P):
+        """Hook for subclasses (v2 adds finger curl). Bones left out of G follow their parent."""
 
     @staticmethod
     def two_bone(hip, target, l1, l2, pole):
@@ -862,11 +866,11 @@ def clip_table():
     ]
 
 
-def bake_clips(rig, J):
-    poser = Poser(rig, J)
+def bake_clips(rig, J, poser_cls=None):
+    poser = (poser_cls or Poser)(rig, J)
     ad = rig.animation_data or rig.animation_data_create()
     meta = []
-    for name, frames, loop, ref_speed, fn, desc in clip_table():
+    for name, frames, loop, ref_speed, fn, desc in CLIP_TABLE():
         act = bpy.data.actions.new(name)
         act.use_fake_user = True
         ad.action = act
@@ -903,6 +907,9 @@ def bake_clips(rig, J):
 # --------------------------------------------------------------------------------------
 # Export / reference / main
 # --------------------------------------------------------------------------------------
+CLIP_TABLE = clip_table  # v2 wraps this to add per-clip finger grip
+
+
 def export_glb(path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     opts = dict(

@@ -172,7 +172,8 @@ export class InventoryService {
   }
 }
 
-export type Quality = 'low' | 'medium' | 'high';
+import type { Quality } from '../render/quality';
+export type { Quality };
 
 export interface Settings {
   uiScale: number;
@@ -237,7 +238,7 @@ export class SaveService {
     if (typeof v.uiScale === 'number') out.uiScale = Math.min(1.5, Math.max(0.7, v.uiScale));
     if (typeof v.hudVisible === 'boolean') out.hudVisible = v.hudVisible;
     if (typeof v.reduceMotion === 'boolean') out.reduceMotion = v.reduceMotion;
-    if (v.quality === 'low' || v.quality === 'medium' || v.quality === 'high') out.quality = v.quality;
+    if (v.quality === 'low' || v.quality === 'medium' || v.quality === 'high' || v.quality === 'ultra') out.quality = v.quality;
     if (typeof v.muted === 'boolean') out.muted = v.muted;
     if (v.volumes && typeof v.volumes === 'object') {
       for (const k of Object.keys(out.volumes) as (keyof Settings['volumes'])[]) {
@@ -273,12 +274,13 @@ export class SaveService {
     this.store?.removeItem(SAVE_KEY);
   }
 
-  readSettings(): { settings: Settings; bindings: Record<string, string> } {
+  /** fresh = nothing stored yet (first launch), so the game may auto-pick a graphics preset */
+  readSettings(): { settings: Settings; bindings: Record<string, string>; fresh: boolean } {
     try {
       const raw = JSON.parse(this.store?.getItem(SETTINGS_KEY) ?? 'null');
-      return { settings: SaveService.cleanSettings(raw?.settings), bindings: raw?.bindings && typeof raw.bindings === 'object' ? raw.bindings : {} };
+      return { settings: SaveService.cleanSettings(raw?.settings), bindings: raw?.bindings && typeof raw.bindings === 'object' ? raw.bindings : {}, fresh: !raw };
     } catch {
-      return { settings: structuredClone(DEFAULT_SETTINGS), bindings: {} };
+      return { settings: structuredClone(DEFAULT_SETTINGS), bindings: {}, fresh: true };
     }
   }
 

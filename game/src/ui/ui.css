@@ -173,3 +173,10 @@
 .ck-anim .list .ck-btn.on { border-color: var(--ck-bright); background: #3a1520; }
 .ck-anim .ref { background: rgba(12, 11, 18, .9); border: 1px solid #4c1e29; border-radius: 8px; padding: 6px; text-align: center; align-self: flex-start; }
 .ck-anim .ref img { height: 170px; max-width: 300px; object-fit: contain; display: block; }
+
+/* ---------- developer performance overlay / benchmark ---------- */
+.ck-perf { position: fixed; left: 18px; bottom: 120px; z-index: 300; margin: 0; padding: 8px 10px; background: rgba(0, 0, 0, .78); color: #c8f7c5;
+  font: 11px/1.45 ui-monospace, Consolas, monospace; border: 1px solid #2c4a2b; border-radius: 6px; pointer-events: none; white-space: pre; }
+.ck-bench { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ck-bench th, .ck-bench td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--ck-line); }
+.ck-bench th { color: var(--ck-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }

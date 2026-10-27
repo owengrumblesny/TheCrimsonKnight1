@@ -14,6 +14,9 @@ export class Hero {
   private mixer!: THREE.AnimationMixer;
   private actions = new Map<string, THREE.AnimationAction>();
   current = '';
+  /** meshes per level of detail (v2 GLB: *_LOD0 / *_LOD1 / *_LOD2); empty for single-LOD models */
+  private lods: THREE.Object3D[][] = [[], [], []];
+  lodLevel = 0;
   private finishedCb: ((name: string) => void) | null = null;
 
   static async load(): Promise<Hero> {
@@ -28,6 +31,12 @@ export class Hero {
         mesh.frustumCulled = false; // skinned bounds don't follow animation
       }
     });
+    model.traverse((o) => {
+      // a multi-material mesh is a group named *_LODn whose children are the primitives
+      const m = /_LOD(\d)$/.exec(o.name);
+      if (m) hero.lods[Number(m[1])].push(o);
+    });
+    hero.setLod(0);
     hero.root.add(model);
     hero.mixer = new THREE.AnimationMixer(model);
     for (const clip of gltf.animations) {
@@ -78,6 +87,20 @@ export class Hero {
   rateFor(name: string, speed: number): number {
     const ref = this.meta.get(name)?.refSpeed;
     return ref ? THREE.MathUtils.clamp(speed / ref, 0.55, 1.8) : 1;
+  }
+
+  /** Show one level of detail. */
+  setLod(level: number): void {
+    if (!this.lods[1].length) return;
+    this.lodLevel = level;
+    this.lods.forEach((objs, i) => objs.forEach((o) => (o.visible = i === level)));
+  }
+
+  /** Pick LOD from camera distance; lodScale comes from the graphics preset (lower = switch sooner). */
+  updateLod(cameraDistance: number, lodScale: number): void {
+    const d = cameraDistance / lodScale;
+    const level = d < 9 ? 0 : d < 26 ? 1 : 2;
+    if (level !== this.lodLevel) this.setLod(level);
   }
 
   update(dt: number): void {

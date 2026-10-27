@@ -8,7 +8,7 @@ import hotbarLayout from './data/hotbar_layout.json';
 export type ActionId =
   | 'moveForward' | 'moveBack' | 'moveLeft' | 'moveRight' | 'sprint' | 'jump' | 'interact' | 'crouch' | 'walkToggle'
   | 'grapple' | 'summonMenu' | 'primaryAction' | 'secondaryAction' | 'sandboxMenu' | 'pause'
-  | 'slotPrev' | 'slotNext' | 'inventory' | 'map'
+  | 'slotPrev' | 'slotNext' | 'inventory' | 'map' | 'perfOverlay'
   | 'slot1' | 'slot2' | 'slot3' | 'slot4' | 'slot5' | 'slot6' | 'slot7' | 'slot8';
 
 export interface ActionInfo {
@@ -36,6 +36,7 @@ export const DEFAULT_BINDINGS: Record<ActionId, string> = {
   slotNext: 'KeyR',
   inventory: codeFor('toggle_inventory') ?? 'Tab',
   map: codeFor('toggle_map') ?? 'KeyM',
+  perfOverlay: 'F3',
   slot1: 'Digit1', slot2: 'Digit2', slot3: 'Digit3', slot4: 'Digit4', slot5: 'Digit5', slot6: 'Digit6', slot7: 'Digit7', slot8: 'Digit8',
 };
 
@@ -50,6 +51,7 @@ export const ACTIONS: ActionInfo[] = [
   ...([1, 2, 3, 4, 5, 6, 7, 8] as const).map((n) => ({ id: `slot${n}` as ActionId, label: `Hotbar slot ${n}`, group: 'Hotbar' as const })),
   { id: 'inventory', label: 'Inventory', group: 'Menus' }, { id: 'map', label: 'Map', group: 'Menus' },
   { id: 'pause', label: 'Pause / back', group: 'Menus', fixed: true }, { id: 'sandboxMenu', label: 'Animation debug', group: 'Menus' },
+  { id: 'perfOverlay', label: 'Performance overlay', group: 'Menus' },
   { id: 'secondaryAction', label: 'Secondary (unused)', group: 'Actions' },
 ];
 

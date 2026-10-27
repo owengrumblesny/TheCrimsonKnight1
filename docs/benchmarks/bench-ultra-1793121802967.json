@@ -1,0 +1,53 @@
+{
+  "when": "2026-10-27T17:23:22.961Z",
+  "quality": "ultra",
+  "gpu": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x00001506) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "internalResolution": "1280x720",
+  "pageVisible": true,
+  "results": [
+    {
+      "scene": "CR-X9 character close-up",
+      "frames": 128,
+      "avgFps": 25.5,
+      "avgMs": 39.23,
+      "worst1pctMs": 100.8,
+      "drawCalls": 566,
+      "trianglesK": 88.5
+    },
+    {
+      "scene": "Red Citadel command center",
+      "skipped": "Red Citadel not built yet"
+    },
+    {
+      "scene": "Red Citadel vehicle hangar",
+      "skipped": "Red Citadel not built yet"
+    },
+    {
+      "scene": "New Gotham street",
+      "frames": 133,
+      "avgFps": 26.5,
+      "avgMs": 37.78,
+      "worst1pctMs": 56.1,
+      "drawCalls": 614,
+      "trianglesK": 88.4
+    },
+    {
+      "scene": "New Gotham rooftop",
+      "frames": 129,
+      "avgFps": 25.7,
+      "avgMs": 38.91,
+      "worst1pctMs": 54.6,
+      "drawCalls": 607,
+      "trianglesK": 89.6
+    },
+    {
+      "scene": "Dense city intersection",
+      "frames": 85,
+      "avgFps": 8.6,
+      "avgMs": 116.14,
+      "worst1pctMs": 6596.4,
+      "drawCalls": 589,
+      "trianglesK": 89
+    }
+  ]
+}

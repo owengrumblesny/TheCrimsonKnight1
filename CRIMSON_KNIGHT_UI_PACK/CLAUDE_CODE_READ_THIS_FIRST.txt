@@ -1,0 +1,439 @@
+CRIMSON KNIGHT: EARTH-RED
+COMPLETE HUD, HOTBAR, INVENTORY & MENU IMPLEMENTATION DIRECTIVE
+Prepared by ChatGPT for Claude Code | Project creator: Owen Grumbles
+
+HELLO CLAUDE CODE:
+
+This message is FROM CHATGPT, not written by Owen. Owen asked me to supply individual, reusable Crimson Knight icons and explicit technical instructions because the current UI implementation does not correctly turn round icons into an interactive bottom-of-screen keybind hotbar. Your task is to integrate these supplied assets and build the functioning HUD, inventory, and menus inside Owen's EXISTING Three.js / TypeScript / Vite game. Do not recreate the game or replace existing gameplay. Inspect and adapt to existing systems.
+
+WHAT IS ACTUALLY IN THIS ZIP
+- 67 original individually named icon designs, each as a transparent 256x256 PNG and an editable SVG glyph WITHOUT a circle and as a framed CIRCULAR PNG/SVG. This is 268 files covering icon variants.
+- 26 separate keycap PNG images (1–0, Q/E/R/F/G/H/I/M/C, Tab, Shift, Space, Esc, Ctrl, Mouse1, Mouse2).
+- config/icon_manifest.json: authoritative id-to-file mapping.
+- config/hotbar_layout.json: default bindings + visual sizing.
+- config/menu_spec.json: menu categorization.
+- previews/*: OPTIONAL contact sheets for human inspection, not sprites or texture sources.
+- Asset categories: gadget, fictional_weapon, vehicle, menu, action, hud, keycap.
+- These are UI art assets, not 3D meshes, particle effects, animations, or full weapons.
+
+0. READ AND AUDIT BEFORE CHANGING CODE
+1) Read README and existing game source, main loop, controls, player inventory/loadout, equipment actions, pause menu, and input handlers.
+2) Inventory your existing button/UI components and inventory item definitions. Preserve existing working interactions.
+3) Load config/icon_manifest.json and validate that each referenced PNG and SVG exists.
+4) Create a concise integration checklist listing relevant game files, existing interactions, and missing functionality.
+5) Keep current source files under version control. Commit the pre-change state if permitted, before refactoring.
+
+1. ASSET INSTALLATION AND IMPORT
+Copy the 'assets/' folder into the project's Vite public directory, e.g. public/ui/assets/.
+Copy the 'config/' files to public/ui/config/ OR import them as typed JSON under src/ui/data/.
+Do not copy the preview contact sheets as inventory icons. Each icon has its own PNG/SVG.
+A file path from manifest such as assets/gadget/circle/batarang.png becomes /ui/assets/gadget/circle/batarang.png after copying files into public/ui/.
+In Vite with a non-root base path, prepend import.meta.env.BASE_URL instead of assuming the deployment URL starts with '/'. Define a utility that builds safe URLs from the manifest's relative paths.
+When packaging in Electron, verify assets resolve via packaged local URLs as well. Test production build, not only dev server.
+
+IMPORTANT: USE THE CORRECT FILE FOR EACH UI ROLE
+- Bottom hotbar: circular PNG ('circlePNG') INSIDE each slot; ring is part of the artwork.
+- Grid inventory cells: simple transparent symbol ('glyphPNG') on an actual DOM/CSS card. Do NOT use the circle image twice inside another circle.
+- Category/menus: glyph SVG or PNG for crisp UI.
+- Key prompts: use keycap PNG OR rendered textual key tag, not both layered directly over each other.
+- Weapon category art illustrates fictional props only; no real-world weapon mechanisms are depicted.
+
+2. THE EXACT BOTTOM HOTBAR OWEN WANTS
+Create a fixed HUD at the BOTTOM CENTER of the GAME VIEWPORT, anchored to the safe area, consistently visible while walking, driving, or exploring unless cinematic/UI settings hide it. This is a horizontal bar of EIGHT slots, each an actual interactive UI component with:
+(A) circular equipment icon,
+(B) clearly readable bound key label, e.g., 1, 2, ... 8,
+(C) selected state: BRIGHT CRIMSON RING + gentle glow and a small marker beneath,
+(D) usable/cooldown/disabled state,
+(E) item quantity or energy, ONLY where gameplay supports it,
+(F) hover focus tooltip with item name and action, and
+(G) optional scroll wheel/gamepad navigation when input focus allows.
+
+Default mapping (editable, NOT hardwired):
+1 Batarang / 2 Grapple / 3 Scanner / 4 Drone / 5 Smoke / 6 Shield / 7 Phantom Sidearm / 8 Crimson Carbine.
+Tab = inventory; M = map; Escape = pause; Q/E cycle selections when they do not conflict with the game's existing controls. If E is already 'enter vehicle', DO NOT silently steal it: keep E for interaction and pick another modifier or binding for hotbar cycling.
+
+Correct behavior:
+Pressing Digit1 selects slot 1, visually highlights it, changes the player's active equipped gadget (if implemented), updates tooltip/display, and does NOT automatically fire it unless that is explicitly the existing design. Digit2 changes to grapple, and so on. Mouse click on a slot selects it. Selection remains synchronized across UI and gameplay. Inventory drag-and-drop or assign-to-slot (after implemented) updates both slot icon and binding target. Selecting an empty or locked slot gives feedback without throwing errors.
+
+KEYBOARD INPUT DETAILS:
+- Use KeyboardEvent.code (Digit1, Digit2...) rather than locale-dependent event.key for number keys.
+- Do not activate gameplay binds if document.activeElement is an input, textarea, select, contentEditable node, or modal dialog.
+- Ignore key repeat for menu toggles and one-time triggers.
+- Preserve existing WASD, camera pointer-lock, mouse buttons, driving keys, E-to-interact, and Escape usage.
+- Consider pointer-lock release when opening inventory/pause, and reacquire only via intentional user action.
+- PreventDefault only when necessary and scoped to game controls.
+- Subscribe/unsubscribe listeners once to avoid doubled actions after hot reload or menu navigation.
+
+CSS GUIDE (adapt to existing project):
+:root { --ck-bg:#0c0b12; --ck-panel:#17121c; --ck-red:#d42a40; --ck-bright:#ff405d; --ck-text:#f4eef1; }
+.ck-hotbar { position:fixed; left:50%; bottom:max(18px, env(safe-area-inset-bottom)); transform:translateX(-50%); display:flex; gap:9px; z-index:100; pointer-events:auto; padding:10px 14px; background:rgba(12,11,18,.88); border:1px solid #652032; border-radius:18px; backdrop-filter:blur(9px); }
+.ck-slot { position:relative; width:68px; height:75px; border:1px solid #57313b; border-radius:14px; background:linear-gradient(180deg,#211923,#0d0b10); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ck-text); }
+.ck-slot img { width:48px; height:48px; object-fit:contain; }
+.ck-slot[aria-pressed="true"] { border-color:var(--ck-bright); box-shadow:0 0 18px #ff405d80,inset 0 0 12px #b0183144; }
+.ck-key { position:absolute; top:2px; left:6px; font:700 11px/1 system-ui; color:#fff; background:#3d1823; padding:3px 5px; border-radius:5px; }
+.ck-slot:disabled { opacity:.4; cursor:not-allowed; }
+.ck-slot:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+@media (max-width:700px) { .ck-hotbar { gap:3px; padding:7px; max-width:calc(100vw - 12px); } .ck-slot { width:clamp(32px,11vw,54px); height:60px; } .ck-slot img { width:clamp(26px,8vw,40px); height:40px; } }
+
+DOM EXAMPLE (conceptual, implement in actual UI system):
+<nav class="ck-hotbar" aria-label="Equipment quick access">
+ <button class="ck-slot" type="button" aria-label="Slot 1: Crimson Batarang" aria-pressed="true"><span class="ck-key">1</span><img alt="" src="[resolved BASE_URL]ui/assets/gadget/circle/batarang.png" /></button>
+ ...render slots 2–8 from state, not copy/pasted markup...
+</nav>
+
+Note: We give DOM structure for clarity; do not insert a literal '[resolved BASE_URL]' into compiled code. Use real URL-resolution functions.
+
+3. INVENTORY DATA MODEL — NOT JUST ICONS
+Build one shared InventoryService (or adapt the game's existing inventory module); hotbar, full inventory, loadout, HUD tooltips, and equipment logic should use ONE source of truth.
+
+Example TypeScript types (adapt to existing architecture):
+type Category = 'gadget'|'fictional_weapon'|'vehicle'|'tool'|'quest_item';
+type ItemId = string;
+interface ItemDefinition { id:ItemId; displayName:string; category:Category; iconId:string; stackable:boolean; maxStack:number; description:string; canEquip:boolean; equipmentSlot?:string; cooldownMs?:number; }
+interface OwnedStack { itemId:ItemId; quantity:number; equipped?:boolean; }
+interface HotbarSlot { index:number; itemId:string|null; keyCode:string; }
+interface InventoryState { owned:Record<ItemId,OwnedStack>; hotbar:HotbarSlot[]; selectedSlot:number; }
+
+Do not equate the icon ID with an in-game item ID unless they match deliberately. Put explicit itemId->iconId mapping in definitions. Validate missing assets and fall back to a neutral unknown-item symbol, never crash the UI. Persist only game state and overrides, not enormous duplicated catalog records.
+
+Required player inventory screen:
+- Default tab: Gadgets.
+- Tabs: Gadgets, Fictional Weapons, Vehicles, Tools, Quest Items.
+- Grid cards display a GLYPH, title, quantity or status, and rarity only if defined.
+- Left: categorized items; right: detail panel with larger icon, fictional description, inspect/equip/assign buttons.
+- Hotbar assignment: click an item then 'Assign to slot', select 1–8. Optional keyboard shortcut and later drag-and-drop.
+- Vehicle tab shows Interceptor/Batcycle/Specter as summonable blueprints or keys, not inventory stacks of physical cars.
+- Persistent save and load, with versioned migration.
+- Filter, search, sort, keyboard navigation, and tooltips.
+- No required monetization, inventory microtransactions, or storyline gates.
+
+4. HUD INDICATORS
+Create a clean top-left status cluster: health, CR-X9 armor integrity, fusion energy (only if game actually models them). Use supplied hud glyphs (health, armor, energy). Use segmented or smooth bars with accessible text and numerical updates. Never display invented resource values unrelated to gameplay.
+Top-center/right: compact compass + optional minimap placeholder until a real world-coordinate minimap exists. Place contextual prompt near world interactables: [E] Enter Vehicle, [F] Activate, etc., sourced from actual keybindings.
+Bottom-right: selected gadget name, cooldown/quantity, and optional crosshair when aiming. Crosshair must hide in non-aiming UI states if appropriate. Top-right notification queue with modest fade; cap simultaneous notifications. Central overlay for interactive menu, never block player view unintentionally.
+
+5. MENU IMPLEMENTATION
+Use the supplied menu glyphs to build a coherent themed UI:
+MAIN MENU: Play / Continue / New Sandbox / Settings / Controls / Quit.
+PAUSE: Resume / Inventory / Map / Equipment Loadout / Settings / Save / Exit to Main Menu.
+INVENTORY: categories described above.
+LOADOUT: CR-X9 suit panel, gadget slots 1–8, vehicle quick select; tie to actual gameplay capabilities.
+SETTINGS: audio sliders (master/effects/music/ambience), graphics (resolution / quality / fullscreen when available), control rebinds, UI scale, subtitles / reduce-motion when implemented.
+MAP: New Gotham stylized map if geometry/coordinate data exists; otherwise honest temporary map UI with no fabricated live player marker.
+GARAGE/ARMORY: vehicle previews and equipment detail panels tied to actual assets.
+
+VISUAL SYSTEM:
+Theme crimson #d42a40 with bright accent #ff405d, near-black #0c0b12 and off-white text #f4eef1. Use modern square-to-soft-rounded panels, thin military-style separators, readable uppercase section headings, subtle red accents. Background blur is optional and must not harm performance. Do NOT apply intense red glow to everything. Maintain a coherent visual hierarchy. Menus must be readable at 720p and 1080p; scale with window size and UI scale option. Keep all essential UI out of screen safe margins.
+
+6. ICON STATES, ANIMATION AND USER FEEDBACK
+- Selection: 100–160ms restrained ring brightening/scale (<=1.06), not excessive flashing.
+- Cooldown: circular progress overlay via conic-gradient or SVG arc, driven by REAL game cooldown timestamps.
+- Locked: desaturated icon + padlock/status label (not a fabricated mechanic).
+- Unavailable vehicle: gray icon + clear reason.
+- New item: small nonintrusive dot and notification.
+- Key pressed: brief 100ms active highlight on the corresponding slot.
+- Reduced motion setting disables nonessential transitions.
+- Tooltips and labels ensure usability without relying only on color.
+
+7. ASSET MAPPING AND IMPLEMENTATION EXAMPLE
+Read config/icon_manifest.json. Each entry has id, category, displayName, glyphPNG, circlePNG where applicable, and SVG equivalents. For example, 'grapple' maps to assets/gadget/circle/grapple.png for the bottom bar and assets/gadget/glyph/grapple.png for inventory.
+
+Recommended URL resolver:
+const base = import.meta.env.BASE_URL;
+const iconURL = (relativePath: string) => `${base}ui/${relativePath.replace(/^\/+/, '')}`;
+
+Adapt actual deployment paths if the icons are installed differently. Never fetch PNGs from a random CDN when they are available locally.
+
+Recommended action dispatch (pseudocode):
+function selectSlot(index: number) {
+  const slot = inventoryState.hotbar[index];
+  if (!slot) return;
+  if (!slot.itemId || !inventory.has(slot.itemId)) { notify('Slot unavailable'); return; }
+  inventory.setSelectedSlot(index);
+  equipment.setSelectedItem(slot.itemId);
+  renderHotbarFromState();
+}
+function onKeyDown(event: KeyboardEvent) {
+  if (ui.isTyping() || ui.modalBlocksGameplay()) return;
+  if (event.repeat && ui.isOneShotBinding(event.code)) return;
+  const index = bindings.hotbarKeyToIndex[event.code];
+  if (index !== undefined) { selectSlot(index); return; }
+  // Other bindings dispatch through existing game input manager.
+}
+
+Do NOT fire a gadget just because it was selected. Actual use stays mapped to the appropriate existing game action (e.g. primary action/mouse click) and should respect safety, cooldown, equipped status, and UI focus.
+
+8. MENUS ARE FUNCTIONAL, NOT MOCKUPS
+Every visible active button must:
+1) perform a real action,
+2) open a real implemented panel,
+3) or be marked 'Coming later' and visibly disabled.
+Never present nonfunctional menu elements as working. Modal menus must trap keyboard focus while open, support Escape to close when appropriate, support mouse interaction, and restore focus on close. Use meaningful aria-labels for icon-only controls. UI must not accidentally select slots or fire gadgets while menus are open.
+
+9. GAME PAD + MOUSE (AFTER KEYBOARD WORKS)
+Add controller button hints using existing gamepad bindings where supported. Don't claim native gamepad navigation before it works. Hotbar slots should support click selection, scroll wheel only if it doesn't conflict with weapon aiming, and accessible keyboard controls. Provide configurable key bindings and detect conflicts.
+
+10. SAVE SYSTEM
+Versioned user settings and hotbar assignment persistence; continue using existing game save code if available. Required keys: selectedSlot, hotbarAssignments, inventory quantities/ownership, keybind overrides, UI scale, UI visibility, settings. Do not store arbitrary code or executable scripts inside save data. Validate saved item IDs and handle removed items on updates. Preserve saves across Windows EXE updates.
+
+11. TEST PLAN — TEST THE ACTUAL GAME
+- All 67 icons display separately (do not substitute one contact sheet).
+- Key 1–8 selects exactly one slot; the selected slot is visibly emphasized.
+- Key hints are correctly aligned, readable, and display actual bindings.
+- Selecting a slot updates the same inventory/equipment state gameplay uses.
+- No item use occurs simply from selecting a slot.
+- Clicking slots works; mouse/camera controls remain usable.
+- Tab opens inventory and releases pointer lock as needed.
+- Escape closes a menu and does not corrupt pause state.
+- Entering vehicle doesn't unexpectedly activate a hotbar binding.
+- Resizing to 1280x720 and 1920x1080 keeps HUD on screen.
+- UI remains usable when inventory empty, icon missing, item unavailable, or game paused.
+- Browser and packaged Electron builds load icons offline.
+- Gamepad bindings do not conflict with mouse/keyboard bindings where implemented.
+- npm run build passes; report exact commands and tests run, don't invent successful results.
+
+12. REQUIRED OUTPUT FILES IN EXISTING GAME
+Prefer current directory conventions, but ensure equivalent functional modules:
+src/ui/IconRegistry.ts
+src/ui/Hotbar.ts (or .tsx if framework installed)
+src/ui/InventoryPanel.ts
+src/ui/MenuManager.ts
+src/ui/HudWidgets.ts
+src/ui/ui.css
+src/ui/inputBindings.ts
+src/ui/inventoryTypes.ts
+src/ui/inventoryData.ts
+src/ui/uiState.ts
+Add tests for keybinds, icon paths, inventory/hotbar synchronization.
+A screenshot of running game HUD at 720p and 1080p if screenshot tooling exists.
+README documentation: ASSET_UI_INTEGRATION.md with exact file tree and binding changes.
+
+13. DEFINITION OF DONE
+Done only when individual assets are correctly installed, the HUD is visible, pressing numbered keys selects correct items, the inventory menu opens and assigns slots, main and pause menus work, and game+UI behavior stays synchronized. Styling alone is not completion.
+
+IMPLEMENTATION ORDER:
+A. Copy icon files and manifest; verify paths.
+B. Make one real hotbar slot on screen and test selection.
+C. Expand to 8 bound slots with selected and cooldown states.
+D. Build inventory catalog and assignment flow.
+E. Build menu shell, navigation, focus, pause integration.
+F. Build HUD indicators and contextual prompts.
+G. Hook up vehicle quick select, equipment, settings.
+H. Test, optimize and document.
+
+Keep the game's existing Three.js canvas running beneath an HTML/CSS HUD overlay. The UI should NEVER require the icons to be rigged as 3D meshes. They are 2D PNG/SVG assets and belong in DOM overlay components unless a deliberate in-world screen requires a texture. Do NOT construct the whole HUD out of 3D planes attached to the camera without a compelling reason.
+
+Project: Crimson Knight: Earth-RED
+Creator: Owen Grumbles
+Visual/UI pack and these directives: ChatGPT
+Implementation: Claude Code
+
+BEGIN: audit the existing game UI and input modules, then wire up the bottom-center hotbar before building any new menu.
+
+====================================================================
+PART II — MASTER 3D ASSET, CHARACTER, VEHICLE, ENVIRONMENT & WORLD
+PRODUCTION DIRECTIVE (INTEGRATED FROM PRIOR CHATGPT MEGA PROMPT)
+====================================================================
+
+FROM CHATGPT TO CLAUDE CODE — NOT A NEW REQUEST WRITTEN BY OWEN.
+The preceding Part I remains the authoritative UI/hotbar specification. This
+Part II adds the scope of the earlier comprehensive asset-production prompt.
+Treat both parts as one project specification. Prioritize a working build,
+maintain existing assets, and implement incrementally; do not attempt to
+complete hundreds of AAA-quality assets in one untested pass.
+
+A. PROJECT CONTRACT AND ASSET AUDIT
+- Game: Crimson Knight: Earth-RED. Creator: Owen Grumbles. Fictional
+  company: Owen Enterprises. Player character: Owen as Crimson Knight.
+- Stack: Three.js, TypeScript, Vite; Blender for modeling and rigging;
+  glTF/GLB for runtime; desktop Electron optional, keep web build intact.
+- First inspect README_START_HERE.md, all docs, config/asset_manifest.json,
+  existing source, Blender files, PNGs, GLBs, animation definitions, and UI
+  icon manifests. If some files are missing, record gaps; do not invent them.
+- Create docs/ASSET_AUDIT.md with each asset's id, category, reference files,
+  existing model, quality (concept/blockout/rigged/game-ready), texture,
+  rig, animations, collider, LOD, source/license, and next action.
+- Preserve original files. Version-control changes. Never claim a static PNG
+  is a 3D model or an animation specification is a working animation.
+
+B. IMAGE-TO-3D REALITY AND RECONSTRUCTION
+- A concept PNG supplies only visible 2D appearance. It does not contain
+  unseen geometry, accurate depth, UVs, skin weights, a skeleton, or clips.
+- Reuse existing GLB blockouts as starting meshes. For simple props, use
+  Blender Python/bpy procedural geometry. For armor/vehicles, use careful
+  hard-surface modeling and separate mechanical components. Image-to-3D AI
+  can assist but requires cleanup, retopology, UVs, and QA; ask before
+  uploading Owen's images to external services.
+- For each major asset, establish consistent scale, silhouette, proportions,
+  front/back/left/right and 3/4 views. Do not mislabel cropped concept art
+  as true orthographic views. Generate actual orthographic views from Blender
+  after establishing geometry.
+- Make meshes with meaningful bevels, panel gaps, thickness, correct normals,
+  UVs, physically based metal/roughness/normal/occlusion/emissive materials.
+  Bake detail from high-poly to optimized low-poly meshes where helpful.
+- Export glTF 2.0 / GLB, check Y-up in Three.js, origins/pivots, scale,
+  animation tracks, textures, bounding boxes, and collision proxies.
+
+C. MAIN CHARACTER — CR-X9 WAR SUIT
+- Signature fully enclosed crimson tactical helmet, long bat-inspired fins,
+  narrow red glowing lenses, armored jaw, black winged chest emblem, massive
+  segmented chest/shoulders, mechanical gauntlets, abdomen, armored legs,
+  utility belt, dark crimson cape, gunmetal understructure.
+- Separate movable parts: helmet, torso, shoulders, upper/lower arms, hands,
+  pelvis, thighs, shins, boots, belt attachments, cape segments, actuators.
+- Build humanoid skeleton with root/pelvis/spine/chest/neck/head, arms,
+  fingers if used, legs, feet, toes; rigid-bind hard plates and smooth-bind
+  flexible underlayers; test intersections and joint deformation.
+- Provide named, actual animation clips: idle, walk forward/back, strafe,
+  run, sprint, turn, crouch, crouch walk, jump start/loop, land, dodge,
+  climb, grapple aim/launch/travel, glide start/loop/land, scan, equip,
+  holster, gadget deploy, vehicle call, armor activation/shutdown,
+  enter/exit car, mount/dismount cycle, enter/exit aircraft.
+- Foot contacts must synchronize with sounds. Support animation blending,
+  root-motion policy, upper-body layers, cape secondary motion, and IK as
+  appropriate. Verify clips actually play in Three.js AnimationMixer.
+
+D. NPCS AND ENEMIES
+- Create modular civilian, office worker, mechanic, scientist, construction
+  worker, emergency responder, police, security, fictional street criminal,
+  armored mercenary, heavy enforcer, stealth operative, riot defender,
+  reconnaissance drone, combat robot, and oversized robotic adversary.
+- Share humanoid rigs and animation libraries where possible; use distinct
+  meshes for robots/drones. Create clothing and palette variations.
+- Animation coverage: idle, walk, run, turn, look, talk, gesture, sit,
+  patrol, alert, investigate, take cover, dodge, block, surrender, recover,
+  and non-graphic combat reactions. Rig and retarget carefully.
+- Include LODs, simplified colliders, sockets for held fictional props,
+  readable silhouettes, and reasonable budgets for crowds.
+
+E. FICTIONAL EQUIPMENT AND INVENTORY VISUALS
+- Create 3D display/interaction models corresponding to UI icon IDs:
+  crimson batarang, grapnel, tactical scanner, recon drone, smoke-effect
+  gadget, shield, hologram decoy, tracking beacon, energy-cell prop,
+  communications terminal, fictional crimson carbine, phantom sidearm,
+  sci-fi energy launcher, futuristic cannon, energy blade, wrist gauntlet.
+- These are game-fiction meshes, not real-world weapon engineering plans.
+  Model distinctive silhouettes, attachment sockets, decorative moving
+  panels, emissive details, and safe fictional effects; no real construction
+  instructions for firearms, explosives, or weapon launch mechanisms.
+- Animation events: equip, holster, inspect, activate, deactivate, fold,
+  unfold, attach, detach, drone takeoff/return, cosmetic energy-cell swap.
+- Each inventory definition must link stable itemId -> iconId -> modelId ->
+  animation/event names. Avoid string mismatches and duplicated inventories.
+
+F. THREE SIGNATURE VEHICLES
+1) CR-X1 Crimson Interceptor: armored crimson futuristic car, separate
+   chassis, body panels, wheels, tires, rims, steering pivots, suspension,
+   cockpit, canopy/doors, lights, animated transformation panels. Provide
+   wheel roll, steering, suspension, door open/close, pursuit/battle/stealth
+   transformations, summoned arrival. Collision hull separate from render.
+2) CR-B1 Crimson Batcycle: frame, wheels, fork, handlebars, seat, fairings,
+   suspension, dashboard, lights, equipment compartments. Provide lean,
+   steering, wheel roll, suspension, park stand, rider mount/dismount,
+   autonomous arrival.
+3) CR-A1 Crimson Specter: winged crimson sci-fi aircraft, fuselage, cockpit,
+   canopy, wings, engines, VTOL elements, control surfaces, landing gear,
+   lights, interior seat. Animate canopy, landing gear, flight surfaces,
+   VTOL transition, takeoff/landing presentation. Keep moving parts separate.
+- All vehicle models must have logical pivots, attachment sockets, seat
+  positions, camera anchors, sound emitter points, LODs, collision proxies.
+- Add civilian cars, taxis, police cars, vans, buses, delivery trucks,
+  ambulances, fire engines, forklifts, garbage trucks, and construction
+  vehicles via reusable modular families.
+
+G. NEW GOTHAM WORLD KIT
+- Modular districts: gothic old town, downtown towers, industrial docks,
+  dense residential streets, commercial areas, Blackwater Island.
+- Buildings: offices, apartments, warehouses, factories, garages, shops,
+  restaurants, hotels, stations, hospitals, labs, police facilities, power
+  plants, construction and abandoned buildings.
+- Modular parts: walls, floors, roofs, windows, doors, stairs, fire escapes,
+  balconies, rails, elevators, vents, AC units, signs, pipes, awnings.
+- Streets: road segments, intersections, curves, sidewalks, curbs, ramps,
+  bridges, tunnels, crosswalks, barriers, signs, traffic lights, streetlights,
+  bus stops, drains, manholes, utility poles, meters, bollards, cones.
+- Urban props: trash cans, recycling bins, dumpsters, garbage bags, boxes,
+  pallets, crates, benches, planters, mailboxes, newspaper stands, kiosks,
+  vending machines, hydrants, bike racks, generators, toolboxes, fences,
+  ladders, shipping containers, construction debris, cables.
+- A dumpster needs real container wall thickness, open cavity, rim, lid,
+  hinges, handles, support feet/wheels, collision and lid pivot; provide
+  clean/weathered/open/closed variations. Avoid cube-only final props.
+- Interiors: desks, chairs, beds, sofas, shelves, lamps, counters, monitors,
+  cabinets, lockers, machinery, tool racks, electrical panels, pipes.
+- Nature: rocks, cave formations, street trees, bushes, ivy, grass, puddles,
+  water surfaces, waterfalls, moss. Use instancing and LODs.
+
+H. RED CITADEL — FULL EXPLORABLE UNDERGROUND HEADQUARTERS
+- Large cavern under New Gotham: rock walls, stalactite-like formations,
+  waterfalls, fog, reinforced structures, steel bridges, suspended walks,
+  tunnels, elevators, service roads, access shafts, aircraft runway.
+- Centerpiece: 30-foot CR-X9 armored statue, black pedestal engraved
+  OWEN GRUMBLES / THE CRIMSON KNIGHT / FOUNDER — OWEN ENTERPRISES.
+- Command center: curved desks, tactical screens, holographic maps,
+  O.E. TACTICAL NETWORK display, server racks, command platform.
+- Armor workshop: CR-X9 chamber, maintenance arms, diagnostics, spare
+  plates, tools, animated chamber doors.
+- Armory: crimson armored briefcase on desk with fitted black foam and
+  individual gadget prop compartments; lockers, display cases, racks.
+- Hangars: separate CR-X1, CR-B1, CR-A1 bays, ramps, diagnostic stations,
+  maintenance platforms, garage doors, runway access.
+- Additional rooms: forensic lab, research lab, medical bay, training,
+  drone workshop, vehicle garage, trophy vault, living quarters, power
+  facility, storage, security room, server room, emergency exits.
+- Doors, elevators, platforms, bridges, cabinets and displays require
+  actual separated moving meshes, correctly located pivots, open/closed
+  clips, collision and interaction IDs.
+- Build a navigable coherent level; use streaming/visibility management.
+
+I. REALISM, LIGHTING, OPTIMIZATION
+- Use realistic surface wear (paint chips, scratches, grime, rust where
+  plausible, wet asphalt), not uniform noise across all objects.
+- Support rain, fog, headlights, traffic signals, neon signs, red Citadel
+  lighting, emissive armor eyes, reflective puddles and sound zones.
+- Prefer modular reuse, instancing, texture atlases, reasonable polycounts,
+  LODs, occlusion/frustum culling, baked details and collision proxies.
+- Define low/medium/high graphics presets and measure frame time; prioritize
+  playable performance on the target machine over false AAA claims.
+
+J. AUDIO, GAMEPLAY & UI CONNECTIONS
+- Keep Part I's bottom-center eight-slot hotbar, individual circular PNGs,
+  inventory grid glyphs, keyboard bindings, and pause/settings/map menus.
+- UI icons are DOM/CSS overlays, not 3D meshes. Use icon_manifest.json and
+  stable ids; hotbar selection changes actual equipment state, not only CSS.
+- Tie model animation events to appropriate sound events (footstep contact,
+  armor servos, door movement, engine, UI select), with audio fallbacks.
+- Wire vehicle summon icons to actual vehicle spawn/summon APIs only when
+  those APIs exist. Provide disabled states rather than fake functionality.
+- Preserve WASD, mouse, pointer lock, E interact, Tab inventory, M map,
+  Esc pause. Avoid key conflicts and handle UI focus.
+
+K. AUTOMATION AND QUALITY CONTROL
+- Use Blender Python (bpy) for procedural props, mesh processing, material
+  assignment, orthographic render turntables, exports and validation.
+- Suggested directories: tools/blender/, assets/source_blend/,
+  assets/models/, assets/references/, assets/textures/, assets/animations/,
+  public/ui/assets/, src/ui/, docs/.
+- Validate each GLB by importing into Three.js and checking mesh count,
+  scale, orientation, pivots, textures, animation names, collisions, and
+  screenshots. Record each asset's state in manifest and docs.
+- Write docs/ASSET_PIPELINE.md, docs/ASSET_AUDIT.md, docs/ANIMATION_MAP.md,
+  docs/UI_INTEGRATION.md, and docs/KNOWN_GAPS.md. Include licenses/credits.
+- Deliver working milestones: (1) UI hotbar and inventory; (2) rigged CR-X9
+  walk/idle; (3) vehicle asset and animation integration; (4) city kit;
+  (5) Red Citadel; (6) NPC/enemy asset families; (7) visual/audio polish.
+- Test each stage with a production build; do not claim work done unless
+  models/clips actually exist and run. Ask for human assistance for Blender
+  modeling or reference approval when automation cannot achieve the quality.
+
+L. FIRST ACTIONS FOR CLAUDE CODE
+1. Read BOTH Part I and Part II of this TXT, plus existing project READMEs.
+2. Inventory source code and supplied icons, GLBs, PNGs and manifests.
+3. Write a brief status table: present, missing, functional, placeholder.
+4. Implement and verify one working circular icon hotbar slot, then all 8.
+5. Implement inventory and menu wiring without breaking current gameplay.
+6. Choose one CR-X9 model to upgrade; export a real rigged idle/walk GLB.
+7. Expand systematically through vehicles, world props and Red Citadel.
+8. Keep all features in Git and report what was actually tested.
+
+END OF INTEGRATED CHATGPT DIRECTIVE.

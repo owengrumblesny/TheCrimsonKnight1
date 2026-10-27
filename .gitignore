@@ -1,0 +1,4 @@
+node_modules/
+game/dist/
+*.blend1
+__pycache__/

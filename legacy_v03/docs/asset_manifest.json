@@ -1,0 +1,52 @@
+{
+  "project": "Crimson Knight Earth-RED",
+  "creator": "Owen Enterprises fictional universe",
+  "units": "meters",
+  "axis": "Y up; forward -Z",
+  "assets": [
+    {
+      "file": "CRB1_batcycle.glb",
+      "type": "static GLB procedural base mesh",
+      "rigged": false,
+      "animations_embedded": false
+    },
+    {
+      "file": "CRX1_interceptor.glb",
+      "type": "static GLB procedural base mesh",
+      "rigged": false,
+      "animations_embedded": false
+    },
+    {
+      "file": "CRA1_specter.glb",
+      "type": "static GLB procedural base mesh",
+      "rigged": false,
+      "animations_embedded": false
+    },
+    {
+      "file": "crimson_knight_CRX9.glb",
+      "type": "static GLB procedural base mesh",
+      "rigged": false,
+      "animations_embedded": false
+    }
+  ],
+  "animation_targets": [
+    "idle",
+    "walk",
+    "run",
+    "sprint",
+    "jump",
+    "land",
+    "crouch",
+    "glide",
+    "grapple",
+    "vehicle_enter",
+    "vehicle_exit",
+    "weapon_draw",
+    "weapon_holster",
+    "gadget_deploy",
+    "car_call",
+    "bike_call",
+    "specter_call"
+  ],
+  "note": "Concept images are reference art, not texture maps. GLBs are low-poly blockout meshes, not photoreal or skinned."
+}

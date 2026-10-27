@@ -1,0 +1,19 @@
+{
+  "moveForward": "KeyW",
+  "moveBack": "KeyS",
+  "moveLeft": "KeyA",
+  "moveRight": "KeyD",
+  "sprint": "ShiftLeft",
+  "jump": "Space",
+  "interact": "KeyE",
+  "summonMenu": "KeyV",
+  "gadgetMenu": "KeyQ",
+  "primaryAction": "Mouse0",
+  "secondaryAction": "Mouse2",
+  "grapple": "KeyG",
+  "vehicleExit": "KeyF",
+  "sandboxMenu": "Backquote",
+  "pause": "Escape",
+  "crouch": "KeyC",
+  "walkToggle": "CapsLock"
+}

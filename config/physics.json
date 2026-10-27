@@ -1,0 +1,22 @@
+{
+  "engine": "@dimforge/rapier3d-compat",
+  "gravity": [
+    0,
+    -9.81,
+    0
+  ],
+  "fixedTimestep": 0.0166666667,
+  "player": {
+    "height": 1.95,
+    "radius": 0.43,
+    "walkSpeed": 1.8,
+    "runSpeed": 6.7,
+    "sprintSpeed": 9.2,
+    "jumpImpulse": 6.1,
+    "notes": "walkSpeed lowered 3.2 -> 1.8 (Claude, M1) to match CK_Walk refSpeed 1.6 m/s; 3.2 m/s read as a jog. Run/sprint unchanged; clip playback rate = speed / refSpeed.",
+    "glideFallSpeed": 3.5,
+    "hardLandingSpeed": 11
+  },
+  "units": "m kg s",
+  "vehicles": "prototyping values only, tune in playtesting"
+}

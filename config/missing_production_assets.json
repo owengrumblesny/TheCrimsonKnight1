@@ -1,0 +1,27 @@
+{
+  "not_produced": [
+    "pbr_crx9_hero_highpoly",
+    "cloth_cape_sim",
+    "interceptor_articulated_vehicle",
+    "batcycle_suspension_vehicle",
+    "specter_flight_vehicle",
+    "citadel_traversable_level",
+    "city_streamed_districts",
+    "traffic_drivers",
+    "pedestrian_outfits",
+    "sound_footsteps",
+    "sound_engine_loop",
+    "sound_ui",
+    "weather_particle_textures",
+    "navmesh",
+    "road_splines",
+    "interior_lighting_bakes",
+    "LOD_meshes",
+    "normal_roughness_metallic_maps"
+  ],
+  "notice": "Do not label these assets finished. Image crops are not independent consistent renders. CR-X9 M1 model is procedural hard-surface, not the photoreal pbr_crx9_hero_highpoly; cape is bone-driven, not cloth-simulated.",
+  "produced_by_claude_m1": {
+    "crx9_rigged_humanoid": "procedural hard-surface model + skinned undersuit, 41-bone rig (tools/blender/ck_build_crx9.py)",
+    "crx9_animated_glb": "22 keyframed CK_* clips baked in GLB (procedural, not motion capture)"
+  }
+}

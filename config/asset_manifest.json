@@ -1,0 +1,4180 @@
+{
+  "schema_version": "1.1",
+  "coordinate_system": "Per-asset up_axis: 'Z' assets (trimesh placeholders) need a -90deg X rotation in Three.js; 'Y' assets load as-is.",
+  "asset_count": 246,
+  "assets": [
+    {
+      "id": "road_tile_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/road_tile_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "road_tile_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/road_tile_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "road_tile_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/road_tile_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "sidewalk_tile_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/sidewalk_tile_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "sidewalk_tile_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/sidewalk_tile_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "sidewalk_tile_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/sidewalk_tile_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "roof_tile_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/roof_tile_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "roof_tile_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/roof_tile_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "roof_tile_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/roof_tile_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "floor_grate_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/floor_grate_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "floor_grate_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/floor_grate_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "floor_grate_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/floor_grate_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "wall_panel_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/wall_panel_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "wall_panel_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/wall_panel_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "wall_panel_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/wall_panel_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "concrete_barrier_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/concrete_barrier_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "concrete_barrier_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/concrete_barrier_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "concrete_barrier_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/concrete_barrier_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "fence_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/fence_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "fence_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/fence_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "fence_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/fence_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "railing_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/railing_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "railing_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/railing_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "railing_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/railing_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bridge_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/bridge_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bridge_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/bridge_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bridge_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/bridge_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "stairs_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/stairs_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "stairs_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/stairs_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "stairs_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/stairs_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "door_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/door_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "door_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/door_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "door_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/door_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "window_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/window_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "window_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/window_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "window_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/window_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "garage_door_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/garage_door_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "garage_door_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/garage_door_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "garage_door_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/garage_door_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "landing_pad_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/landing_pad_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "landing_pad_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/landing_pad_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "landing_pad_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/landing_pad_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "tunnel_segment_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/tunnel_segment_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "tunnel_segment_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/tunnel_segment_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "tunnel_segment_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/tunnel_segment_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "arch_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/arch_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "arch_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/arch_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "arch_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/arch_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "building_low_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/building_low_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "building_low_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/building_low_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "building_low_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/building_low_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "building_mid_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/building_mid_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "building_mid_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/building_mid_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "building_mid_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/building_mid_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "building_high_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/building_high_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "building_high_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/building_high_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "building_high_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/building_high_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "tower_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/tower_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "tower_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/tower_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "tower_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/tower_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "roof_vent_v01",
+      "category": "architecture",
+      "file": "assets/models/architecture/roof_vent_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "roof_vent_v02",
+      "category": "architecture",
+      "file": "assets/models/architecture/roof_vent_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "roof_vent_v03",
+      "category": "architecture",
+      "file": "assets/models/architecture/roof_vent_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "trash_can_v01",
+      "category": "props",
+      "file": "assets/models/props/trash_can_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "trash_can_v02",
+      "category": "props",
+      "file": "assets/models/props/trash_can_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "trash_can_v03",
+      "category": "props",
+      "file": "assets/models/props/trash_can_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "recycling_bin_v01",
+      "category": "props",
+      "file": "assets/models/props/recycling_bin_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "recycling_bin_v02",
+      "category": "props",
+      "file": "assets/models/props/recycling_bin_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "recycling_bin_v03",
+      "category": "props",
+      "file": "assets/models/props/recycling_bin_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "dumpster_v01",
+      "category": "props",
+      "file": "assets/models/props/dumpster_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "dumpster_v02",
+      "category": "props",
+      "file": "assets/models/props/dumpster_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "dumpster_v03",
+      "category": "props",
+      "file": "assets/models/props/dumpster_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "barrel_v01",
+      "category": "props",
+      "file": "assets/models/props/barrel_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "barrel_v02",
+      "category": "props",
+      "file": "assets/models/props/barrel_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "barrel_v03",
+      "category": "props",
+      "file": "assets/models/props/barrel_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "planter_v01",
+      "category": "props",
+      "file": "assets/models/props/planter_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "planter_v02",
+      "category": "props",
+      "file": "assets/models/props/planter_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "planter_v03",
+      "category": "props",
+      "file": "assets/models/props/planter_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "street_light_v01",
+      "category": "props",
+      "file": "assets/models/props/street_light_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "street_light_v02",
+      "category": "props",
+      "file": "assets/models/props/street_light_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "street_light_v03",
+      "category": "props",
+      "file": "assets/models/props/street_light_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "traffic_light_v01",
+      "category": "props",
+      "file": "assets/models/props/traffic_light_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "traffic_light_v02",
+      "category": "props",
+      "file": "assets/models/props/traffic_light_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "traffic_light_v03",
+      "category": "props",
+      "file": "assets/models/props/traffic_light_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bollard_v01",
+      "category": "props",
+      "file": "assets/models/props/bollard_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bollard_v02",
+      "category": "props",
+      "file": "assets/models/props/bollard_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bollard_v03",
+      "category": "props",
+      "file": "assets/models/props/bollard_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "sign_post_v01",
+      "category": "props",
+      "file": "assets/models/props/sign_post_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "sign_post_v02",
+      "category": "props",
+      "file": "assets/models/props/sign_post_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "sign_post_v03",
+      "category": "props",
+      "file": "assets/models/props/sign_post_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "antenna_v01",
+      "category": "props",
+      "file": "assets/models/props/antenna_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "antenna_v02",
+      "category": "props",
+      "file": "assets/models/props/antenna_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "antenna_v03",
+      "category": "props",
+      "file": "assets/models/props/antenna_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "flag_pole_v01",
+      "category": "props",
+      "file": "assets/models/props/flag_pole_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "flag_pole_v02",
+      "category": "props",
+      "file": "assets/models/props/flag_pole_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "flag_pole_v03",
+      "category": "props",
+      "file": "assets/models/props/flag_pole_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "security_camera_v01",
+      "category": "props",
+      "file": "assets/models/props/security_camera_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "security_camera_v02",
+      "category": "props",
+      "file": "assets/models/props/security_camera_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "security_camera_v03",
+      "category": "props",
+      "file": "assets/models/props/security_camera_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "street_tree_v01",
+      "category": "props",
+      "file": "assets/models/props/street_tree_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "street_tree_v02",
+      "category": "props",
+      "file": "assets/models/props/street_tree_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "street_tree_v03",
+      "category": "props",
+      "file": "assets/models/props/street_tree_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "fire_hydrant_v01",
+      "category": "props",
+      "file": "assets/models/props/fire_hydrant_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "fire_hydrant_v02",
+      "category": "props",
+      "file": "assets/models/props/fire_hydrant_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "fire_hydrant_v03",
+      "category": "props",
+      "file": "assets/models/props/fire_hydrant_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "mailbox_v01",
+      "category": "props",
+      "file": "assets/models/props/mailbox_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "mailbox_v02",
+      "category": "props",
+      "file": "assets/models/props/mailbox_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "mailbox_v03",
+      "category": "props",
+      "file": "assets/models/props/mailbox_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bus_stop_v01",
+      "category": "props",
+      "file": "assets/models/props/bus_stop_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bus_stop_v02",
+      "category": "props",
+      "file": "assets/models/props/bus_stop_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bus_stop_v03",
+      "category": "props",
+      "file": "assets/models/props/bus_stop_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "parking_meter_v01",
+      "category": "props",
+      "file": "assets/models/props/parking_meter_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "parking_meter_v02",
+      "category": "props",
+      "file": "assets/models/props/parking_meter_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "parking_meter_v03",
+      "category": "props",
+      "file": "assets/models/props/parking_meter_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "manhole_v01",
+      "category": "props",
+      "file": "assets/models/props/manhole_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "manhole_v02",
+      "category": "props",
+      "file": "assets/models/props/manhole_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "manhole_v03",
+      "category": "props",
+      "file": "assets/models/props/manhole_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "pallet_v01",
+      "category": "props",
+      "file": "assets/models/props/pallet_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "pallet_v02",
+      "category": "props",
+      "file": "assets/models/props/pallet_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "pallet_v03",
+      "category": "props",
+      "file": "assets/models/props/pallet_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "tire_stack_v01",
+      "category": "props",
+      "file": "assets/models/props/tire_stack_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "tire_stack_v02",
+      "category": "props",
+      "file": "assets/models/props/tire_stack_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "tire_stack_v03",
+      "category": "props",
+      "file": "assets/models/props/tire_stack_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "traffic_cone_v01",
+      "category": "props",
+      "file": "assets/models/props/traffic_cone_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "traffic_cone_v02",
+      "category": "props",
+      "file": "assets/models/props/traffic_cone_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "traffic_cone_v03",
+      "category": "props",
+      "file": "assets/models/props/traffic_cone_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bicycle_v01",
+      "category": "props",
+      "file": "assets/models/props/bicycle_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bicycle_v02",
+      "category": "props",
+      "file": "assets/models/props/bicycle_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bicycle_v03",
+      "category": "props",
+      "file": "assets/models/props/bicycle_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "motorcycle_prop_v01",
+      "category": "props",
+      "file": "assets/models/props/motorcycle_prop_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "motorcycle_prop_v02",
+      "category": "props",
+      "file": "assets/models/props/motorcycle_prop_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "motorcycle_prop_v03",
+      "category": "props",
+      "file": "assets/models/props/motorcycle_prop_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "car_prop_v01",
+      "category": "props",
+      "file": "assets/models/props/car_prop_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "car_prop_v02",
+      "category": "props",
+      "file": "assets/models/props/car_prop_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "car_prop_v03",
+      "category": "props",
+      "file": "assets/models/props/car_prop_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "truck_prop_v01",
+      "category": "props",
+      "file": "assets/models/props/truck_prop_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "truck_prop_v02",
+      "category": "props",
+      "file": "assets/models/props/truck_prop_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "truck_prop_v03",
+      "category": "props",
+      "file": "assets/models/props/truck_prop_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bench_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/bench_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bench_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/bench_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bench_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/bench_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "table_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/table_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "table_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/table_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "table_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/table_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "desk_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/desk_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "desk_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/desk_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "desk_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/desk_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "workbench_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/workbench_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "workbench_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/workbench_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "workbench_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/workbench_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "counter_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/counter_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "counter_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/counter_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "counter_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/counter_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "shelf_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/shelf_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "shelf_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/shelf_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "shelf_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/shelf_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "cabinet_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/cabinet_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "cabinet_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/cabinet_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "cabinet_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/cabinet_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "locker_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/locker_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "locker_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/locker_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "locker_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/locker_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "server_rack_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/server_rack_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "server_rack_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/server_rack_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "server_rack_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/server_rack_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "equipment_case_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/equipment_case_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "equipment_case_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/equipment_case_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "equipment_case_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/equipment_case_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "crate_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/crate_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "crate_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/crate_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "crate_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/crate_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "shipping_container_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/shipping_container_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "shipping_container_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/shipping_container_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "shipping_container_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/shipping_container_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bed_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/bed_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bed_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/bed_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bed_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/bed_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "sofa_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/sofa_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "sofa_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/sofa_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "sofa_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/sofa_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "chair_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/chair_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "chair_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/chair_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "chair_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/chair_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "stool_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/stool_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "stool_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/stool_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "stool_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/stool_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bookshelf_v01",
+      "category": "furniture",
+      "file": "assets/models/furniture/bookshelf_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bookshelf_v02",
+      "category": "furniture",
+      "file": "assets/models/furniture/bookshelf_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "bookshelf_v03",
+      "category": "furniture",
+      "file": "assets/models/furniture/bookshelf_v03.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "drone_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/drone_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "drone_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/drone_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "scanner_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/scanner_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "scanner_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/scanner_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "communicator_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/communicator_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "communicator_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/communicator_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "tablet_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/tablet_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "tablet_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/tablet_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "power_cell_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/power_cell_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "power_cell_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/power_cell_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "medkit_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/medkit_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "medkit_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/medkit_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "grapnel_prop_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/grapnel_prop_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "grapnel_prop_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/grapnel_prop_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "batarang_prop_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/batarang_prop_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "batarang_prop_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/batarang_prop_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "energy_blaster_prop_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/energy_blaster_prop_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "energy_blaster_prop_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/energy_blaster_prop_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "energy_sidearm_prop_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/energy_sidearm_prop_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "energy_sidearm_prop_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/energy_sidearm_prop_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "blade_prop_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/blade_prop_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "blade_prop_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/blade_prop_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "shield_prop_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/shield_prop_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "shield_prop_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/shield_prop_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "wrist_module_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/wrist_module_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "wrist_module_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/wrist_module_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "beacon_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/beacon_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "beacon_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/beacon_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "smoke_prop_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/smoke_prop_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "smoke_prop_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/smoke_prop_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "projector_prop_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/projector_prop_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "projector_prop_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/projector_prop_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "battery_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/battery_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "battery_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/battery_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "toolbox_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/toolbox_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "toolbox_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/toolbox_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "armor_plate_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/armor_plate_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "armor_plate_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/armor_plate_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "rocket_pod_prop_v01",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/rocket_pod_prop_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "rocket_pod_prop_v02",
+      "category": "gadgets",
+      "file": "assets/models/gadgets/rocket_pod_prop_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "police_drone_v01",
+      "category": "characters",
+      "file": "assets/models/characters/police_drone_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "police_drone_v02",
+      "category": "characters",
+      "file": "assets/models/characters/police_drone_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "security_bot_v01",
+      "category": "characters",
+      "file": "assets/models/characters/security_bot_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "security_bot_v02",
+      "category": "characters",
+      "file": "assets/models/characters/security_bot_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "civilian_dummy_v01",
+      "category": "characters",
+      "file": "assets/models/characters/civilian_dummy_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "civilian_dummy_v02",
+      "category": "characters",
+      "file": "assets/models/characters/civilian_dummy_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "training_dummy_v01",
+      "category": "characters",
+      "file": "assets/models/characters/training_dummy_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "training_dummy_v02",
+      "category": "characters",
+      "file": "assets/models/characters/training_dummy_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "armor_stand_v01",
+      "category": "characters",
+      "file": "assets/models/characters/armor_stand_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "armor_stand_v02",
+      "category": "characters",
+      "file": "assets/models/characters/armor_stand_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "statue_v01",
+      "category": "characters",
+      "file": "assets/models/characters/statue_v01.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "statue_v02",
+      "category": "characters",
+      "file": "assets/models/characters/statue_v02.glb",
+      "format": "glb",
+      "stage": "procedural_low_poly_placeholder",
+      "rigged": false,
+      "animation_clips": 0,
+      "collision": "generate_trimesh_or_cuboid_in_game",
+      "units": "meters",
+      "origin": "ground_center",
+      "notes": "Stylized modular prop; replace with high-detail mesh as needed.",
+      "up_axis": "Z"
+    },
+    {
+      "id": "CRB1_batcycle",
+      "category": "vehicles",
+      "file": "assets/models/vehicles/CRB1_batcycle.glb",
+      "format": "glb",
+      "stage": "existing_blockout",
+      "rigged": false,
+      "animation_clips": 0,
+      "up_axis": "Y"
+    },
+    {
+      "id": "CRX1_interceptor",
+      "category": "vehicles",
+      "file": "assets/models/vehicles/CRX1_interceptor.glb",
+      "format": "glb",
+      "stage": "existing_blockout",
+      "rigged": false,
+      "animation_clips": 0,
+      "up_axis": "Y"
+    },
+    {
+      "id": "CRA1_specter",
+      "category": "vehicles",
+      "file": "assets/models/vehicles/CRA1_specter.glb",
+      "format": "glb",
+      "stage": "existing_blockout",
+      "rigged": false,
+      "animation_clips": 0,
+      "up_axis": "Y"
+    },
+    {
+      "id": "crimson_knight_CRX9",
+      "category": "characters",
+      "file": "assets/models/characters/crimson_knight_CRX9.glb",
+      "format": "glb",
+      "stage": "existing_blockout",
+      "rigged": false,
+      "animation_clips": 0,
+      "up_axis": "Y"
+    },
+    {
+      "id": "crimson_knight_CRX9_rigged",
+      "category": "characters",
+      "file": "assets/models/characters/crimson_knight_CRX9_rigged.glb",
+      "format": "glb",
+      "stage": "procedural_rigged_m1",
+      "rigged": true,
+      "animation_clips": 22,
+      "skeleton_bones": 41,
+      "collision": "capsule r0.43 h1.95 (config/physics.json)",
+      "units": "meters",
+      "origin": "ground_center",
+      "up_axis": "Y",
+      "forward": "+Z",
+      "source": "tools/blender/ck_build_crx9.py",
+      "clips": "config/crx9_clips.json",
+      "notes": "Procedurally modelled hard-surface armor + skinned undersuit + skinned cape; keyframed (not mocap) clips. Replaces the 24-box blockout for gameplay; blockout kept as reference."
+    }
+  ],
+  "changelog": [
+    "1.1 (Claude): removed 12 duplicate character entries (manifest claimed 257, 245 unique files exist); added up_axis per asset; added crimson_knight_CRX9_rigged. Original kept as asset_manifest.v0.4_original.json.",
+    "1.2 (Claude): registered assets/materials PNGs as textures, ui/icons PNGs, and references/original_images for in-game billboards/loading screen.",
+    "1.3 (Claude): concept boards sliced into assets/images (config/image_catalog.json) and used in-game."
+  ],
+  "textures": [
+    {
+      "id": "black_rubber",
+      "file": "assets/materials/black_rubber.png",
+      "size": [
+        512,
+        512
+      ],
+      "base_rgb": [
+        24,
+        25,
+        29
+      ],
+      "usage": "hero undersuit; tyres, dark trim"
+    },
+    {
+      "id": "cavern_stone",
+      "file": "assets/materials/cavern_stone.png",
+      "size": [
+        512,
+        512
+      ],
+      "base_rgb": [
+        50,
+        49,
+        55
+      ],
+      "usage": "Red Citadel rock / platforms"
+    },
+    {
+      "id": "concrete",
+      "file": "assets/materials/concrete.png",
+      "size": [
+        512,
+        512
+      ],
+      "base_rgb": [
+        80,
+        80,
+        83
+      ],
+      "usage": "buildings, sidewalks, barriers"
+    },
+    {
+      "id": "crimson_metal",
+      "file": "assets/materials/crimson_metal.png",
+      "size": [
+        512,
+        512
+      ],
+      "base_rgb": [
+        143,
+        17,
+        28
+      ],
+      "usage": "hero armor; crimson trim on props/vehicles"
+    },
+    {
+      "id": "glass",
+      "file": "assets/materials/glass.png",
+      "size": [
+        512,
+        512
+      ],
+      "base_rgb": [
+        29,
+        44,
+        57
+      ],
+      "usage": "windows, canopies"
+    },
+    {
+      "id": "gunmetal",
+      "file": "assets/materials/gunmetal.png",
+      "size": [
+        512,
+        512
+      ],
+      "base_rgb": [
+        53,
+        57,
+        64
+      ],
+      "usage": "hero fins/belt; metal props, vehicles"
+    },
+    {
+      "id": "red_emissive",
+      "file": "assets/materials/red_emissive.png",
+      "size": [
+        512,
+        512
+      ],
+      "base_rgb": [
+        250,
+        29,
+        40
+      ],
+      "usage": "eyes, emblem, neon, lit windows"
+    },
+    {
+      "id": "wet_asphalt",
+      "file": "assets/materials/wet_asphalt.png",
+      "size": [
+        512,
+        512
+      ],
+      "base_rgb": [
+        34,
+        35,
+        42
+      ],
+      "usage": "roads and ground"
+    }
+  ],
+  "ui_icons": [
+    {
+      "id": "alert",
+      "file": "ui/icons/alert.png"
+    },
+    {
+      "id": "altitude",
+      "file": "ui/icons/altitude.png"
+    },
+    {
+      "id": "armor",
+      "file": "ui/icons/armor.png"
+    },
+    {
+      "id": "batarang",
+      "file": "ui/icons/batarang.png"
+    },
+    {
+      "id": "batcycle",
+      "file": "ui/icons/batcycle.png"
+    },
+    {
+      "id": "battery",
+      "file": "ui/icons/battery.png"
+    },
+    {
+      "id": "battle",
+      "file": "ui/icons/battle.png"
+    },
+    {
+      "id": "batwing",
+      "file": "ui/icons/batwing.png"
+    },
+    {
+      "id": "beacon",
+      "file": "ui/icons/beacon.png"
+    },
+    {
+      "id": "boost",
+      "file": "ui/icons/boost.png"
+    },
+    {
+      "id": "brake",
+      "file": "ui/icons/brake.png"
+    },
+    {
+      "id": "building",
+      "file": "ui/icons/building.png"
+    },
+    {
+      "id": "camera",
+      "file": "ui/icons/camera.png"
+    },
+    {
+      "id": "cape",
+      "file": "ui/icons/cape.png"
+    },
+    {
+      "id": "character",
+      "file": "ui/icons/character.png"
+    },
+    {
+      "id": "civilian",
+      "file": "ui/icons/civilian.png"
+    },
+    {
+      "id": "close",
+      "file": "ui/icons/close.png"
+    },
+    {
+      "id": "command",
+      "file": "ui/icons/command.png"
+    },
+    {
+      "id": "compass",
+      "file": "ui/icons/compass.png"
+    },
+    {
+      "id": "controls",
+      "file": "ui/icons/controls.png"
+    },
+    {
+      "id": "cooldown",
+      "file": "ui/icons/cooldown.png"
+    },
+    {
+      "id": "crouch",
+      "file": "ui/icons/crouch.png"
+    },
+    {
+      "id": "damage",
+      "file": "ui/icons/damage.png"
+    },
+    {
+      "id": "day",
+      "file": "ui/icons/day.png"
+    },
+    {
+      "id": "door",
+      "file": "ui/icons/door.png"
+    },
+    {
+      "id": "drive",
+      "file": "ui/icons/drive.png"
+    },
+    {
+      "id": "drone",
+      "file": "ui/icons/drone.png"
+    },
+    {
+      "id": "energy",
+      "file": "ui/icons/energy.png"
+    },
+    {
+      "id": "enter",
+      "file": "ui/icons/enter.png"
+    },
+    {
+      "id": "equipment",
+      "file": "ui/icons/equipment.png"
+    },
+    {
+      "id": "exit",
+      "file": "ui/icons/exit.png"
+    },
+    {
+      "id": "flight",
+      "file": "ui/icons/flight.png"
+    },
+    {
+      "id": "fog",
+      "file": "ui/icons/fog.png"
+    },
+    {
+      "id": "free_roam",
+      "file": "ui/icons/free_roam.png"
+    },
+    {
+      "id": "gamepad",
+      "file": "ui/icons/gamepad.png"
+    },
+    {
+      "id": "garage",
+      "file": "ui/icons/garage.png"
+    },
+    {
+      "id": "glide",
+      "file": "ui/icons/glide.png"
+    },
+    {
+      "id": "grapple",
+      "file": "ui/icons/grapple.png"
+    },
+    {
+      "id": "hangar",
+      "file": "ui/icons/hangar.png"
+    },
+    {
+      "id": "heading",
+      "file": "ui/icons/heading.png"
+    },
+    {
+      "id": "health",
+      "file": "ui/icons/health.png"
+    },
+    {
+      "id": "helmet",
+      "file": "ui/icons/helmet.png"
+    },
+    {
+      "id": "hud",
+      "file": "ui/icons/hud.png"
+    },
+    {
+      "id": "interact",
+      "file": "ui/icons/interact.png"
+    },
+    {
+      "id": "interceptor",
+      "file": "ui/icons/interceptor.png"
+    },
+    {
+      "id": "inventory",
+      "file": "ui/icons/inventory.png"
+    },
+    {
+      "id": "jump",
+      "file": "ui/icons/jump.png"
+    },
+    {
+      "id": "key",
+      "file": "ui/icons/key.png"
+    },
+    {
+      "id": "lab",
+      "file": "ui/icons/lab.png"
+    },
+    {
+      "id": "land",
+      "file": "ui/icons/land.png"
+    },
+    {
+      "id": "light",
+      "file": "ui/icons/light.png"
+    },
+    {
+      "id": "load",
+      "file": "ui/icons/load.png"
+    },
+    {
+      "id": "lock",
+      "file": "ui/icons/lock.png"
+    },
+    {
+      "id": "map",
+      "file": "ui/icons/map.png"
+    },
+    {
+      "id": "medkit",
+      "file": "ui/icons/medkit.png"
+    },
+    {
+      "id": "mouse",
+      "file": "ui/icons/mouse.png"
+    },
+    {
+      "id": "mute",
+      "file": "ui/icons/mute.png"
+    },
+    {
+      "id": "night",
+      "file": "ui/icons/night.png"
+    },
+    {
+      "id": "npc",
+      "file": "ui/icons/npc.png"
+    },
+    {
+      "id": "objective",
+      "file": "ui/icons/objective.png"
+    },
+    {
+      "id": "open",
+      "file": "ui/icons/open.png"
+    },
+    {
+      "id": "pause",
+      "file": "ui/icons/pause.png"
+    },
+    {
+      "id": "photo_mode",
+      "file": "ui/icons/photo_mode.png"
+    },
+    {
+      "id": "police",
+      "file": "ui/icons/police.png"
+    },
+    {
+      "id": "power",
+      "file": "ui/icons/power.png"
+    },
+    {
+      "id": "radar",
+      "file": "ui/icons/radar.png"
+    },
+    {
+      "id": "radio",
+      "file": "ui/icons/radio.png"
+    },
+    {
+      "id": "rain",
+      "file": "ui/icons/rain.png"
+    },
+    {
+      "id": "red_citadel",
+      "file": "ui/icons/red_citadel.png"
+    },
+    {
+      "id": "repair",
+      "file": "ui/icons/repair.png"
+    },
+    {
+      "id": "resume",
+      "file": "ui/icons/resume.png"
+    },
+    {
+      "id": "run",
+      "file": "ui/icons/run.png"
+    },
+    {
+      "id": "sandbox",
+      "file": "ui/icons/sandbox.png"
+    },
+    {
+      "id": "save",
+      "file": "ui/icons/save.png"
+    },
+    {
+      "id": "scan",
+      "file": "ui/icons/scan.png"
+    },
+    {
+      "id": "scanner",
+      "file": "ui/icons/scanner.png"
+    },
+    {
+      "id": "settings",
+      "file": "ui/icons/settings.png"
+    },
+    {
+      "id": "shield",
+      "file": "ui/icons/shield.png"
+    },
+    {
+      "id": "slot",
+      "file": "ui/icons/slot.png"
+    },
+    {
+      "id": "smoke",
+      "file": "ui/icons/smoke.png"
+    },
+    {
+      "id": "specter",
+      "file": "ui/icons/specter.png"
+    },
+    {
+      "id": "speed",
+      "file": "ui/icons/speed.png"
+    },
+    {
+      "id": "sprint",
+      "file": "ui/icons/sprint.png"
+    },
+    {
+      "id": "stealth",
+      "file": "ui/icons/stealth.png"
+    },
+    {
+      "id": "street",
+      "file": "ui/icons/street.png"
+    },
+    {
+      "id": "summon",
+      "file": "ui/icons/summon.png"
+    },
+    {
+      "id": "tablet",
+      "file": "ui/icons/tablet.png"
+    },
+    {
+      "id": "traffic",
+      "file": "ui/icons/traffic.png"
+    },
+    {
+      "id": "trash_can",
+      "file": "ui/icons/trash_can.png"
+    },
+    {
+      "id": "upgrade",
+      "file": "ui/icons/upgrade.png"
+    },
+    {
+      "id": "volume",
+      "file": "ui/icons/volume.png"
+    },
+    {
+      "id": "walk",
+      "file": "ui/icons/walk.png"
+    },
+    {
+      "id": "waypoint",
+      "file": "ui/icons/waypoint.png"
+    },
+    {
+      "id": "weather",
+      "file": "ui/icons/weather.png"
+    },
+    {
+      "id": "workshop",
+      "file": "ui/icons/workshop.png"
+    }
+  ],
+  "reference_images": [
+    {
+      "id": "a_cinematic_concept_art_style_technical_showcase_p",
+      "file": "references/original_images/a_cinematic_concept_art_style_technical_showcase_p.png",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "a_cinematic_sci_fi_concept_art_infographic_board_o",
+      "file": "references/original_images/a_cinematic_sci_fi_concept_art_infographic_board_o.png",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "a_cinematic_ultra_detailed_sci_fi_tech_lair_inter",
+      "file": "references/original_images/a_cinematic_ultra_detailed_sci_fi_tech_lair_inter.png",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "a_dramatic_cinematic_ultra_detailed_sci_fi_conce",
+      "file": "references/original_images/a_dramatic_cinematic_ultra_detailed_sci_fi_conce.png",
+      "size": [
+        1312,
+        1199
+      ]
+    },
+    {
+      "id": "a_dramatic_concept_art_style_collage_infographic_s",
+      "file": "references/original_images/a_dramatic_concept_art_style_collage_infographic_s.png",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "a_huge_detailed_concept_asset_animation_reference",
+      "file": "references/original_images/a_huge_detailed_concept_asset_animation_reference.png",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "a_large_detailed_concept_art_asset_sheet_collage_o",
+      "file": "references/original_images/a_large_detailed_concept_art_asset_sheet_collage_o.png",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "a_wide_cinematic_ultra_detailed_sci_fi_fantasy_u",
+      "file": "references/original_images/a_wide_cinematic_ultra_detailed_sci_fi_fantasy_u.png",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "a_wide_densely_packed_cinematic_infographic_asse",
+      "file": "references/original_images/a_wide_densely_packed_cinematic_infographic_asse.png",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "v03_a_cinematic_concept_art_style_technical_showcase_p",
+      "file": "references/original_images/v03_a_cinematic_concept_art_style_technical_showcase_p.png",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "v03_a_cinematic_sci_fi_concept_art_infographic_board_o",
+      "file": "references/original_images/v03_a_cinematic_sci_fi_concept_art_infographic_board_o.png",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "v03_a_dramatic_concept_art_style_collage_infographic_s",
+      "file": "references/original_images/v03_a_dramatic_concept_art_style_collage_infographic_s.png",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "v03_a_large_detailed_concept_art_asset_sheet_collage_o",
+      "file": "references/original_images/v03_a_large_detailed_concept_art_asset_sheet_collage_o.png",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "v03_a_wide_cinematic_ultra_detailed_sci_fi_fantasy_u",
+      "file": "references/original_images/v03_a_wide_cinematic_ultra_detailed_sci_fi_fantasy_u.png",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "v03_character_turnaround",
+      "file": "references/original_images/v03_character_turnaround.png",
+      "size": [
+        768,
+        226
+      ]
+    },
+    {
+      "id": "v03_combat_gadget_cape",
+      "file": "references/original_images/v03_combat_gadget_cape.png",
+      "size": [
+        1536,
+        194
+      ]
+    },
+    {
+      "id": "v03_concept_board",
+      "file": "references/original_images/v03_concept_board.png",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "id": "v03_equipment_and_environment",
+      "file": "references/original_images/v03_equipment_and_environment.png",
+      "size": [
+        1536,
+        144
+      ]
+    },
+    {
+      "id": "v03_full_animation_reference_board",
+      "file": "references/original_images/v03_full_animation_reference_board.png",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "id": "v03_helmet_and_armor_details",
+      "file": "references/original_images/v03_helmet_and_armor_details.png",
+      "size": [
+        768,
+        226
+      ]
+    },
+    {
+      "id": "v03_knight_front",
+      "file": "references/original_images/v03_knight_front.png",
+      "size": [
+        92,
+        244
+      ]
+    },
+    {
+      "id": "v03_knight_front_three_quarter",
+      "file": "references/original_images/v03_knight_front_three_quarter.png",
+      "size": [
+        92,
+        244
+      ]
+    },
+    {
+      "id": "v03_knight_left_profile",
+      "file": "references/original_images/v03_knight_left_profile.png",
+      "size": [
+        92,
+        244
+      ]
+    },
+    {
+      "id": "v03_knight_rear",
+      "file": "references/original_images/v03_knight_rear.png",
+      "size": [
+        92,
+        244
+      ]
+    },
+    {
+      "id": "v03_knight_rear_three_quarter",
+      "file": "references/original_images/v03_knight_rear_three_quarter.png",
+      "size": [
+        92,
+        244
+      ]
+    },
+    {
+      "id": "v03_knight_right_profile",
+      "file": "references/original_images/v03_knight_right_profile.png",
+      "size": [
+        92,
+        244
+      ]
+    },
+    {
+      "id": "v03_locomotion_keyposes",
+      "file": "references/original_images/v03_locomotion_keyposes.png",
+      "size": [
+        1536,
+        174
+      ]
+    },
+    {
+      "id": "v03_vehicle_interactions",
+      "file": "references/original_images/v03_vehicle_interactions.png",
+      "size": [
+        1536,
+        143
+      ]
+    },
+    {
+      "id": "v03_vehicle_turnarounds",
+      "file": "references/original_images/v03_vehicle_turnarounds.png",
+      "size": [
+        1536,
+        154
+      ]
+    }
+  ],
+  "image_catalog": {
+    "file": "config/image_catalog.json",
+    "spec": "config/board_slices.json",
+    "tool": "tools/slice_boards.py",
+    "notes": "Individual hero/vehicle/gadget/animation/world/NPC/prop/effect images cut from the concept boards in references/original_images."
+  }
+}

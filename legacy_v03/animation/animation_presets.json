@@ -1,0 +1,28 @@
+{
+  "schema":"earth-red-animation-presets-v1",
+  "coordinate_system":"Y-up, -Z forward, radians for rotation, seconds for duration",
+  "clips":{
+    "idle":{"duration":3,"loop":true,"torso_bob":0.018,"arm_swing":0.015,"leg_swing":0},
+    "walk":{"duration":0.85,"loop":true,"torso_bob":0.035,"arm_swing":0.27,"leg_swing":0.42},
+    "run":{"duration":0.57,"loop":true,"torso_bob":0.08,"arm_swing":0.55,"leg_swing":0.7},
+    "sprint":{"duration":0.43,"loop":true,"torso_bob":0.12,"arm_swing":0.75,"leg_swing":0.95},
+    "crouch":{"duration":0.4,"loop":false,"root_drop":0.55,"knee_bend":0.75},
+    "jump":{"duration":0.65,"loop":false,"root_rise":0.45,"arm_raise":0.4},
+    "land":{"duration":0.36,"loop":false,"root_drop":0.25,"arm_raise":0.15},
+    "glide":{"duration":1.1,"loop":true,"arm_raise":1.2,"cape_spread":1.0},
+    "grapple":{"duration":0.7,"loop":false,"arm_raise":1.35,"torso_pitch":-0.18},
+    "weapon_draw":{"duration":0.55,"loop":false,"right_arm_raise":0.85},
+    "weapon_holster":{"duration":0.48,"loop":false,"right_arm_raise":0.0},
+    "gadget_deploy":{"duration":0.8,"loop":false,"left_arm_raise":1.1},
+    "vehicle_enter":{"duration":1.3,"loop":false,"root_drop":0.5,"torso_pitch":0.3},
+    "vehicle_exit":{"duration":1.2,"loop":false,"root_rise":0.5},
+    "car_call":{"duration":0.7,"loop":false,"left_arm_raise":0.9},
+    "bike_call":{"duration":0.7,"loop":false,"left_arm_raise":0.9},
+    "specter_call":{"duration":0.95,"loop":false,"left_arm_raise":1.2}
+  },
+  "vehicle_clips":{
+    "interceptor":["idle","startup","pursuit","brake","drift","battle_transform","stealth_transform","weapon_deploy"],
+    "batcycle":["idle","startup","lean_left","lean_right","accelerate","brake","autonomous_return"],
+    "specter":["idle","engine_start","vertical_takeoff","cruise","bank_left","bank_right","landing"]
+  }
+}

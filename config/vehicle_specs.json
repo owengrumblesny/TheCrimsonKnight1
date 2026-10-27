@@ -1,0 +1,31 @@
+{
+  "CR-X1": {
+    "label": "Crimson Interceptor",
+    "fictional_top_speed_mph": 320,
+    "modes": [
+      "pursuit",
+      "battle",
+      "stealth"
+    ],
+    "model": "assets/models/vehicles/CRX1_interceptor.glb"
+  },
+  "CR-B1": {
+    "label": "Crimson Batcycle",
+    "fictional_top_speed_mph": 240,
+    "modes": [
+      "pursuit",
+      "stealth"
+    ],
+    "model": "assets/models/vehicles/CRB1_batcycle.glb"
+  },
+  "CR-A1": {
+    "label": "Crimson Specter",
+    "fictional_max_mach": 2.8,
+    "modes": [
+      "flight",
+      "vtol",
+      "stealth"
+    ],
+    "model": "assets/models/vehicles/CRA1_specter.glb"
+  }
+}

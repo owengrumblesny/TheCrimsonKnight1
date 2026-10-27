@@ -1,0 +1,27 @@
+{
+  "rootMenus": [
+    "pause",
+    "inventory",
+    "map",
+    "loadout",
+    "settings"
+  ],
+  "inventoryTabs": [
+    "gadgets",
+    "fictional_weapon",
+    "vehicles",
+    "tools",
+    "quest_items"
+  ],
+  "hudWidgets": [
+    "health",
+    "armor",
+    "energy",
+    "compass",
+    "crosshair",
+    "notification"
+  ],
+  "keybindsAccessible": true,
+  "audioNavigationFeedback": true,
+  "mustPreserveGameKeyboardOwnership": true
+}

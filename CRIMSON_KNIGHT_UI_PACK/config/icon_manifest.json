@@ -1,0 +1,860 @@
+{
+  "version": "1.0.0",
+  "author": "ChatGPT for Owen Grumbles",
+  "originalSVGAndPNG": true,
+  "resolution": 256,
+  "icons": [
+    {
+      "id": "batarang",
+      "category": "gadget",
+      "displayName": "Batarang",
+      "glyphPNG": "assets/gadget/glyph/batarang.png",
+      "circlePNG": "assets/gadget/circle/batarang.png",
+      "glyphSVG": "assets/gadget/glyph/batarang.svg",
+      "circleSVG": "assets/gadget/circle/batarang.svg",
+      "ready": true
+    },
+    {
+      "id": "grapple",
+      "category": "gadget",
+      "displayName": "Grapple",
+      "glyphPNG": "assets/gadget/glyph/grapple.png",
+      "circlePNG": "assets/gadget/circle/grapple.png",
+      "glyphSVG": "assets/gadget/glyph/grapple.svg",
+      "circleSVG": "assets/gadget/circle/grapple.svg",
+      "ready": true
+    },
+    {
+      "id": "scanner",
+      "category": "gadget",
+      "displayName": "Scanner",
+      "glyphPNG": "assets/gadget/glyph/scanner.png",
+      "circlePNG": "assets/gadget/circle/scanner.png",
+      "glyphSVG": "assets/gadget/glyph/scanner.svg",
+      "circleSVG": "assets/gadget/circle/scanner.svg",
+      "ready": true
+    },
+    {
+      "id": "drone",
+      "category": "gadget",
+      "displayName": "Drone",
+      "glyphPNG": "assets/gadget/glyph/drone.png",
+      "circlePNG": "assets/gadget/circle/drone.png",
+      "glyphSVG": "assets/gadget/glyph/drone.svg",
+      "circleSVG": "assets/gadget/circle/drone.svg",
+      "ready": true
+    },
+    {
+      "id": "cloak",
+      "category": "gadget",
+      "displayName": "Cloak",
+      "glyphPNG": "assets/gadget/glyph/cloak.png",
+      "circlePNG": "assets/gadget/circle/cloak.png",
+      "glyphSVG": "assets/gadget/glyph/cloak.svg",
+      "circleSVG": "assets/gadget/circle/cloak.svg",
+      "ready": true
+    },
+    {
+      "id": "smoke",
+      "category": "gadget",
+      "displayName": "Smoke",
+      "glyphPNG": "assets/gadget/glyph/smoke.png",
+      "circlePNG": "assets/gadget/circle/smoke.png",
+      "glyphSVG": "assets/gadget/glyph/smoke.svg",
+      "circleSVG": "assets/gadget/circle/smoke.svg",
+      "ready": true
+    },
+    {
+      "id": "decoy",
+      "category": "gadget",
+      "displayName": "Decoy",
+      "glyphPNG": "assets/gadget/glyph/decoy.png",
+      "circlePNG": "assets/gadget/circle/decoy.png",
+      "glyphSVG": "assets/gadget/glyph/decoy.svg",
+      "circleSVG": "assets/gadget/circle/decoy.svg",
+      "ready": true
+    },
+    {
+      "id": "beacon",
+      "category": "gadget",
+      "displayName": "Beacon",
+      "glyphPNG": "assets/gadget/glyph/beacon.png",
+      "circlePNG": "assets/gadget/circle/beacon.png",
+      "glyphSVG": "assets/gadget/glyph/beacon.svg",
+      "circleSVG": "assets/gadget/circle/beacon.svg",
+      "ready": true
+    },
+    {
+      "id": "gauntlet",
+      "category": "gadget",
+      "displayName": "Gauntlet",
+      "glyphPNG": "assets/gadget/glyph/gauntlet.png",
+      "circlePNG": "assets/gadget/circle/gauntlet.png",
+      "glyphSVG": "assets/gadget/glyph/gauntlet.svg",
+      "circleSVG": "assets/gadget/circle/gauntlet.svg",
+      "ready": true
+    },
+    {
+      "id": "blade",
+      "category": "gadget",
+      "displayName": "Blade",
+      "glyphPNG": "assets/gadget/glyph/blade.png",
+      "circlePNG": "assets/gadget/circle/blade.png",
+      "glyphSVG": "assets/gadget/glyph/blade.svg",
+      "circleSVG": "assets/gadget/circle/blade.svg",
+      "ready": true
+    },
+    {
+      "id": "shield",
+      "category": "gadget",
+      "displayName": "Shield",
+      "glyphPNG": "assets/gadget/glyph/shield.png",
+      "circlePNG": "assets/gadget/circle/shield.png",
+      "glyphSVG": "assets/gadget/glyph/shield.svg",
+      "circleSVG": "assets/gadget/circle/shield.svg",
+      "ready": true
+    },
+    {
+      "id": "power_cell",
+      "category": "gadget",
+      "displayName": "Power Cell",
+      "glyphPNG": "assets/gadget/glyph/power_cell.png",
+      "circlePNG": "assets/gadget/circle/power_cell.png",
+      "glyphSVG": "assets/gadget/glyph/power_cell.svg",
+      "circleSVG": "assets/gadget/circle/power_cell.svg",
+      "ready": true
+    },
+    {
+      "id": "sonic",
+      "category": "gadget",
+      "displayName": "Sonic",
+      "glyphPNG": "assets/gadget/glyph/sonic.png",
+      "circlePNG": "assets/gadget/circle/sonic.png",
+      "glyphSVG": "assets/gadget/glyph/sonic.svg",
+      "circleSVG": "assets/gadget/circle/sonic.svg",
+      "ready": true
+    },
+    {
+      "id": "emp",
+      "category": "gadget",
+      "displayName": "Emp",
+      "glyphPNG": "assets/gadget/glyph/emp.png",
+      "circlePNG": "assets/gadget/circle/emp.png",
+      "glyphSVG": "assets/gadget/glyph/emp.svg",
+      "circleSVG": "assets/gadget/circle/emp.svg",
+      "ready": true
+    },
+    {
+      "id": "holoprojector",
+      "category": "gadget",
+      "displayName": "Holoprojector",
+      "glyphPNG": "assets/gadget/glyph/holoprojector.png",
+      "circlePNG": "assets/gadget/circle/holoprojector.png",
+      "glyphSVG": "assets/gadget/glyph/holoprojector.svg",
+      "circleSVG": "assets/gadget/circle/holoprojector.svg",
+      "ready": true
+    },
+    {
+      "id": "camera",
+      "category": "gadget",
+      "displayName": "Camera",
+      "glyphPNG": "assets/gadget/glyph/camera.png",
+      "circlePNG": "assets/gadget/circle/camera.png",
+      "glyphSVG": "assets/gadget/glyph/camera.svg",
+      "circleSVG": "assets/gadget/circle/camera.svg",
+      "ready": true
+    },
+    {
+      "id": "comms",
+      "category": "gadget",
+      "displayName": "Comms",
+      "glyphPNG": "assets/gadget/glyph/comms.png",
+      "circlePNG": "assets/gadget/circle/comms.png",
+      "glyphSVG": "assets/gadget/glyph/comms.svg",
+      "circleSVG": "assets/gadget/circle/comms.svg",
+      "ready": true
+    },
+    {
+      "id": "forensics",
+      "category": "gadget",
+      "displayName": "Forensics",
+      "glyphPNG": "assets/gadget/glyph/forensics.png",
+      "circlePNG": "assets/gadget/circle/forensics.png",
+      "glyphSVG": "assets/gadget/glyph/forensics.svg",
+      "circleSVG": "assets/gadget/circle/forensics.svg",
+      "ready": true
+    },
+    {
+      "id": "first_aid",
+      "category": "gadget",
+      "displayName": "First Aid",
+      "glyphPNG": "assets/gadget/glyph/first_aid.png",
+      "circlePNG": "assets/gadget/circle/first_aid.png",
+      "glyphSVG": "assets/gadget/glyph/first_aid.svg",
+      "circleSVG": "assets/gadget/circle/first_aid.svg",
+      "ready": true
+    },
+    {
+      "id": "repair",
+      "category": "gadget",
+      "displayName": "Repair",
+      "glyphPNG": "assets/gadget/glyph/repair.png",
+      "circlePNG": "assets/gadget/circle/repair.png",
+      "glyphSVG": "assets/gadget/glyph/repair.svg",
+      "circleSVG": "assets/gadget/circle/repair.svg",
+      "ready": true
+    },
+    {
+      "id": "keycard",
+      "category": "gadget",
+      "displayName": "Keycard",
+      "glyphPNG": "assets/gadget/glyph/keycard.png",
+      "circlePNG": "assets/gadget/circle/keycard.png",
+      "glyphSVG": "assets/gadget/glyph/keycard.svg",
+      "circleSVG": "assets/gadget/circle/keycard.svg",
+      "ready": true
+    },
+    {
+      "id": "crimson_carbine",
+      "category": "fictional_weapon",
+      "displayName": "Crimson Carbine",
+      "glyphPNG": "assets/fictional_weapon/glyph/crimson_carbine.png",
+      "circlePNG": "assets/fictional_weapon/circle/crimson_carbine.png",
+      "glyphSVG": "assets/fictional_weapon/glyph/crimson_carbine.svg",
+      "circleSVG": "assets/fictional_weapon/circle/crimson_carbine.svg",
+      "ready": true
+    },
+    {
+      "id": "phantom_sidearm",
+      "category": "fictional_weapon",
+      "displayName": "Phantom Sidearm",
+      "glyphPNG": "assets/fictional_weapon/glyph/phantom_sidearm.png",
+      "circlePNG": "assets/fictional_weapon/circle/phantom_sidearm.png",
+      "glyphSVG": "assets/fictional_weapon/glyph/phantom_sidearm.svg",
+      "circleSVG": "assets/fictional_weapon/circle/phantom_sidearm.svg",
+      "ready": true
+    },
+    {
+      "id": "energy_launcher",
+      "category": "fictional_weapon",
+      "displayName": "Energy Launcher",
+      "glyphPNG": "assets/fictional_weapon/glyph/energy_launcher.png",
+      "circlePNG": "assets/fictional_weapon/circle/energy_launcher.png",
+      "glyphSVG": "assets/fictional_weapon/glyph/energy_launcher.svg",
+      "circleSVG": "assets/fictional_weapon/circle/energy_launcher.svg",
+      "ready": true
+    },
+    {
+      "id": "energy_cannon",
+      "category": "fictional_weapon",
+      "displayName": "Energy Cannon",
+      "glyphPNG": "assets/fictional_weapon/glyph/energy_cannon.png",
+      "circlePNG": "assets/fictional_weapon/circle/energy_cannon.png",
+      "glyphSVG": "assets/fictional_weapon/glyph/energy_cannon.svg",
+      "circleSVG": "assets/fictional_weapon/circle/energy_cannon.svg",
+      "ready": true
+    },
+    {
+      "id": "interceptor",
+      "category": "vehicle",
+      "displayName": "Interceptor",
+      "glyphPNG": "assets/vehicle/glyph/interceptor.png",
+      "circlePNG": "assets/vehicle/circle/interceptor.png",
+      "glyphSVG": "assets/vehicle/glyph/interceptor.svg",
+      "circleSVG": "assets/vehicle/circle/interceptor.svg",
+      "ready": true
+    },
+    {
+      "id": "batcycle",
+      "category": "vehicle",
+      "displayName": "Batcycle",
+      "glyphPNG": "assets/vehicle/glyph/batcycle.png",
+      "circlePNG": "assets/vehicle/circle/batcycle.png",
+      "glyphSVG": "assets/vehicle/glyph/batcycle.svg",
+      "circleSVG": "assets/vehicle/circle/batcycle.svg",
+      "ready": true
+    },
+    {
+      "id": "specter",
+      "category": "vehicle",
+      "displayName": "Specter",
+      "glyphPNG": "assets/vehicle/glyph/specter.png",
+      "circlePNG": "assets/vehicle/circle/specter.png",
+      "glyphSVG": "assets/vehicle/glyph/specter.svg",
+      "circleSVG": "assets/vehicle/circle/specter.svg",
+      "ready": true
+    },
+    {
+      "id": "call_vehicle",
+      "category": "vehicle",
+      "displayName": "Call Vehicle",
+      "glyphPNG": "assets/vehicle/glyph/call_vehicle.png",
+      "circlePNG": "assets/vehicle/circle/call_vehicle.png",
+      "glyphSVG": "assets/vehicle/glyph/call_vehicle.svg",
+      "circleSVG": "assets/vehicle/circle/call_vehicle.svg",
+      "ready": true
+    },
+    {
+      "id": "vehicle_modes",
+      "category": "vehicle",
+      "displayName": "Vehicle Modes",
+      "glyphPNG": "assets/vehicle/glyph/vehicle_modes.png",
+      "circlePNG": "assets/vehicle/circle/vehicle_modes.png",
+      "glyphSVG": "assets/vehicle/glyph/vehicle_modes.svg",
+      "circleSVG": "assets/vehicle/circle/vehicle_modes.svg",
+      "ready": true
+    },
+    {
+      "id": "enter_vehicle",
+      "category": "vehicle",
+      "displayName": "Enter Vehicle",
+      "glyphPNG": "assets/vehicle/glyph/enter_vehicle.png",
+      "circlePNG": "assets/vehicle/circle/enter_vehicle.png",
+      "glyphSVG": "assets/vehicle/glyph/enter_vehicle.svg",
+      "circleSVG": "assets/vehicle/circle/enter_vehicle.svg",
+      "ready": true
+    },
+    {
+      "id": "exit_vehicle",
+      "category": "vehicle",
+      "displayName": "Exit Vehicle",
+      "glyphPNG": "assets/vehicle/glyph/exit_vehicle.png",
+      "circlePNG": "assets/vehicle/circle/exit_vehicle.png",
+      "glyphSVG": "assets/vehicle/glyph/exit_vehicle.svg",
+      "circleSVG": "assets/vehicle/circle/exit_vehicle.svg",
+      "ready": true
+    },
+    {
+      "id": "inventory",
+      "category": "menu",
+      "displayName": "Inventory",
+      "glyphPNG": "assets/menu/glyph/inventory.png",
+      "circlePNG": "assets/menu/circle/inventory.png",
+      "glyphSVG": "assets/menu/glyph/inventory.svg",
+      "circleSVG": "assets/menu/circle/inventory.svg",
+      "ready": true
+    },
+    {
+      "id": "loadout",
+      "category": "menu",
+      "displayName": "Loadout",
+      "glyphPNG": "assets/menu/glyph/loadout.png",
+      "circlePNG": "assets/menu/circle/loadout.png",
+      "glyphSVG": "assets/menu/glyph/loadout.svg",
+      "circleSVG": "assets/menu/circle/loadout.svg",
+      "ready": true
+    },
+    {
+      "id": "map",
+      "category": "menu",
+      "displayName": "Map",
+      "glyphPNG": "assets/menu/glyph/map.png",
+      "circlePNG": "assets/menu/circle/map.png",
+      "glyphSVG": "assets/menu/glyph/map.svg",
+      "circleSVG": "assets/menu/circle/map.svg",
+      "ready": true
+    },
+    {
+      "id": "objectives",
+      "category": "menu",
+      "displayName": "Objectives",
+      "glyphPNG": "assets/menu/glyph/objectives.png",
+      "circlePNG": "assets/menu/circle/objectives.png",
+      "glyphSVG": "assets/menu/glyph/objectives.svg",
+      "circleSVG": "assets/menu/circle/objectives.svg",
+      "ready": true
+    },
+    {
+      "id": "settings",
+      "category": "menu",
+      "displayName": "Settings",
+      "glyphPNG": "assets/menu/glyph/settings.png",
+      "circlePNG": "assets/menu/circle/settings.png",
+      "glyphSVG": "assets/menu/glyph/settings.svg",
+      "circleSVG": "assets/menu/circle/settings.svg",
+      "ready": true
+    },
+    {
+      "id": "audio",
+      "category": "menu",
+      "displayName": "Audio",
+      "glyphPNG": "assets/menu/glyph/audio.png",
+      "circlePNG": "assets/menu/circle/audio.png",
+      "glyphSVG": "assets/menu/glyph/audio.svg",
+      "circleSVG": "assets/menu/circle/audio.svg",
+      "ready": true
+    },
+    {
+      "id": "graphics",
+      "category": "menu",
+      "displayName": "Graphics",
+      "glyphPNG": "assets/menu/glyph/graphics.png",
+      "circlePNG": "assets/menu/circle/graphics.png",
+      "glyphSVG": "assets/menu/glyph/graphics.svg",
+      "circleSVG": "assets/menu/circle/graphics.svg",
+      "ready": true
+    },
+    {
+      "id": "controls",
+      "category": "menu",
+      "displayName": "Controls",
+      "glyphPNG": "assets/menu/glyph/controls.png",
+      "circlePNG": "assets/menu/circle/controls.png",
+      "glyphSVG": "assets/menu/glyph/controls.svg",
+      "circleSVG": "assets/menu/circle/controls.svg",
+      "ready": true
+    },
+    {
+      "id": "save",
+      "category": "menu",
+      "displayName": "Save",
+      "glyphPNG": "assets/menu/glyph/save.png",
+      "circlePNG": "assets/menu/circle/save.png",
+      "glyphSVG": "assets/menu/glyph/save.svg",
+      "circleSVG": "assets/menu/circle/save.svg",
+      "ready": true
+    },
+    {
+      "id": "load",
+      "category": "menu",
+      "displayName": "Load",
+      "glyphPNG": "assets/menu/glyph/load.png",
+      "circlePNG": "assets/menu/circle/load.png",
+      "glyphSVG": "assets/menu/glyph/load.svg",
+      "circleSVG": "assets/menu/circle/load.svg",
+      "ready": true
+    },
+    {
+      "id": "pause",
+      "category": "menu",
+      "displayName": "Pause",
+      "glyphPNG": "assets/menu/glyph/pause.png",
+      "circlePNG": "assets/menu/circle/pause.png",
+      "glyphSVG": "assets/menu/glyph/pause.svg",
+      "circleSVG": "assets/menu/circle/pause.svg",
+      "ready": true
+    },
+    {
+      "id": "play",
+      "category": "menu",
+      "displayName": "Play",
+      "glyphPNG": "assets/menu/glyph/play.png",
+      "circlePNG": "assets/menu/circle/play.png",
+      "glyphSVG": "assets/menu/glyph/play.svg",
+      "circleSVG": "assets/menu/circle/play.svg",
+      "ready": true
+    },
+    {
+      "id": "quit",
+      "category": "menu",
+      "displayName": "Quit",
+      "glyphPNG": "assets/menu/glyph/quit.png",
+      "circlePNG": "assets/menu/circle/quit.png",
+      "glyphSVG": "assets/menu/glyph/quit.svg",
+      "circleSVG": "assets/menu/circle/quit.svg",
+      "ready": true
+    },
+    {
+      "id": "home",
+      "category": "menu",
+      "displayName": "Home",
+      "glyphPNG": "assets/menu/glyph/home.png",
+      "circlePNG": "assets/menu/circle/home.png",
+      "glyphSVG": "assets/menu/glyph/home.svg",
+      "circleSVG": "assets/menu/circle/home.svg",
+      "ready": true
+    },
+    {
+      "id": "back",
+      "category": "menu",
+      "displayName": "Back",
+      "glyphPNG": "assets/menu/glyph/back.png",
+      "circlePNG": "assets/menu/circle/back.png",
+      "glyphSVG": "assets/menu/glyph/back.svg",
+      "circleSVG": "assets/menu/circle/back.svg",
+      "ready": true
+    },
+    {
+      "id": "forward",
+      "category": "menu",
+      "displayName": "Forward",
+      "glyphPNG": "assets/menu/glyph/forward.png",
+      "circlePNG": "assets/menu/circle/forward.png",
+      "glyphSVG": "assets/menu/glyph/forward.svg",
+      "circleSVG": "assets/menu/circle/forward.svg",
+      "ready": true
+    },
+    {
+      "id": "camera_mode",
+      "category": "menu",
+      "displayName": "Camera Mode",
+      "glyphPNG": "assets/menu/glyph/camera_mode.png",
+      "circlePNG": "assets/menu/circle/camera_mode.png",
+      "glyphSVG": "assets/menu/glyph/camera_mode.svg",
+      "circleSVG": "assets/menu/circle/camera_mode.svg",
+      "ready": true
+    },
+    {
+      "id": "sandbox",
+      "category": "menu",
+      "displayName": "Sandbox",
+      "glyphPNG": "assets/menu/glyph/sandbox.png",
+      "circlePNG": "assets/menu/circle/sandbox.png",
+      "glyphSVG": "assets/menu/glyph/sandbox.svg",
+      "circleSVG": "assets/menu/circle/sandbox.svg",
+      "ready": true
+    },
+    {
+      "id": "weather",
+      "category": "menu",
+      "displayName": "Weather",
+      "glyphPNG": "assets/menu/glyph/weather.png",
+      "circlePNG": "assets/menu/circle/weather.png",
+      "glyphSVG": "assets/menu/glyph/weather.svg",
+      "circleSVG": "assets/menu/circle/weather.svg",
+      "ready": true
+    },
+    {
+      "id": "journal",
+      "category": "menu",
+      "displayName": "Journal",
+      "glyphPNG": "assets/menu/glyph/journal.png",
+      "circlePNG": "assets/menu/circle/journal.png",
+      "glyphSVG": "assets/menu/glyph/journal.svg",
+      "circleSVG": "assets/menu/circle/journal.svg",
+      "ready": true
+    },
+    {
+      "id": "citadel",
+      "category": "menu",
+      "displayName": "Citadel",
+      "glyphPNG": "assets/menu/glyph/citadel.png",
+      "circlePNG": "assets/menu/circle/citadel.png",
+      "glyphSVG": "assets/menu/glyph/citadel.svg",
+      "circleSVG": "assets/menu/circle/citadel.svg",
+      "ready": true
+    },
+    {
+      "id": "craft",
+      "category": "menu",
+      "displayName": "Craft",
+      "glyphPNG": "assets/menu/glyph/craft.png",
+      "circlePNG": "assets/menu/circle/craft.png",
+      "glyphSVG": "assets/menu/glyph/craft.svg",
+      "circleSVG": "assets/menu/circle/craft.svg",
+      "ready": true
+    },
+    {
+      "id": "shop",
+      "category": "menu",
+      "displayName": "Shop",
+      "glyphPNG": "assets/menu/glyph/shop.png",
+      "circlePNG": "assets/menu/circle/shop.png",
+      "glyphSVG": "assets/menu/glyph/shop.svg",
+      "circleSVG": "assets/menu/circle/shop.svg",
+      "ready": true
+    },
+    {
+      "id": "flashlight",
+      "category": "action",
+      "displayName": "Flashlight",
+      "glyphPNG": "assets/action/glyph/flashlight.png",
+      "circlePNG": "assets/action/circle/flashlight.png",
+      "glyphSVG": "assets/action/glyph/flashlight.svg",
+      "circleSVG": "assets/action/circle/flashlight.svg",
+      "ready": true
+    },
+    {
+      "id": "jump",
+      "category": "action",
+      "displayName": "Jump",
+      "glyphPNG": "assets/action/glyph/jump.png",
+      "circlePNG": "assets/action/circle/jump.png",
+      "glyphSVG": "assets/action/glyph/jump.svg",
+      "circleSVG": "assets/action/circle/jump.svg",
+      "ready": true
+    },
+    {
+      "id": "run",
+      "category": "action",
+      "displayName": "Run",
+      "glyphPNG": "assets/action/glyph/run.png",
+      "circlePNG": "assets/action/circle/run.png",
+      "glyphSVG": "assets/action/glyph/run.svg",
+      "circleSVG": "assets/action/circle/run.svg",
+      "ready": true
+    },
+    {
+      "id": "crouch",
+      "category": "action",
+      "displayName": "Crouch",
+      "glyphPNG": "assets/action/glyph/crouch.png",
+      "circlePNG": "assets/action/circle/crouch.png",
+      "glyphSVG": "assets/action/glyph/crouch.svg",
+      "circleSVG": "assets/action/circle/crouch.svg",
+      "ready": true
+    },
+    {
+      "id": "grapnel_mode",
+      "category": "action",
+      "displayName": "Grapnel Mode",
+      "glyphPNG": "assets/action/glyph/grapnel_mode.png",
+      "circlePNG": "assets/action/circle/grapnel_mode.png",
+      "glyphSVG": "assets/action/glyph/grapnel_mode.svg",
+      "circleSVG": "assets/action/circle/grapnel_mode.svg",
+      "ready": true
+    },
+    {
+      "id": "key_prompt",
+      "category": "action",
+      "displayName": "Key Prompt",
+      "glyphPNG": "assets/action/glyph/key_prompt.png",
+      "circlePNG": "assets/action/circle/key_prompt.png",
+      "glyphSVG": "assets/action/glyph/key_prompt.svg",
+      "circleSVG": "assets/action/circle/key_prompt.svg",
+      "ready": true
+    },
+    {
+      "id": "health",
+      "category": "hud",
+      "displayName": "Health",
+      "glyphPNG": "assets/hud/glyph/health.png",
+      "circlePNG": "assets/hud/circle/health.png",
+      "glyphSVG": "assets/hud/glyph/health.svg",
+      "circleSVG": "assets/hud/circle/health.svg",
+      "ready": true
+    },
+    {
+      "id": "armor",
+      "category": "hud",
+      "displayName": "Armor",
+      "glyphPNG": "assets/hud/glyph/armor.png",
+      "circlePNG": "assets/hud/circle/armor.png",
+      "glyphSVG": "assets/hud/glyph/armor.svg",
+      "circleSVG": "assets/hud/circle/armor.svg",
+      "ready": true
+    },
+    {
+      "id": "energy",
+      "category": "hud",
+      "displayName": "Energy",
+      "glyphPNG": "assets/hud/glyph/energy.png",
+      "circlePNG": "assets/hud/circle/energy.png",
+      "glyphSVG": "assets/hud/glyph/energy.svg",
+      "circleSVG": "assets/hud/circle/energy.svg",
+      "ready": true
+    },
+    {
+      "id": "crosshair",
+      "category": "hud",
+      "displayName": "Crosshair",
+      "glyphPNG": "assets/hud/glyph/crosshair.png",
+      "circlePNG": "assets/hud/circle/crosshair.png",
+      "glyphSVG": "assets/hud/glyph/crosshair.svg",
+      "circleSVG": "assets/hud/circle/crosshair.svg",
+      "ready": true
+    },
+    {
+      "id": "compass",
+      "category": "hud",
+      "displayName": "Compass",
+      "glyphPNG": "assets/hud/glyph/compass.png",
+      "circlePNG": "assets/hud/circle/compass.png",
+      "glyphSVG": "assets/hud/glyph/compass.svg",
+      "circleSVG": "assets/hud/circle/compass.svg",
+      "ready": true
+    },
+    {
+      "id": "notification",
+      "category": "hud",
+      "displayName": "Notification",
+      "glyphPNG": "assets/hud/glyph/notification.png",
+      "circlePNG": "assets/hud/circle/notification.png",
+      "glyphSVG": "assets/hud/glyph/notification.svg",
+      "circleSVG": "assets/hud/circle/notification.svg",
+      "ready": true
+    },
+    {
+      "id": "key_1",
+      "category": "keycap",
+      "displayName": "1",
+      "glyphPNG": "assets/keycaps/1.png",
+      "ready": true
+    },
+    {
+      "id": "key_2",
+      "category": "keycap",
+      "displayName": "2",
+      "glyphPNG": "assets/keycaps/2.png",
+      "ready": true
+    },
+    {
+      "id": "key_3",
+      "category": "keycap",
+      "displayName": "3",
+      "glyphPNG": "assets/keycaps/3.png",
+      "ready": true
+    },
+    {
+      "id": "key_4",
+      "category": "keycap",
+      "displayName": "4",
+      "glyphPNG": "assets/keycaps/4.png",
+      "ready": true
+    },
+    {
+      "id": "key_5",
+      "category": "keycap",
+      "displayName": "5",
+      "glyphPNG": "assets/keycaps/5.png",
+      "ready": true
+    },
+    {
+      "id": "key_6",
+      "category": "keycap",
+      "displayName": "6",
+      "glyphPNG": "assets/keycaps/6.png",
+      "ready": true
+    },
+    {
+      "id": "key_7",
+      "category": "keycap",
+      "displayName": "7",
+      "glyphPNG": "assets/keycaps/7.png",
+      "ready": true
+    },
+    {
+      "id": "key_8",
+      "category": "keycap",
+      "displayName": "8",
+      "glyphPNG": "assets/keycaps/8.png",
+      "ready": true
+    },
+    {
+      "id": "key_9",
+      "category": "keycap",
+      "displayName": "9",
+      "glyphPNG": "assets/keycaps/9.png",
+      "ready": true
+    },
+    {
+      "id": "key_0",
+      "category": "keycap",
+      "displayName": "0",
+      "glyphPNG": "assets/keycaps/0.png",
+      "ready": true
+    },
+    {
+      "id": "key_q",
+      "category": "keycap",
+      "displayName": "Q",
+      "glyphPNG": "assets/keycaps/q.png",
+      "ready": true
+    },
+    {
+      "id": "key_e",
+      "category": "keycap",
+      "displayName": "E",
+      "glyphPNG": "assets/keycaps/e.png",
+      "ready": true
+    },
+    {
+      "id": "key_r",
+      "category": "keycap",
+      "displayName": "R",
+      "glyphPNG": "assets/keycaps/r.png",
+      "ready": true
+    },
+    {
+      "id": "key_f",
+      "category": "keycap",
+      "displayName": "F",
+      "glyphPNG": "assets/keycaps/f.png",
+      "ready": true
+    },
+    {
+      "id": "key_g",
+      "category": "keycap",
+      "displayName": "G",
+      "glyphPNG": "assets/keycaps/g.png",
+      "ready": true
+    },
+    {
+      "id": "key_h",
+      "category": "keycap",
+      "displayName": "H",
+      "glyphPNG": "assets/keycaps/h.png",
+      "ready": true
+    },
+    {
+      "id": "key_i",
+      "category": "keycap",
+      "displayName": "I",
+      "glyphPNG": "assets/keycaps/i.png",
+      "ready": true
+    },
+    {
+      "id": "key_m",
+      "category": "keycap",
+      "displayName": "M",
+      "glyphPNG": "assets/keycaps/m.png",
+      "ready": true
+    },
+    {
+      "id": "key_c",
+      "category": "keycap",
+      "displayName": "C",
+      "glyphPNG": "assets/keycaps/c.png",
+      "ready": true
+    },
+    {
+      "id": "key_tab",
+      "category": "keycap",
+      "displayName": "Tab",
+      "glyphPNG": "assets/keycaps/tab.png",
+      "ready": true
+    },
+    {
+      "id": "key_shift",
+      "category": "keycap",
+      "displayName": "Shift",
+      "glyphPNG": "assets/keycaps/shift.png",
+      "ready": true
+    },
+    {
+      "id": "key_space",
+      "category": "keycap",
+      "displayName": "Space",
+      "glyphPNG": "assets/keycaps/space.png",
+      "ready": true
+    },
+    {
+      "id": "key_esc",
+      "category": "keycap",
+      "displayName": "Esc",
+      "glyphPNG": "assets/keycaps/esc.png",
+      "ready": true
+    },
+    {
+      "id": "key_ctrl",
+      "category": "keycap",
+      "displayName": "Ctrl",
+      "glyphPNG": "assets/keycaps/ctrl.png",
+      "ready": true
+    },
+    {
+      "id": "key_mouse1",
+      "category": "keycap",
+      "displayName": "Mouse1",
+      "glyphPNG": "assets/keycaps/mouse1.png",
+      "ready": true
+    },
+    {
+      "id": "key_mouse2",
+      "category": "keycap",
+      "displayName": "Mouse2",
+      "glyphPNG": "assets/keycaps/mouse2.png",
+      "ready": true
+    }
+  ]
+}

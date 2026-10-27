@@ -1,0 +1,26 @@
+{
+  "name": "Earth-RED New Gotham",
+  "seed": 27052010,
+  "worldScaleMeters": 12000,
+  "spawn": [
+    0,
+    2,
+    0
+  ],
+  "districts": [
+    "Downtown",
+    "Old Gotham",
+    "The Narrows",
+    "Industrial Docks",
+    "Blackwater Island"
+  ],
+  "timeOfDay": "night",
+  "weather": "rain",
+  "streamingCellSize": 128,
+  "defaultDrawDistance": 600,
+  "redCitadelPortal": [
+    0,
+    0,
+    -120
+  ]
+}

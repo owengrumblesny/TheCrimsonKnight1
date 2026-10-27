@@ -1,0 +1,23 @@
+{
+  "renderer": "WebGLRenderer",
+  "toneMapping": "ACESFilmic",
+  "antialias": true,
+  "shadows": true,
+  "shadowMap": "PCFSoftShadowMap",
+  "pixelRatioCap": 1.5,
+  "targetFPS": 60,
+  "lodDistances": [
+    25,
+    70,
+    150,
+    350
+  ],
+  "textureBudgetMB": 512,
+  "materialPalette": {
+    "crimson": "#990000",
+    "deep_red": "#660000",
+    "emissive_red": "#FF2020",
+    "black": "#111111",
+    "gunmetal": "#303030"
+  }
+}

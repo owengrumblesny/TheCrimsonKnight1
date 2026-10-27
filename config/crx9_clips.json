@@ -1,0 +1,208 @@
+{
+  "asset": "assets/models/characters/crimson_knight_CRX9_rigged.glb",
+  "source": "tools/blender/ck_build_crx9.py",
+  "height_m": 1.95,
+  "forward": "+Z (Three.js)",
+  "skeleton_bones": 41,
+  "triangles": 18964,
+  "clips": [
+    {
+      "name": "CK_Idle",
+      "frames": 60,
+      "fps": 30,
+      "duration": 2.0,
+      "loop": true,
+      "refSpeed": null,
+      "description": "breathing, weight shift, cape sway"
+    },
+    {
+      "name": "CK_Walk",
+      "frames": 32,
+      "fps": 30,
+      "duration": 1.0667,
+      "loop": true,
+      "refSpeed": 1.6,
+      "description": "planted-foot walk cycle"
+    },
+    {
+      "name": "CK_Run",
+      "frames": 20,
+      "fps": 30,
+      "duration": 0.6667,
+      "loop": true,
+      "refSpeed": 5.0,
+      "description": "run cycle with flight phase"
+    },
+    {
+      "name": "CK_Sprint",
+      "frames": 16,
+      "fps": 30,
+      "duration": 0.5333,
+      "loop": true,
+      "refSpeed": 8.0,
+      "description": "sprint, strong forward lean, cape streaming"
+    },
+    {
+      "name": "CK_StrafeLeft",
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": true,
+      "refSpeed": 1.0,
+      "description": "side-step toward character's left"
+    },
+    {
+      "name": "CK_StrafeRight",
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": true,
+      "refSpeed": 1.0,
+      "description": "side-step toward character's right"
+    },
+    {
+      "name": "CK_CrouchIdle",
+      "frames": 60,
+      "fps": 30,
+      "duration": 2.0,
+      "loop": true,
+      "refSpeed": null,
+      "description": "low ready crouch"
+    },
+    {
+      "name": "CK_CrouchWalk",
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": true,
+      "refSpeed": 1.0,
+      "description": "stealth crouch walk"
+    },
+    {
+      "name": "CK_JumpStart",
+      "frames": 14,
+      "fps": 30,
+      "duration": 0.4667,
+      "loop": false,
+      "refSpeed": null,
+      "description": "anticipation + take-off; game applies the vertical impulse at frame 10"
+    },
+    {
+      "name": "CK_Airborne",
+      "frames": 30,
+      "fps": 30,
+      "duration": 1.0,
+      "loop": true,
+      "refSpeed": null,
+      "description": "in-air loop, cape lifting"
+    },
+    {
+      "name": "CK_LandSoft",
+      "frames": 16,
+      "fps": 30,
+      "duration": 0.5333,
+      "loop": false,
+      "refSpeed": null,
+      "description": "soft landing"
+    },
+    {
+      "name": "CK_LandHard",
+      "frames": 34,
+      "fps": 30,
+      "duration": 1.1333,
+      "loop": false,
+      "refSpeed": null,
+      "description": "three-point hero landing then rise"
+    },
+    {
+      "name": "CK_GrappleAim",
+      "frames": 30,
+      "fps": 30,
+      "duration": 1.0,
+      "loop": true,
+      "refSpeed": null,
+      "description": "grapnel arm raised and aimed"
+    },
+    {
+      "name": "CK_GrapplePull",
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": true,
+      "refSpeed": null,
+      "description": "being reeled toward the grapple point"
+    },
+    {
+      "name": "CK_Glide",
+      "frames": 40,
+      "fps": 30,
+      "duration": 1.3333,
+      "loop": true,
+      "refSpeed": null,
+      "description": "cape-wing glide; game pitches the root for flight"
+    },
+    {
+      "name": "CK_GadgetDraw",
+      "frames": 18,
+      "fps": 30,
+      "duration": 0.6,
+      "loop": false,
+      "refSpeed": null,
+      "description": "draw fictional gadget from belt"
+    },
+    {
+      "name": "CK_GadgetStow",
+      "frames": 18,
+      "fps": 30,
+      "duration": 0.6,
+      "loop": false,
+      "refSpeed": null,
+      "description": "return gadget to belt"
+    },
+    {
+      "name": "CK_Summon",
+      "frames": 45,
+      "fps": 30,
+      "duration": 1.5,
+      "loop": false,
+      "refSpeed": null,
+      "description": "wrist-module vehicle call"
+    },
+    {
+      "name": "CK_VehicleEnter",
+      "frames": 40,
+      "fps": 30,
+      "duration": 1.3333,
+      "loop": false,
+      "refSpeed": null,
+      "description": "generic step-in and sit; game blends root to the vehicle seat_attach"
+    },
+    {
+      "name": "CK_VehicleExit",
+      "frames": 36,
+      "fps": 30,
+      "duration": 1.2,
+      "loop": false,
+      "refSpeed": null,
+      "description": "generic stand-up and step-out"
+    },
+    {
+      "name": "CK_Drive",
+      "frames": 60,
+      "fps": 30,
+      "duration": 2.0,
+      "loop": true,
+      "refSpeed": null,
+      "description": "seated driving loop"
+    },
+    {
+      "name": "CK_Interact",
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": false,
+      "refSpeed": null,
+      "description": "reach and press"
+    }
+  ]
+}

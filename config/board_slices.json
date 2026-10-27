@@ -1,0 +1,1838 @@
+{
+ "about": "Crop spec for the concept/asset sheets in references/original_images. Rects are [x0,y0,x1,y1] in the board's preview space (board pixels / scale). Band forms: 'labels'+'split':'equal' (equal tiles), 'labels'+'centers' (tile edges at midpoints between label centres), or 'items' {label: rect}. 'frames' splits each tile into N animation frames. Run: python tools/slice_boards.py",
+ "boards": {
+  "A": {
+   "file": "references/original_images/a_huge_detailed_concept_asset_animation_reference.png",
+   "scale": 1.0,
+   "bands": [
+    {
+     "cat": "hero",
+     "rect": [
+      8,
+      80,
+      585,
+      283
+     ],
+     "split": "equal",
+     "labels": [
+      "turnaround_front",
+      "turnaround_front_angle",
+      "turnaround_side",
+      "turnaround_back_angle",
+      "turnaround_back",
+      "turnaround_side_b"
+     ]
+    },
+    {
+     "cat": "hero",
+     "items": {
+      "turnaround_top": [
+       588,
+       205,
+       672,
+       283
+      ],
+      "turnaround_bottom": [
+       676,
+       205,
+       764,
+       283
+      ]
+     }
+    },
+    {
+     "cat": "hero",
+     "rect": [
+      778,
+      82,
+      1138,
+      172
+     ],
+     "split": "equal",
+     "labels": [
+      "helmet_front",
+      "helmet_front_angle",
+      "helmet_side",
+      "helmet_back"
+     ]
+    },
+    {
+     "cat": "hero",
+     "rect": [
+      778,
+      193,
+      1138,
+      284
+     ],
+     "split": "equal",
+     "labels": [
+      "helmet_top",
+      "helmet_bottom",
+      "helmet_left",
+      "helmet_right"
+     ]
+    },
+    {
+     "cat": "hero",
+     "rect": [
+      1152,
+      82,
+      1528,
+      170
+     ],
+     "split": "equal",
+     "labels": [
+      "armor_chest",
+      "armor_shoulder",
+      "armor_gauntlet",
+      "armor_belt"
+     ]
+    },
+    {
+     "cat": "hero",
+     "rect": [
+      1152,
+      190,
+      1528,
+      280
+     ],
+     "split": "equal",
+     "labels": [
+      "armor_leg",
+      "armor_boots",
+      "armor_cape_attachment",
+      "armor_emblem"
+     ]
+    },
+    {
+     "cat": "animations",
+     "items": {
+      "idle": [
+       10,
+       343,
+       205,
+       405
+      ]
+     },
+     "frames": 6
+    },
+    {
+     "cat": "animations",
+     "items": {
+      "walk": [
+       208,
+       343,
+       408,
+       405
+      ],
+      "run": [
+       412,
+       343,
+       610,
+       405
+      ],
+      "sprint": [
+       614,
+       343,
+       814,
+       405
+      ],
+      "jump": [
+       818,
+       343,
+       1018,
+       405
+      ],
+      "stealth": [
+       1370,
+       343,
+       1528,
+       405
+      ]
+     },
+     "frames": 8
+    },
+    {
+     "cat": "animations",
+     "items": {
+      "land": [
+       1022,
+       343,
+       1212,
+       405
+      ],
+      "crouch": [
+       1216,
+       343,
+       1365,
+       405
+      ]
+     },
+     "frames": 6
+    },
+    {
+     "cat": "animations",
+     "items": {
+      "light_attack": [
+       10,
+       452,
+       158,
+       513
+      ],
+      "heavy_attack": [
+       162,
+       452,
+       300,
+       513
+      ],
+      "counter": [
+       303,
+       452,
+       420,
+       513
+      ],
+      "finisher": [
+       424,
+       452,
+       582,
+       513
+      ],
+      "takedown": [
+       586,
+       452,
+       765,
+       513
+      ]
+     }
+    },
+    {
+     "cat": "animations",
+     "items": {
+      "batarang_throw": [
+       782,
+       452,
+       872,
+       513
+      ],
+      "grappling": [
+       876,
+       452,
+       970,
+       513
+      ],
+      "scanner_use": [
+       973,
+       452,
+       1060,
+       513
+      ],
+      "explosive_use": [
+       1062,
+       452,
+       1150,
+       513
+      ]
+     }
+    },
+    {
+     "cat": "animations",
+     "rect": [
+      1163,
+      437,
+      1528,
+      510
+     ],
+     "split": "equal",
+     "labels": [
+      "cape_idle",
+      "cape_walk",
+      "cape_run",
+      "cape_jump",
+      "cape_glide",
+      "cape_wind"
+     ]
+    },
+    {
+     "cat": "animations",
+     "items": {
+      "vehicle_summon": [
+       10,
+       555,
+       215,
+       636
+      ],
+      "vehicle_approach": [
+       220,
+       555,
+       410,
+       636
+      ],
+      "vehicle_enter": [
+       413,
+       555,
+       570,
+       636
+      ],
+      "vehicle_exit": [
+       573,
+       555,
+       730,
+       636
+      ],
+      "vehicle_flight_takeoff": [
+       988,
+       555,
+       1265,
+       636
+      ],
+      "vehicle_landing": [
+       1268,
+       555,
+       1528,
+       636
+      ]
+     }
+    },
+    {
+     "cat": "vehicles",
+     "items": {
+      "crx1_transform_pursuit": [
+       735,
+       560,
+       815,
+       622
+      ],
+      "crx1_transform_battle": [
+       817,
+       560,
+       897,
+       622
+      ],
+      "crx1_transform_stealth": [
+       899,
+       560,
+       979,
+       622
+      ]
+     }
+    },
+    {
+     "cat": "vehicles",
+     "items": {
+      "crx1_main": [
+       12,
+       668,
+       190,
+       785
+      ],
+      "crx1_front": [
+       192,
+       668,
+       262,
+       706
+      ],
+      "crx1_front_angle": [
+       265,
+       668,
+       342,
+       706
+      ],
+      "crx1_side": [
+       345,
+       668,
+       422,
+       706
+      ],
+      "crx1_rear_angle": [
+       425,
+       668,
+       505,
+       706
+      ],
+      "crx1_rear": [
+       215,
+       725,
+       305,
+       775
+      ],
+      "crx1_top": [
+       310,
+       725,
+       400,
+       775
+      ],
+      "crx1_bottom": [
+       403,
+       725,
+       505,
+       775
+      ]
+     }
+    },
+    {
+     "cat": "vehicles",
+     "items": {
+      "crb1_main": [
+       520,
+       665,
+       755,
+       790
+      ],
+      "crb1_front": [
+       757,
+       668,
+       820,
+       712
+      ],
+      "crb1_front_angle": [
+       823,
+       668,
+       888,
+       712
+      ],
+      "crb1_side": [
+       890,
+       668,
+       955,
+       712
+      ],
+      "crb1_rear_angle": [
+       957,
+       668,
+       1020,
+       712
+      ],
+      "crb1_rear": [
+       757,
+       728,
+       838,
+       775
+      ],
+      "crb1_top": [
+       840,
+       728,
+       925,
+       775
+      ],
+      "crb1_bottom": [
+       928,
+       728,
+       1020,
+       775
+      ]
+     }
+    },
+    {
+     "cat": "vehicles",
+     "items": {
+      "cra1_main": [
+       1030,
+       668,
+       1248,
+       785
+      ],
+      "cra1_front": [
+       1250,
+       668,
+       1312,
+       712
+      ],
+      "cra1_front_angle": [
+       1315,
+       668,
+       1385,
+       712
+      ],
+      "cra1_side": [
+       1388,
+       668,
+       1455,
+       712
+      ],
+      "cra1_rear_angle": [
+       1458,
+       668,
+       1528,
+       712
+      ],
+      "cra1_rear": [
+       1262,
+       728,
+       1345,
+       775
+      ],
+      "cra1_top": [
+       1348,
+       728,
+       1432,
+       775
+      ],
+      "cra1_bottom": [
+       1435,
+       728,
+       1528,
+       775
+      ]
+     }
+    },
+    {
+     "cat": "gadgets",
+     "rect": [
+      8,
+      812,
+      1528,
+      872
+     ],
+     "split": "equal",
+     "labels": [
+      "batarang",
+      "explosive_gel",
+      "emp_device",
+      "grapnel_gun",
+      "smoke_pellet",
+      "flash_grenade",
+      "sonic_device",
+      "recon_drone",
+      "holographic_scanner",
+      "zip_line",
+      "gadget_11",
+      "tac_tablet",
+      "medkit",
+      "lockpick",
+      "lockpick_b",
+      "gadget_16",
+      "thermal_visor"
+     ]
+    },
+    {
+     "cat": "world",
+     "items": {
+      "downtown": [
+       8,
+       912,
+       145,
+       1003
+      ],
+      "industrial_district": [
+       150,
+       912,
+       260,
+       1003
+      ],
+      "the_narrows": [
+       265,
+       912,
+       375,
+       1003
+      ],
+      "old_gotham": [
+       380,
+       912,
+       488,
+       1003
+      ],
+      "blackwater_island": [
+       493,
+       912,
+       655,
+       1003
+      ],
+      "rooftops": [
+       658,
+       912,
+       782,
+       1003
+      ],
+      "streets": [
+       788,
+       912,
+       918,
+       1003
+      ]
+     }
+    },
+    {
+     "cat": "world",
+     "rect": [
+      928,
+      912,
+      1528,
+      1003
+     ],
+     "split": "equal",
+     "labels": [
+      "citadel_entrance",
+      "citadel_command_center",
+      "citadel_hangar",
+      "citadel_armory",
+      "citadel_laboratory",
+      "citadel_training_area"
+     ]
+    }
+   ]
+  },
+  "B": {
+   "file": "references/original_images/a_wide_densely_packed_cinematic_infographic_asse.png",
+   "scale": 1.0,
+   "bands": [
+    {
+     "cat": "hero",
+     "rect": [
+      8,
+      140,
+      592,
+      322
+     ],
+     "split": "equal",
+     "labels": [
+      "turnaround_front_34",
+      "turnaround_front_34_b",
+      "turnaround_side",
+      "turnaround_side_b",
+      "turnaround_back_34",
+      "turnaround_back",
+      "turnaround_side_c"
+     ]
+    },
+    {
+     "cat": "hero",
+     "rect": [
+      600,
+      152,
+      925,
+      227
+     ],
+     "split": "equal",
+     "labels": [
+      "helmet_front",
+      "helmet_front_34",
+      "helmet_side",
+      "helmet_back"
+     ]
+    },
+    {
+     "cat": "hero",
+     "rect": [
+      600,
+      242,
+      925,
+      318
+     ],
+     "split": "equal",
+     "labels": [
+      "helmet_top",
+      "helmet_bottom",
+      "helmet_left",
+      "helmet_right"
+     ]
+    },
+    {
+     "cat": "hero",
+     "rect": [
+      938,
+      152,
+      1240,
+      229
+     ],
+     "split": "equal",
+     "labels": [
+      "armor_chest",
+      "armor_shoulder",
+      "armor_gauntlet",
+      "armor_back"
+     ]
+    },
+    {
+     "cat": "hero",
+     "rect": [
+      938,
+      242,
+      1240,
+      322
+     ],
+     "split": "equal",
+     "labels": [
+      "armor_belt",
+      "armor_leg",
+      "armor_boots",
+      "armor_cape"
+     ]
+    },
+    {
+     "cat": "textures",
+     "rect": [
+      1250,
+      158,
+      1445,
+      212
+     ],
+     "split": "equal",
+     "labels": [
+      "albedo",
+      "normal",
+      "roughness",
+      "metallic"
+     ]
+    },
+    {
+     "cat": "textures",
+     "rect": [
+      1250,
+      222,
+      1445,
+      272
+     ],
+     "split": "equal",
+     "labels": [
+      "emissive",
+      "ao",
+      "height",
+      "cape_fabric"
+     ]
+    },
+    {
+     "cat": "animations",
+     "rect": [
+      8,
+      362,
+      1528,
+      425
+     ],
+     "centers": [
+      40,
+      106,
+      162,
+      231,
+      310,
+      377,
+      434,
+      486,
+      538,
+      602,
+      669,
+      739,
+      807,
+      860,
+      912,
+      980,
+      1034,
+      1064,
+      1118,
+      1177,
+      1240,
+      1324,
+      1413,
+      1492
+     ],
+     "labels": [
+      "key_idle",
+      "key_walk",
+      "key_run",
+      "key_sprint",
+      "key_jump",
+      "key_land",
+      "key_crouch",
+      "key_stealth",
+      "key_grapple",
+      "key_glide",
+      "key_attack_light",
+      "key_attack_heavy",
+      "key_counter",
+      "key_finisher",
+      "key_takedown",
+      "key_aim",
+      "key_shoot",
+      "key_reload",
+      "key_gadget_use",
+      "key_gadget_use_b",
+      "key_gadget_use_c",
+      "key_vehicle_enter",
+      "key_vehicle_exit",
+      "key_cape_physics"
+     ]
+    },
+    {
+     "cat": "vehicles",
+     "items": {
+      "crx1_main": [
+       10,
+       487,
+       178,
+       560
+      ],
+      "crx1_interior": [
+       342,
+       485,
+       428,
+       560
+      ],
+      "crx1_transform": [
+       430,
+       485,
+       512,
+       560
+      ],
+      "crb1_main": [
+       522,
+       487,
+       668,
+       560
+      ],
+      "crb1_rider_view": [
+       895,
+       520,
+       975,
+       560
+      ],
+      "cra1_main": [
+       990,
+       487,
+       1238,
+       560
+      ],
+      "cra1_cockpit": [
+       1388,
+       485,
+       1458,
+       560
+      ],
+      "cra1_flight_mode": [
+       1460,
+       520,
+       1530,
+       560
+      ]
+     }
+    },
+    {
+     "cat": "gadgets",
+     "rect": [
+      8,
+      603,
+      1528,
+      668
+     ],
+     "centers": [
+      48,
+      138,
+      210,
+      262,
+      315,
+      365,
+      414,
+      466,
+      519,
+      571,
+      625,
+      680,
+      742,
+      810,
+      870,
+      925,
+      980,
+      1050,
+      1135,
+      1196,
+      1250,
+      1294,
+      1332,
+      1384,
+      1440,
+      1500
+     ],
+     "labels": [
+      "batarangs",
+      "grapple_gun",
+      "smoke_pellet",
+      "flash_grenade",
+      "emp_device",
+      "sonic_device",
+      "tac_tablet",
+      "medkit",
+      "lockpick",
+      "holographic",
+      "thermal_visor",
+      "zip_line",
+      "explosive_gel",
+      "nonlethal_gun",
+      "prop_pistol",
+      "prop_smart_rifle",
+      "prop_rifle",
+      "prop_long_rifle",
+      "prop_shotgun",
+      "prop_shotgun_b",
+      "stun_gun",
+      "taser",
+      "taser_gun",
+      "prop_knife",
+      "utility_belt",
+      "ammo_cases"
+     ]
+    },
+    {
+     "cat": "world",
+     "rect": [
+      8,
+      706,
+      1528,
+      765
+     ],
+     "centers": [
+      73,
+      196,
+      309,
+      418,
+      534,
+      645,
+      739,
+      832,
+      920,
+      1006,
+      1093,
+      1180,
+      1327,
+      1406,
+      1490
+     ],
+     "labels": [
+      "downtown",
+      "industrial_district",
+      "old_gotham",
+      "the_narrows",
+      "blackwater_island",
+      "rooftops",
+      "streets",
+      "alleys",
+      "subways",
+      "parks",
+      "port",
+      "riverfront",
+      "construction",
+      "tv_studio",
+      "interiors"
+     ]
+    },
+    {
+     "cat": "world",
+     "rect": [
+      8,
+      802,
+      880,
+      860
+     ],
+     "centers": [
+      50,
+      140,
+      235,
+      332,
+      418,
+      500,
+      595,
+      680,
+      760,
+      838
+     ],
+     "labels": [
+      "citadel_entrance",
+      "citadel_hangar",
+      "citadel_armory",
+      "citadel_command_center",
+      "citadel_landing_area",
+      "citadel_living_quarters",
+      "citadel_vehicle_bay",
+      "citadel_elevator",
+      "citadel_turntable",
+      "citadel_secret_entrance"
+     ]
+    },
+    {
+     "cat": "npcs",
+     "rect": [
+      890,
+      800,
+      1528,
+      862
+     ],
+     "centers": [
+      910,
+      950,
+      992,
+      1032,
+      1072,
+      1112,
+      1153,
+      1195,
+      1236,
+      1276,
+      1316,
+      1360,
+      1408,
+      1455,
+      1500
+     ],
+     "labels": [
+      "civilian_m",
+      "civilian_f",
+      "civilian",
+      "police",
+      "swat",
+      "militia",
+      "enforcer",
+      "scientist",
+      "worker",
+      "business",
+      "thug",
+      "medic",
+      "drone",
+      "drone_b",
+      "robot"
+     ]
+    },
+    {
+     "cat": "props",
+     "rect": [
+      8,
+      900,
+      975,
+      942
+     ],
+     "centers": [
+      30,
+      70,
+      115,
+      160,
+      205,
+      240,
+      270,
+      305,
+      337,
+      370,
+      407,
+      440,
+      476,
+      520,
+      565,
+      603,
+      637,
+      683,
+      724,
+      764,
+      800,
+      838,
+      875,
+      905,
+      932,
+      960
+     ],
+     "labels": [
+      "trash_can",
+      "trash_bags",
+      "bench",
+      "street_light",
+      "traffic_cone",
+      "barricade",
+      "recycling_bin",
+      "mailbox",
+      "fire_hydrant",
+      "newspaper_box",
+      "phone_booth",
+      "vending_machine",
+      "parking_meter",
+      "bicycle",
+      "pallets",
+      "crates",
+      "barrels",
+      "dumpster",
+      "tires",
+      "fence",
+      "manhole",
+      "cones",
+      "manhole_b",
+      "cctv",
+      "signage",
+      "bus_stop"
+     ]
+    },
+    {
+     "cat": "props",
+     "rect": [
+      8,
+      975,
+      975,
+      1005
+     ],
+     "centers": [
+      30,
+      75,
+      116,
+      158,
+      205,
+      245,
+      290,
+      343,
+      383,
+      425,
+      470,
+      515,
+      553,
+      585,
+      620,
+      655,
+      690,
+      738,
+      785,
+      822,
+      855,
+      895,
+      940
+     ],
+     "labels": [
+      "chair",
+      "desk",
+      "computer",
+      "server_rack",
+      "bed",
+      "locker",
+      "table",
+      "shelf",
+      "toolbox",
+      "workbench",
+      "cabinet",
+      "sofa",
+      "plant",
+      "lamp",
+      "living_room",
+      "tv",
+      "kitchen",
+      "bathroom",
+      "stairs",
+      "door",
+      "window",
+      "vent",
+      "floor_grate"
+     ]
+    },
+    {
+     "cat": "effects",
+     "rect": [
+      1280,
+      898,
+      1528,
+      942
+     ],
+     "split": "equal",
+     "labels": [
+      "explosion",
+      "fire",
+      "smoke",
+      "rain",
+      "lightning"
+     ]
+    },
+    {
+     "cat": "effects",
+     "rect": [
+      1280,
+      953,
+      1528,
+      995
+     ],
+     "split": "equal",
+     "labels": [
+      "muzzle_flash",
+      "sparks",
+      "electrical",
+      "debris",
+      "fog"
+     ]
+    },
+    {
+     "cat": "ui",
+     "items": {
+      "menu_ui": [
+       985,
+       898,
+       1065,
+       1005
+      ],
+      "hud_elements": [
+       1070,
+       898,
+       1175,
+       1005
+      ],
+      "interaction_icons": [
+       1180,
+       898,
+       1275,
+       1005
+      ]
+     }
+    }
+   ]
+  },
+  "C": {
+   "file": "references/original_images/a_large_detailed_concept_art_asset_sheet_collage_o.png",
+   "scale": 1.045,
+   "bands": [
+    {
+     "cat": "hero",
+     "rect": [
+      5,
+      50,
+      575,
+      322
+     ],
+     "split": "equal",
+     "labels": [
+      "turnaround_front",
+      "turnaround_front_angle",
+      "turnaround_side",
+      "turnaround_back_angle",
+      "turnaround_back",
+      "turnaround_side_b"
+     ]
+    },
+    {
+     "cat": "hero",
+     "items": {
+      "detail_helmet": [
+       583,
+       22,
+       715,
+       152
+      ],
+      "detail_chest": [
+       723,
+       22,
+       852,
+       152
+      ],
+      "detail_gauntlet": [
+       583,
+       177,
+       715,
+       315
+      ],
+      "detail_belt": [
+       723,
+       177,
+       852,
+       315
+      ]
+     }
+    },
+    {
+     "cat": "textures",
+     "items": {
+      "albedo": [
+       862,
+       38,
+       906,
+       92
+      ],
+      "normal": [
+       913,
+       38,
+       958,
+       92
+      ],
+      "roughness": [
+       862,
+       115,
+       906,
+       170
+      ],
+      "metallic": [
+       913,
+       115,
+       958,
+       170
+      ],
+      "emissive": [
+       862,
+       198,
+       906,
+       250
+      ],
+      "ao": [
+       913,
+       198,
+       958,
+       250
+      ]
+     }
+    },
+    {
+     "cat": "animations",
+     "rect": [
+      5,
+      392,
+      965,
+      545
+     ],
+     "centers": [
+      38,
+      104,
+      169,
+      236,
+      308,
+      384,
+      476,
+      565,
+      646,
+      731,
+      843,
+      925
+     ],
+     "labels": [
+      "pose_idle",
+      "pose_walk",
+      "pose_run",
+      "pose_sprint",
+      "pose_jump",
+      "pose_land",
+      "pose_crouch",
+      "pose_stealth_crouch",
+      "pose_grapple",
+      "pose_glide",
+      "pose_combat_idle",
+      "pose_light_attack"
+     ]
+    },
+    {
+     "cat": "animations",
+     "rect": [
+      965,
+      438,
+      1595,
+      545
+     ],
+     "centers": [
+      1004,
+      1084,
+      1166,
+      1240,
+      1322,
+      1422,
+      1545
+     ],
+     "labels": [
+      "pose_heavy_attack",
+      "pose_counter",
+      "pose_finisher",
+      "pose_take_hit",
+      "pose_weapon_aim",
+      "pose_gadget_use",
+      "pose_cape_movement"
+     ]
+    },
+    {
+     "cat": "vehicles",
+     "rect": [
+      10,
+      600,
+      712,
+      655
+     ],
+     "centers": [
+      46,
+      122,
+      205,
+      288,
+      366,
+      442,
+      518,
+      596,
+      673
+     ],
+     "labels": [
+      "crx1_anim_idle",
+      "crx1_anim_startup",
+      "crx1_anim_transform_battle",
+      "crx1_anim_weapons_deploy",
+      "crx1_anim_drive",
+      "crx1_anim_boost",
+      "crx1_anim_brake",
+      "crx1_anim_drift",
+      "crx1_anim_turret_mode"
+     ]
+    },
+    {
+     "cat": "vehicles",
+     "rect": [
+      727,
+      600,
+      1155,
+      655
+     ],
+     "centers": [
+      752,
+      808,
+      866,
+      924,
+      983,
+      1045,
+      1115
+     ],
+     "labels": [
+      "crb1_anim_idle",
+      "crb1_anim_startup",
+      "crb1_anim_drive",
+      "crb1_anim_drift",
+      "crb1_anim_wheelie",
+      "crb1_anim_boost",
+      "crb1_anim_autonomous"
+     ]
+    },
+    {
+     "cat": "vehicles",
+     "rect": [
+      1165,
+      600,
+      1595,
+      655
+     ],
+     "centers": [
+      1205,
+      1273,
+      1346,
+      1416,
+      1482,
+      1553
+     ],
+     "labels": [
+      "cra1_anim_idle",
+      "cra1_anim_engine_start",
+      "cra1_anim_vtol_takeoff",
+      "cra1_anim_transition",
+      "cra1_anim_flight",
+      "cra1_anim_landing"
+     ]
+    },
+    {
+     "cat": "vehicles",
+     "items": {
+      "crx1_hero": [
+       975,
+       55,
+       1255,
+       165
+      ],
+      "crb1_hero": [
+       975,
+       200,
+       1255,
+       305
+      ],
+      "cra1_hero": [
+       975,
+       340,
+       1255,
+       430
+      ],
+      "crx1_pursuit_mode": [
+       1328,
+       22,
+       1410,
+       90
+      ],
+      "crx1_battle_mode": [
+       1415,
+       22,
+       1500,
+       90
+      ],
+      "crx1_stealth_mode": [
+       1503,
+       22,
+       1592,
+       90
+      ]
+     }
+    },
+    {
+     "cat": "world",
+     "items": {
+      "downtown_wide": [
+       8,
+       698,
+       358,
+       876
+      ],
+      "industrial_wide": [
+       365,
+       698,
+       602,
+       876
+      ],
+      "rooftops_wide": [
+       608,
+       698,
+       815,
+       876
+      ],
+      "citadel_entrance_wide": [
+       820,
+       698,
+       1012,
+       876
+      ],
+      "citadel_main_hangar_wide": [
+       1018,
+       698,
+       1320,
+       876
+      ],
+      "citadel_command_center_wide": [
+       1327,
+       698,
+       1594,
+       876
+      ]
+     }
+    }
+   ]
+  },
+  "X1": {
+   "file": "references/original_images/a_dramatic_concept_art_style_collage_infographic_s.png",
+   "scale": 1.045,
+   "bands": [
+    {
+     "cat": "vehicles",
+     "items": {
+      "crx1_showcase": [
+       280,
+       30,
+       1250,
+       405
+      ],
+      "crx1_pursuit": [
+       5,
+       450,
+       540,
+       630
+      ],
+      "crx1_battle": [
+       548,
+       450,
+       1085,
+       630
+      ],
+      "crx1_stealth": [
+       1092,
+       450,
+       1595,
+       630
+      ],
+      "crx1_dual_autocannons": [
+       18,
+       675,
+       140,
+       835
+      ],
+      "crx1_missile_pods": [
+       155,
+       675,
+       277,
+       835
+      ],
+      "crx1_emp_projector": [
+       290,
+       675,
+       412,
+       835
+      ],
+      "crx1_rear_thrusters": [
+       430,
+       640,
+       745,
+       860
+      ],
+      "crx1_cockpit": [
+       755,
+       640,
+       1205,
+       860
+      ],
+      "crx1_garage": [
+       1212,
+       640,
+       1595,
+       775
+      ],
+      "crx1_blueprint_top": [
+       1285,
+       10,
+       1590,
+       95
+      ],
+      "crx1_blueprint_side": [
+       1285,
+       110,
+       1590,
+       180
+      ],
+      "crx1_blueprint_front": [
+       1285,
+       210,
+       1420,
+       295
+      ],
+      "crx1_blueprint_rear": [
+       1435,
+       210,
+       1570,
+       295
+      ]
+     }
+    }
+   ]
+  },
+  "B1": {
+   "file": "references/original_images/a_cinematic_concept_art_style_technical_showcase_p.png",
+   "scale": 1.045,
+   "bands": [
+    {
+     "cat": "vehicles",
+     "items": {
+      "crb1_showcase": [
+       330,
+       30,
+       1160,
+       440
+      ],
+      "crb1_view_front": [
+       1178,
+       30,
+       1370,
+       175
+      ],
+      "crb1_view_rear": [
+       1378,
+       30,
+       1590,
+       175
+      ],
+      "crb1_view_side": [
+       1178,
+       210,
+       1455,
+       350
+      ],
+      "crb1_view_top": [
+       1462,
+       210,
+       1590,
+       415
+      ],
+      "crb1_pursuit": [
+       5,
+       490,
+       525,
+       610
+      ],
+      "crb1_combat": [
+       532,
+       490,
+       1072,
+       610
+      ],
+      "crb1_stealth": [
+       1080,
+       490,
+       1595,
+       610
+      ],
+      "crb1_grapnel_launcher": [
+       15,
+       640,
+       175,
+       722
+      ],
+      "crb1_recon_drones": [
+       185,
+       640,
+       335,
+       722
+      ],
+      "crb1_defensive_systems": [
+       345,
+       640,
+       488,
+       722
+      ],
+      "crb1_underglow_armor": [
+       497,
+       640,
+       636,
+       722
+      ],
+      "crb1_utility_storage": [
+       15,
+       750,
+       175,
+       858
+      ],
+      "crb1_comms_interface": [
+       185,
+       750,
+       335,
+       858
+      ],
+      "crb1_turbine_core": [
+       345,
+       750,
+       488,
+       858
+      ],
+      "crb1_self_return_beacon": [
+       497,
+       750,
+       636,
+       858
+      ],
+      "crb1_cockpit": [
+       655,
+       640,
+       1092,
+       885
+      ],
+      "crb1_autonomous_operation": [
+       1105,
+       640,
+       1440,
+       742
+      ],
+      "crb1_size_comparison": [
+       1105,
+       770,
+       1440,
+       885
+      ],
+      "crb1_storage_mode": [
+       1448,
+       640,
+       1590,
+       885
+      ]
+     }
+    }
+   ]
+  },
+  "A1": {
+   "file": "references/original_images/a_cinematic_sci_fi_concept_art_infographic_board_o.png",
+   "scale": 1.045,
+   "bands": [
+    {
+     "cat": "vehicles",
+     "items": {
+      "cra1_showcase": [
+       180,
+       40,
+       1250,
+       405
+      ],
+      "cra1_view_front": [
+       1255,
+       30,
+       1592,
+       130
+      ],
+      "cra1_view_rear": [
+       1255,
+       158,
+       1592,
+       258
+      ],
+      "cra1_view_top": [
+       1255,
+       285,
+       1592,
+       405
+      ],
+      "cra1_flight": [
+       5,
+       450,
+       540,
+       605
+      ],
+      "cra1_vtol": [
+       543,
+       450,
+       1055,
+       605
+      ],
+      "cra1_stealth": [
+       1060,
+       450,
+       1595,
+       605
+      ],
+      "cra1_dual_autocannons": [
+       15,
+       630,
+       188,
+       715
+      ],
+      "cra1_missile_pods": [
+       195,
+       630,
+       368,
+       715
+      ],
+      "cra1_emp_projector": [
+       378,
+       630,
+       560,
+       715
+      ],
+      "cra1_vertical_thrusters": [
+       15,
+       745,
+       188,
+       845
+      ],
+      "cra1_landing_gear": [
+       195,
+       745,
+       368,
+       845
+      ],
+      "cra1_stealth_armor": [
+       378,
+       745,
+       560,
+       845
+      ],
+      "cra1_cockpit": [
+       580,
+       630,
+       1085,
+       870
+      ],
+      "cra1_hangar": [
+       1098,
+       630,
+       1592,
+       742
+      ],
+      "cra1_size_comparison": [
+       1098,
+       770,
+       1592,
+       870
+      ]
+     }
+    }
+   ]
+  },
+  "SCENES": {
+   "whole": {
+    "world/citadel_gadget_case": "references/original_images/a_cinematic_ultra_detailed_sci_fi_tech_lair_inter.png",
+    "world/red_citadel_overview": "references/original_images/a_wide_cinematic_ultra_detailed_sci_fi_fantasy_u.png",
+    "hero/war_suit_display": "references/original_images/a_dramatic_cinematic_ultra_detailed_sci_fi_conce.png"
+   }
+  }
+ }
+}

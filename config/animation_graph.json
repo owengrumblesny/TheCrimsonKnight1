@@ -1,0 +1,135 @@
+{
+  "skeleton": "CRX9 humanoid, 41 bones (Hips/Spine/Chest/Neck/Head, Shoulder/UpperArm/LowerArm/Hand, UpperLeg/LowerLeg/Foot/Toes _L/_R, Cape_<strip0-4>_<seg0-3>)",
+  "locomotion": [
+    "idle",
+    "walk",
+    "run",
+    "sprint",
+    "crouch_walk",
+    "strafe_left",
+    "strafe_right",
+    "turn_in_place"
+  ],
+  "oneShots": [
+    "jump_start",
+    "land_soft",
+    "land_hard",
+    "gadget_draw",
+    "gadget_stow",
+    "vehicle_call",
+    "enter_interceptor",
+    "exit_interceptor",
+    "enter_batcycle",
+    "exit_batcycle",
+    "specter_board",
+    "specter_unboard"
+  ],
+  "layers": [
+    "base_full_body",
+    "upper_body_actions",
+    "additive_look",
+    "cape_secondary"
+  ],
+  "blendingSeconds": 0.22,
+  "clipsStatus": "BAKED_IN_GLB: assets/models/characters/crimson_knight_CRX9_rigged.glb (22 procedural keyframed clips, see config/crx9_clips.json)",
+  "clipMap": {
+    "idle": "CK_Idle",
+    "walk": "CK_Walk",
+    "run": "CK_Run",
+    "sprint": "CK_Sprint",
+    "crouch_walk": "CK_CrouchWalk",
+    "crouch_idle": "CK_CrouchIdle",
+    "strafe_left": "CK_StrafeLeft",
+    "strafe_right": "CK_StrafeRight",
+    "turn_in_place": null,
+    "jump_start": "CK_JumpStart",
+    "airborne": "CK_Airborne",
+    "land_soft": "CK_LandSoft",
+    "land_hard": "CK_LandHard",
+    "gadget_draw": "CK_GadgetDraw",
+    "gadget_stow": "CK_GadgetStow",
+    "vehicle_call": "CK_Summon",
+    "enter_interceptor": "CK_VehicleEnter",
+    "exit_interceptor": "CK_VehicleExit",
+    "enter_batcycle": "CK_VehicleEnter",
+    "exit_batcycle": "CK_VehicleExit",
+    "specter_board": "CK_VehicleEnter",
+    "specter_unboard": "CK_VehicleExit",
+    "drive": "CK_Drive",
+    "grapple_aim": "CK_GrappleAim",
+    "grapple_pull": "CK_GrapplePull",
+    "glide": "CK_Glide",
+    "interact": "CK_Interact"
+  },
+  "clipMapNotes": "Vehicle enter/exit use one generic clip each until per-vehicle clips are authored (M5). turn_in_place not yet authored.",
+  "referenceImages": {
+    "about": "Key-pose art cut from Owen's boards (config/image_catalog.json ids). Shown beside the 3D clip in the animation debug panel; frame strips play as a flipbook at the clip's rate.",
+    "CK_Idle": [
+      "animations/a_idle"
+    ],
+    "CK_Walk": [
+      "animations/a_walk"
+    ],
+    "CK_Run": [
+      "animations/a_run"
+    ],
+    "CK_Sprint": [
+      "animations/a_sprint"
+    ],
+    "CK_JumpStart": [
+      "animations/a_jump"
+    ],
+    "CK_Airborne": [
+      "animations/c_pose_jump"
+    ],
+    "CK_LandSoft": [
+      "animations/a_land"
+    ],
+    "CK_LandHard": [
+      "animations/c_pose_land"
+    ],
+    "CK_CrouchIdle": [
+      "animations/c_pose_crouch"
+    ],
+    "CK_CrouchWalk": [
+      "animations/a_crouch"
+    ],
+    "CK_StrafeLeft": [
+      "animations/a_stealth"
+    ],
+    "CK_StrafeRight": [
+      "animations/a_stealth"
+    ],
+    "CK_GrappleAim": [
+      "animations/c_pose_grapple"
+    ],
+    "CK_GrapplePull": [
+      "animations/a_grappling"
+    ],
+    "CK_Glide": [
+      "animations/c_pose_glide",
+      "animations/a_cape_glide"
+    ],
+    "CK_GadgetDraw": [
+      "animations/c_pose_gadget_use"
+    ],
+    "CK_GadgetStow": [
+      "animations/b_key_gadget_use"
+    ],
+    "CK_Summon": [
+      "animations/a_vehicle_summon"
+    ],
+    "CK_VehicleEnter": [
+      "animations/a_vehicle_enter"
+    ],
+    "CK_VehicleExit": [
+      "animations/a_vehicle_exit"
+    ],
+    "CK_Drive": [
+      "vehicles/x1_crx1_cockpit"
+    ],
+    "CK_Interact": [
+      "animations/b_key_gadget_use_b"
+    ]
+  }
+}

@@ -1,0 +1,479 @@
+{
+  "version": "0.2",
+  "asset_count": 60,
+  "assets": [
+    {
+      "id": "batarang",
+      "path": "models/props/batarang.glb",
+      "description": "Original Crimson Knight fictional batarang",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "grapnel_prop",
+      "path": "models/props/grapnel_prop.glb",
+      "description": "Original Crimson Knight fictional grapnel prop",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "scanner",
+      "path": "models/props/scanner.glb",
+      "description": "Original Crimson Knight fictional scanner",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "comms",
+      "path": "models/props/comms.glb",
+      "description": "Original Crimson Knight fictional comms",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "power_cell",
+      "path": "models/props/power_cell.glb",
+      "description": "Original Crimson Knight fictional power cell",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "drone",
+      "path": "models/props/drone.glb",
+      "description": "Original Crimson Knight fictional drone",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "foam_briefcase",
+      "path": "models/props/foam_briefcase.glb",
+      "description": "Original Crimson Knight fictional foam briefcase",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "wrist_module",
+      "path": "models/props/wrist_module.glb",
+      "description": "Original Crimson Knight fictional wrist module",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "energy_blade_prop",
+      "path": "models/props/energy_blade_prop.glb",
+      "description": "Original Crimson Knight fictional energy blade prop",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "crimson_shield",
+      "path": "models/props/crimson_shield.glb",
+      "description": "Original Crimson Knight fictional crimson shield",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "hologram_projector",
+      "path": "models/props/hologram_projector.glb",
+      "description": "Original Crimson Knight fictional hologram projector",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "armor_stand",
+      "path": "models/props/armor_stand.glb",
+      "description": "Original Crimson Knight fictional armor stand",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "vehicle_beacon",
+      "path": "models/props/vehicle_beacon.glb",
+      "description": "Original Crimson Knight fictional vehicle beacon",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "crimson_cape_display",
+      "path": "models/props/crimson_cape_display.glb",
+      "description": "Original Crimson Knight fictional crimson cape display",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "equipment_crate",
+      "path": "models/props/equipment_crate.glb",
+      "description": "Original Crimson Knight fictional equipment crate",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "terminal",
+      "path": "models/props/terminal.glb",
+      "description": "Original Crimson Knight fictional terminal",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "red_citadel_statue",
+      "path": "models/props/red_citadel_statue.glb",
+      "description": "Original Crimson Knight fictional red citadel statue",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "fictional_blaster_prop",
+      "path": "models/props/fictional_blaster_prop.glb",
+      "description": "Original Crimson Knight fictional fictional blaster prop",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "fictional_sidearm_prop",
+      "path": "models/props/fictional_sidearm_prop.glb",
+      "description": "Original Crimson Knight fictional fictional sidearm prop",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "rocket_pod_prop",
+      "path": "models/props/rocket_pod_prop.glb",
+      "description": "Original Crimson Knight fictional rocket pod prop",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "gothic_tower",
+      "path": "models/environment/gothic_tower.glb",
+      "description": "Modular environment piece gothic_tower",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "downtown_skyscraper",
+      "path": "models/environment/downtown_skyscraper.glb",
+      "description": "Modular environment piece downtown_skyscraper",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "warehouse",
+      "path": "models/environment/warehouse.glb",
+      "description": "Modular environment piece warehouse",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "street_segment",
+      "path": "models/environment/street_segment.glb",
+      "description": "Modular environment piece street_segment",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "road_intersection",
+      "path": "models/environment/road_intersection.glb",
+      "description": "Modular environment piece road_intersection",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "sidewalk",
+      "path": "models/environment/sidewalk.glb",
+      "description": "Modular environment piece sidewalk",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "rooftop",
+      "path": "models/environment/rooftop.glb",
+      "description": "Modular environment piece rooftop",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "bridge_section",
+      "path": "models/environment/bridge_section.glb",
+      "description": "Modular environment piece bridge_section",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "tunnel_segment",
+      "path": "models/environment/tunnel_segment.glb",
+      "description": "Modular environment piece tunnel_segment",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "hangar_module",
+      "path": "models/environment/hangar_module.glb",
+      "description": "Modular environment piece hangar_module",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "cavern_rock",
+      "path": "models/environment/cavern_rock.glb",
+      "description": "Modular environment piece cavern_rock",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "citadel_platform",
+      "path": "models/environment/citadel_platform.glb",
+      "description": "Modular environment piece citadel_platform",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "citadel_wall",
+      "path": "models/environment/citadel_wall.glb",
+      "description": "Modular environment piece citadel_wall",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "elevator",
+      "path": "models/environment/elevator.glb",
+      "description": "Modular environment piece elevator",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "garage_door",
+      "path": "models/environment/garage_door.glb",
+      "description": "Modular environment piece garage_door",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "lamppost",
+      "path": "models/environment/lamppost.glb",
+      "description": "Modular environment piece lamppost",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "street_barrier",
+      "path": "models/environment/street_barrier.glb",
+      "description": "Modular environment piece street_barrier",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "shipping_container",
+      "path": "models/environment/shipping_container.glb",
+      "description": "Modular environment piece shipping_container",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "waterfall_panel",
+      "path": "models/environment/waterfall_panel.glb",
+      "description": "Modular environment piece waterfall_panel",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "lab_station",
+      "path": "models/environment/lab_station.glb",
+      "description": "Modular environment piece lab_station",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "command_console",
+      "path": "models/environment/command_console.glb",
+      "description": "Modular environment piece command_console",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "vehicle_lift",
+      "path": "models/environment/vehicle_lift.glb",
+      "description": "Modular environment piece vehicle_lift",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "landing_pad",
+      "path": "models/environment/landing_pad.glb",
+      "description": "Modular environment piece landing_pad",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "billboard",
+      "path": "models/environment/billboard.glb",
+      "description": "Modular environment piece billboard",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "citadel_entrance",
+      "path": "models/environment/citadel_entrance.glb",
+      "description": "Modular environment piece citadel_entrance",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "civilian_a",
+      "path": "models/characters/civilian_a.glb",
+      "description": "Unrigged NPC archetype civilian_a",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "civilian_b",
+      "path": "models/characters/civilian_b.glb",
+      "description": "Unrigged NPC archetype civilian_b",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "security_guard",
+      "path": "models/characters/security_guard.glb",
+      "description": "Unrigged NPC archetype security_guard",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "industrial_worker",
+      "path": "models/characters/industrial_worker.glb",
+      "description": "Unrigged NPC archetype industrial_worker",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "mechanic",
+      "path": "models/characters/mechanic.glb",
+      "description": "Unrigged NPC archetype mechanic",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "patrol_drone",
+      "path": "models/characters/patrol_drone.glb",
+      "description": "Unrigged NPC archetype patrol_drone",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "hostile_robot",
+      "path": "models/characters/hostile_robot.glb",
+      "description": "Unrigged NPC archetype hostile_robot",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "citadel_technician",
+      "path": "models/characters/citadel_technician.glb",
+      "description": "Unrigged NPC archetype citadel_technician",
+      "status": "stylized static 3D blockout",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "interceptor_pursuit",
+      "path": "models/vehicles/interceptor_pursuit.glb",
+      "status": "static duplicate blockout; transformation not implemented",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "interceptor_battle",
+      "path": "models/vehicles/interceptor_battle.glb",
+      "status": "static duplicate blockout; transformation not implemented",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "interceptor_stealth",
+      "path": "models/vehicles/interceptor_stealth.glb",
+      "status": "static duplicate blockout; transformation not implemented",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "batcycle_standard",
+      "path": "models/vehicles/batcycle_standard.glb",
+      "status": "static duplicate blockout; transformation not implemented",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "batcycle_autonomous",
+      "path": "models/vehicles/batcycle_autonomous.glb",
+      "status": "static duplicate blockout; transformation not implemented",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "specter_flight",
+      "path": "models/vehicles/specter_flight.glb",
+      "status": "static duplicate blockout; transformation not implemented",
+      "rigged": false,
+      "animations": false
+    },
+    {
+      "id": "specter_vtol",
+      "path": "models/vehicles/specter_vtol.glb",
+      "status": "static duplicate blockout; transformation not implemented",
+      "rigged": false,
+      "animations": false
+    }
+  ]
+}

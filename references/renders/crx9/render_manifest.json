@@ -1,0 +1,145 @@
+{
+  "glb": "assets/models/characters/crimson_knight_CRX9_rigged.glb",
+  "views": [
+    "references/renders/crx9/view_front.png",
+    "references/renders/crx9/view_front_left_45.png",
+    "references/renders/crx9/view_left.png",
+    "references/renders/crx9/view_rear.png",
+    "references/renders/crx9/view_right.png",
+    "references/renders/crx9/view_front_right_45.png"
+  ],
+  "clips": {
+    "CK_Airborne": [
+      "references/renders/crx9/clips/CK_Airborne_000.png",
+      "references/renders/crx9/clips/CK_Airborne_008.png",
+      "references/renders/crx9/clips/CK_Airborne_015.png",
+      "references/renders/crx9/clips/CK_Airborne_022.png"
+    ],
+    "CK_CrouchIdle": [
+      "references/renders/crx9/clips/CK_CrouchIdle_000.png",
+      "references/renders/crx9/clips/CK_CrouchIdle_015.png",
+      "references/renders/crx9/clips/CK_CrouchIdle_030.png",
+      "references/renders/crx9/clips/CK_CrouchIdle_045.png"
+    ],
+    "CK_CrouchWalk": [
+      "references/renders/crx9/clips/CK_CrouchWalk_000.png",
+      "references/renders/crx9/clips/CK_CrouchWalk_009.png",
+      "references/renders/crx9/clips/CK_CrouchWalk_018.png",
+      "references/renders/crx9/clips/CK_CrouchWalk_027.png"
+    ],
+    "CK_Drive": [
+      "references/renders/crx9/clips/CK_Drive_000.png",
+      "references/renders/crx9/clips/CK_Drive_015.png",
+      "references/renders/crx9/clips/CK_Drive_030.png",
+      "references/renders/crx9/clips/CK_Drive_045.png"
+    ],
+    "CK_GadgetDraw": [
+      "references/renders/crx9/clips/CK_GadgetDraw_000.png",
+      "references/renders/crx9/clips/CK_GadgetDraw_004.png",
+      "references/renders/crx9/clips/CK_GadgetDraw_009.png",
+      "references/renders/crx9/clips/CK_GadgetDraw_014.png"
+    ],
+    "CK_GadgetStow": [
+      "references/renders/crx9/clips/CK_GadgetStow_000.png",
+      "references/renders/crx9/clips/CK_GadgetStow_004.png",
+      "references/renders/crx9/clips/CK_GadgetStow_009.png",
+      "references/renders/crx9/clips/CK_GadgetStow_014.png"
+    ],
+    "CK_Glide": [
+      "references/renders/crx9/clips/CK_Glide_000.png",
+      "references/renders/crx9/clips/CK_Glide_010.png",
+      "references/renders/crx9/clips/CK_Glide_020.png",
+      "references/renders/crx9/clips/CK_Glide_030.png"
+    ],
+    "CK_GrappleAim": [
+      "references/renders/crx9/clips/CK_GrappleAim_000.png",
+      "references/renders/crx9/clips/CK_GrappleAim_008.png",
+      "references/renders/crx9/clips/CK_GrappleAim_015.png",
+      "references/renders/crx9/clips/CK_GrappleAim_022.png"
+    ],
+    "CK_GrapplePull": [
+      "references/renders/crx9/clips/CK_GrapplePull_000.png",
+      "references/renders/crx9/clips/CK_GrapplePull_006.png",
+      "references/renders/crx9/clips/CK_GrapplePull_012.png",
+      "references/renders/crx9/clips/CK_GrapplePull_018.png"
+    ],
+    "CK_Idle": [
+      "references/renders/crx9/clips/CK_Idle_000.png",
+      "references/renders/crx9/clips/CK_Idle_015.png",
+      "references/renders/crx9/clips/CK_Idle_030.png",
+      "references/renders/crx9/clips/CK_Idle_045.png"
+    ],
+    "CK_Interact": [
+      "references/renders/crx9/clips/CK_Interact_000.png",
+      "references/renders/crx9/clips/CK_Interact_006.png",
+      "references/renders/crx9/clips/CK_Interact_012.png",
+      "references/renders/crx9/clips/CK_Interact_018.png"
+    ],
+    "CK_JumpStart": [
+      "references/renders/crx9/clips/CK_JumpStart_000.png",
+      "references/renders/crx9/clips/CK_JumpStart_004.png",
+      "references/renders/crx9/clips/CK_JumpStart_007.png",
+      "references/renders/crx9/clips/CK_JumpStart_010.png"
+    ],
+    "CK_LandHard": [
+      "references/renders/crx9/clips/CK_LandHard_000.png",
+      "references/renders/crx9/clips/CK_LandHard_008.png",
+      "references/renders/crx9/clips/CK_LandHard_017.png",
+      "references/renders/crx9/clips/CK_LandHard_026.png"
+    ],
+    "CK_LandSoft": [
+      "references/renders/crx9/clips/CK_LandSoft_000.png",
+      "references/renders/crx9/clips/CK_LandSoft_004.png",
+      "references/renders/crx9/clips/CK_LandSoft_008.png",
+      "references/renders/crx9/clips/CK_LandSoft_012.png"
+    ],
+    "CK_Run": [
+      "references/renders/crx9/clips/CK_Run_000.png",
+      "references/renders/crx9/clips/CK_Run_005.png",
+      "references/renders/crx9/clips/CK_Run_010.png",
+      "references/renders/crx9/clips/CK_Run_015.png"
+    ],
+    "CK_Sprint": [
+      "references/renders/crx9/clips/CK_Sprint_000.png",
+      "references/renders/crx9/clips/CK_Sprint_004.png",
+      "references/renders/crx9/clips/CK_Sprint_008.png",
+      "references/renders/crx9/clips/CK_Sprint_012.png"
+    ],
+    "CK_StrafeLeft": [
+      "references/renders/crx9/clips/CK_StrafeLeft_000.png",
+      "references/renders/crx9/clips/CK_StrafeLeft_006.png",
+      "references/renders/crx9/clips/CK_StrafeLeft_012.png",
+      "references/renders/crx9/clips/CK_StrafeLeft_018.png"
+    ],
+    "CK_StrafeRight": [
+      "references/renders/crx9/clips/CK_StrafeRight_000.png",
+      "references/renders/crx9/clips/CK_StrafeRight_006.png",
+      "references/renders/crx9/clips/CK_StrafeRight_012.png",
+      "references/renders/crx9/clips/CK_StrafeRight_018.png"
+    ],
+    "CK_Summon": [
+      "references/renders/crx9/clips/CK_Summon_000.png",
+      "references/renders/crx9/clips/CK_Summon_011.png",
+      "references/renders/crx9/clips/CK_Summon_022.png",
+      "references/renders/crx9/clips/CK_Summon_034.png"
+    ],
+    "CK_VehicleEnter": [
+      "references/renders/crx9/clips/CK_VehicleEnter_000.png",
+      "references/renders/crx9/clips/CK_VehicleEnter_010.png",
+      "references/renders/crx9/clips/CK_VehicleEnter_020.png",
+      "references/renders/crx9/clips/CK_VehicleEnter_030.png"
+    ],
+    "CK_VehicleExit": [
+      "references/renders/crx9/clips/CK_VehicleExit_000.png",
+      "references/renders/crx9/clips/CK_VehicleExit_009.png",
+      "references/renders/crx9/clips/CK_VehicleExit_018.png",
+      "references/renders/crx9/clips/CK_VehicleExit_027.png"
+    ],
+    "CK_Walk": [
+      "references/renders/crx9/clips/CK_Walk_000.png",
+      "references/renders/crx9/clips/CK_Walk_008.png",
+      "references/renders/crx9/clips/CK_Walk_016.png",
+      "references/renders/crx9/clips/CK_Walk_024.png"
+    ]
+  }
+}

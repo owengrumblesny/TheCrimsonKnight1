@@ -1,0 +1,324 @@
+{
+  "note": "Design targets only. No authored skeletal clips or physical simulations are included.",
+  "rig": "humanoid named bones, root motion optional; export to glTF 2.0",
+  "states": [
+    {
+      "id": "idle",
+      "clip": "idle.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "walk",
+      "clip": "walk.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "run",
+      "clip": "run.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "sprint",
+      "clip": "sprint.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "strafe_left",
+      "clip": "strafe_left.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "strafe_right",
+      "clip": "strafe_right.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "turn",
+      "clip": "turn.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "jump_start",
+      "clip": "jump_start.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "jump_air",
+      "clip": "jump_air.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "jump_land",
+      "clip": "jump_land.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "crouch",
+      "clip": "crouch.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "crouch_walk",
+      "clip": "crouch_walk.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "slide",
+      "clip": "slide.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "grapple_aim",
+      "clip": "grapple_aim.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "grapple_fire",
+      "clip": "grapple_fire.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "grapple_pull",
+      "clip": "grapple_pull.glb",
+      "status": "NOT_CREATED",
+      "priority": "P0"
+    },
+    {
+      "id": "glide_start",
+      "clip": "glide_start.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "glide_loop",
+      "clip": "glide_loop.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "glide_land",
+      "clip": "glide_land.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "light_attack_1",
+      "clip": "light_attack_1.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "light_attack_2",
+      "clip": "light_attack_2.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "heavy_attack",
+      "clip": "heavy_attack.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "block",
+      "clip": "block.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "dodge",
+      "clip": "dodge.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "hit_react",
+      "clip": "hit_react.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "knockdown",
+      "clip": "knockdown.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "recover",
+      "clip": "recover.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "equip_gadget",
+      "clip": "equip_gadget.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "holster_gadget",
+      "clip": "holster_gadget.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "deploy_drone",
+      "clip": "deploy_drone.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "recall_drone",
+      "clip": "recall_drone.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "summon_vehicle",
+      "clip": "summon_vehicle.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "enter_car",
+      "clip": "enter_car.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "exit_car",
+      "clip": "exit_car.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "mount_bike",
+      "clip": "mount_bike.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "dismount_bike",
+      "clip": "dismount_bike.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "enter_aircraft",
+      "clip": "enter_aircraft.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "exit_aircraft",
+      "clip": "exit_aircraft.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "interact",
+      "clip": "interact.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "inspect",
+      "clip": "inspect.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "suit_up",
+      "clip": "suit_up.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "suit_down",
+      "clip": "suit_down.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "cape_idle",
+      "clip": "cape_idle.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "cape_run",
+      "clip": "cape_run.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "vehicle_idle",
+      "clip": "vehicle_idle.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "vehicle_accelerate",
+      "clip": "vehicle_accelerate.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "vehicle_brake",
+      "clip": "vehicle_brake.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "vehicle_turn",
+      "clip": "vehicle_turn.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "vehicle_transform",
+      "clip": "vehicle_transform.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "vehicle_boost",
+      "clip": "vehicle_boost.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "aircraft_takeoff",
+      "clip": "aircraft_takeoff.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "aircraft_flight",
+      "clip": "aircraft_flight.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    },
+    {
+      "id": "aircraft_land",
+      "clip": "aircraft_land.glb",
+      "status": "NOT_CREATED",
+      "priority": "P1"
+    }
+  ]
+}

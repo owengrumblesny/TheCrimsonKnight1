@@ -18,7 +18,12 @@ interface Npc {
   /** accumulated time not yet fed to the mixer (far NPCs animate at a lower rate) */
   pending: number;
   spin: THREE.Object3D[];
+  meshes: THREE.Mesh[];
+  shadow: boolean;
 }
+
+/** NPCs cast shadows only this close to the focus (the moon's shadow frustum is ≤45 m anyway). */
+const SHADOW_DIST = 30;
 
 const scaleOf = new Map<string, number>(npcConfig.npcs.map((n) => [n.id, (n as { scale?: number }).scale ?? 1]));
 
@@ -46,7 +51,7 @@ export class NpcCrowd {
     const gltf = await registry.gltf('npc_patrol_drone');
     const mixer = new THREE.AnimationMixer(drone);
     for (const clip of gltf.animations) mixer.clipAction(clip).play();
-    this.npcs.push({ root: drone, mixer, pending: 0, spin: [] });
+    this.npcs.push({ root: drone, mixer, pending: 0, spin: [], meshes: [], shadow: true });
   }
 
   private layout(): NpcSpot[] {
@@ -91,12 +96,13 @@ export class NpcCrowd {
   private async spawn(s: NpcSpot): Promise<void> {
     const gltf = await registry.gltf(s.id);
     const root = cloneSkinned(gltf.scene);
+    const meshes: THREE.Mesh[] = [];
     root.traverse((o) => {
       const mesh = o as THREE.SkinnedMesh;
       if (mesh.isMesh) {
         mesh.castShadow = true;
         mesh.receiveShadow = true;
-        mesh.frustumCulled = false; // skinned bounds don't follow the animation; NPCs are culled by distance instead
+        meshes.push(mesh);
       }
     });
     root.position.set(s.x, 0, s.z);
@@ -110,7 +116,18 @@ export class NpcCrowd {
       action.time = this.rand() * clip.duration; // desync identical idles
       action.play();
     }
-    this.npcs.push({ root, mixer, pending: 0, spin: [] });
+    // NPCs stay in place playing idle-family loops, so a posed bounding sphere with margin is a safe cull volume
+    // (frustum culling off made every NPC render in both the main and shadow pass)
+    mixer.update(0);
+    root.updateMatrixWorld(true);
+    for (const m of meshes) {
+      const sk = m as THREE.SkinnedMesh;
+      if (sk.isSkinnedMesh) {
+        sk.computeBoundingSphere();
+        sk.boundingSphere!.radius *= 1.4;
+      }
+    }
+    this.npcs.push({ root, mixer, pending: 0, spin: [], meshes, shadow: true });
     const r = 0.28;
     this.physics.addStaticBox(new THREE.Box3(new THREE.Vector3(s.x - r, 0, s.z - r), new THREE.Vector3(s.x + r, 1.8, s.z + r)));
   }
@@ -119,6 +136,11 @@ export class NpcCrowd {
     for (const n of this.npcs) {
       const d = n.root.position.distanceTo(focus);
       n.root.visible = d < 90;
+      const shadow = d < SHADOW_DIST;
+      if (shadow !== n.shadow) {
+        n.shadow = shadow;
+        for (const m of n.meshes) m.castShadow = shadow;
+      }
       if (!n.mixer || d > 60) continue;
       n.pending += dt;
       if (d > 18 && n.pending < 0.1) continue;

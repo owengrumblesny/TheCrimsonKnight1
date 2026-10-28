@@ -96,7 +96,8 @@ export class District {
         }
       }
     }
-    for (const [id, list] of lots) await this.instanced(id, list, { collide: true, mapKind: 'building' });
+    // far LOD1 lots sit outside every preset's shadow range (≤45 m), so they don't cast
+    for (const [id, list] of lots) await this.instanced(id, list, { collide: true, mapKind: 'building', chunk: 40, shadow: !id.endsWith('_lod1') });
     // simplified distant skyline (LOD1 only, no collision): fills the horizon cheaply
     const sky = new Map<string, Placement[]>();
     for (let i = 0; i < 48; i++) {
@@ -105,7 +106,7 @@ export class District {
       const kind = ['kit_office_tower', 'kit_gothic_tower', 'kit_apartment'][i % 3];
       (sky.get(kind) ?? sky.set(kind, []).get(kind)!).push({ x: Math.cos(a) * r, z: Math.sin(a) * r, rotY: -a - Math.PI / 2, scale: 1 + this.rand() * 0.9 });
     }
-    for (const [kind, list] of sky) await this.instanced(`${kind}_lod1`, list, { collide: false, shadow: false });
+    for (const [kind, list] of sky) await this.instanced(`${kind}_lod1`, list, { collide: false, shadow: false, chunk: 150 });
     this.mapFeatures.push({ kind: 'road', minX: -63, maxX: 63, minZ: -3, maxZ: 3 }, { kind: 'road', minX: -3, maxX: 3, minZ: -63, maxZ: 63 });
 
     // ---- street lights (arm over the road); the real light pool follows the lamp heads ----
@@ -265,18 +266,28 @@ export class District {
   }
 
   /** One InstancedMesh per sub-mesh of the asset; optional static bounds colliders. */
-  async instanced(id: string, list: Placement[], opts: { collide: boolean; shadow?: boolean; texture?: string; mapKind?: 'building' | 'portal' }): Promise<void> {
+  async instanced(id: string, list: Placement[], opts: { collide: boolean; shadow?: boolean; texture?: string; mapKind?: 'building' | 'portal'; chunk?: number }): Promise<void> {
     if (!list.length) return;
     const proto = await registry.instance(id, opts.texture);
     const localBox = new THREE.Box3().setFromObject(proto);
+    // optional spatial chunks: one InstancedMesh's bounding sphere spans all its instances, so a district-wide
+    // mesh is never culled (main or shadow pass). Chunking trades a few draws for working frustum culling.
+    const chunks = new Map<string, Placement[]>();
+    for (const p of list) {
+      const key = opts.chunk ? `${Math.floor(p.x / opts.chunk)},${Math.floor(p.z / opts.chunk)}` : '';
+      (chunks.get(key) ?? chunks.set(key, []).get(key)!).push(p);
+    }
     // one InstancedMesh per MATERIAL (sub-meshes merged), not per sub-mesh — keeps draw calls low
-    for (const { geometry, material } of mergeByMaterial(proto)) {
-      const inst = new THREE.InstancedMesh(geometry, material, list.length);
-      list.forEach((p, i) => inst.setMatrixAt(i, this.matrixFor(p)));
-      inst.castShadow = opts.shadow ?? true;
-      inst.receiveShadow = true;
-      inst.computeBoundingSphere();
-      this.group.add(inst);
+    const parts = mergeByMaterial(proto);
+    for (const group of chunks.values()) {
+      for (const { geometry, material } of parts) {
+        const inst = new THREE.InstancedMesh(geometry, material, group.length);
+        group.forEach((p, i) => inst.setMatrixAt(i, this.matrixFor(p)));
+        inst.castShadow = opts.shadow ?? true;
+        inst.receiveShadow = true;
+        inst.computeBoundingSphere();
+        this.group.add(inst);
+      }
     }
     // physics from the asset's own *_COL proxies (e.g. a stepped tower gets stepped colliders); else its bounds
     const cols: THREE.Box3[] = [];

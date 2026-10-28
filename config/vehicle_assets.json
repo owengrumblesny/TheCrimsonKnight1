@@ -36,7 +36,86 @@
       "CRX1_DoorsOpen",
       "CRX1_SteerLeft",
       "CRX1_WheelSpin"
-    ]
+    ],
+    "modes": {
+      "pursuit": {
+        "file": "assets/models/vehicles/CRX1_interceptor_pursuit.glb",
+        "lod1": "assets/models/vehicles/CRX1_interceptor_pursuit_lod1.glb",
+        "triangles_lod0": 17990,
+        "triangles_lod1": 3839,
+        "triangles_interior": 2456,
+        "materials": [
+          "Black",
+          "CanopyGlass",
+          "Cockpit_Gauge",
+          "Cockpit_HUD",
+          "Cockpit_Screen",
+          "Cockpit_Seat",
+          "Cockpit_Trim",
+          "Cockpit_Tub",
+          "Crimson",
+          "CrimsonDark",
+          "EmissiveRed",
+          "EmissiveWhite",
+          "Gunmetal",
+          "Rubber"
+        ],
+        "notes": "baseline look, polished: splitter/diffuser or antenna, strobes; cockpit"
+      },
+      "battle": {
+        "file": "assets/models/vehicles/CRX1_interceptor_battle.glb",
+        "lod1": "assets/models/vehicles/CRX1_interceptor_battle_lod1.glb",
+        "triangles_lod0": 19538,
+        "triangles_lod1": 4224,
+        "triangles_interior": 2456,
+        "materials": [
+          "Battle_Glow",
+          "Black",
+          "CanopyGlass",
+          "Cockpit_Gauge",
+          "Cockpit_HUD",
+          "Cockpit_Screen",
+          "Cockpit_Seat",
+          "Cockpit_Trim",
+          "Cockpit_Tub",
+          "Crimson",
+          "CrimsonDark",
+          "EmissiveRed",
+          "EmissiveWhite",
+          "Gunmetal",
+          "Rubber"
+        ],
+        "notes": "armour plates, weapon pods; battle pivots posed deployed at rest; clip names unchanged",
+        "rest_pose": {
+          "BattlePanel_L": "rotation_euler (0,-55,0) deg",
+          "BattlePanel_R": "rotation_euler (0,55,0) deg",
+          "Turret": "location z 1.3 (Blender Z-up)"
+        }
+      },
+      "stealth": {
+        "file": "assets/models/vehicles/CRX1_interceptor_stealth.glb",
+        "lod1": "assets/models/vehicles/CRX1_interceptor_stealth_lod1.glb",
+        "triangles_lod0": 18258,
+        "triangles_lod1": 3909,
+        "triangles_interior": 2456,
+        "materials": [
+          "Black",
+          "Cockpit_Gauge",
+          "Cockpit_HUD",
+          "Cockpit_ScreenDim",
+          "Cockpit_Seat",
+          "Cockpit_Trim",
+          "Cockpit_Tub",
+          "Rubber",
+          "Stealth_Facet",
+          "Stealth_Glass",
+          "Stealth_Glow",
+          "Stealth_Gunmetal",
+          "Stealth_Skin"
+        ],
+        "notes": "matte radar-absorbent materials (Stealth_*), emissives faint red, faceted panels, tucked aero, lights/antennas retracted"
+      }
+    }
   },
   "crb1_batcycle": {
     "triangles_lod0": 7984,
@@ -64,7 +143,86 @@
       "CRB1_SteerLeft",
       "CRB1_SuspensionBob",
       "CRB1_WheelSpin"
-    ]
+    ],
+    "modes": {
+      "pursuit": {
+        "file": "assets/models/vehicles/CRB1_batcycle_pursuit.glb",
+        "lod1": "assets/models/vehicles/CRB1_batcycle_pursuit_lod1.glb",
+        "triangles_lod0": 9488,
+        "triangles_lod1": 1999,
+        "triangles_interior": 1432,
+        "materials": [
+          "Black",
+          "CanopyGlass",
+          "Cockpit_Gauge",
+          "Cockpit_Screen",
+          "Cockpit_Seat",
+          "Cockpit_Trim",
+          "Crimson",
+          "CrimsonDark",
+          "EmissiveRed",
+          "EmissiveWhite",
+          "Glass",
+          "Gunmetal",
+          "Rubber"
+        ],
+        "notes": "baseline look, polished: splitter/diffuser or antenna, strobes; cockpit",
+        "added_pivots": [
+          "camera_cockpit"
+        ]
+      },
+      "battle": {
+        "file": "assets/models/vehicles/CRB1_batcycle_battle.glb",
+        "lod1": "assets/models/vehicles/CRB1_batcycle_battle_lod1.glb",
+        "triangles_lod0": 10472,
+        "triangles_lod1": 2237,
+        "triangles_interior": 1432,
+        "materials": [
+          "Battle_Glow",
+          "Black",
+          "CanopyGlass",
+          "Cockpit_Gauge",
+          "Cockpit_Screen",
+          "Cockpit_Seat",
+          "Cockpit_Trim",
+          "Crimson",
+          "CrimsonDark",
+          "EmissiveRed",
+          "EmissiveWhite",
+          "Glass",
+          "Gunmetal",
+          "Rubber"
+        ],
+        "notes": "armour plates, weapon pods; battle pivots posed deployed at rest; clip names unchanged",
+        "added_pivots": [
+          "camera_cockpit"
+        ]
+      },
+      "stealth": {
+        "file": "assets/models/vehicles/CRB1_batcycle_stealth.glb",
+        "lod1": "assets/models/vehicles/CRB1_batcycle_stealth_lod1.glb",
+        "triangles_lod0": 9884,
+        "triangles_lod1": 2100,
+        "triangles_interior": 1432,
+        "materials": [
+          "Black",
+          "Cockpit_Gauge",
+          "Cockpit_ScreenDim",
+          "Cockpit_Seat",
+          "Cockpit_Trim",
+          "Rubber",
+          "Stealth_Facet",
+          "Stealth_Glass",
+          "Stealth_Glow",
+          "Stealth_Gunmetal",
+          "Stealth_Skin"
+        ],
+        "notes": "matte radar-absorbent materials (Stealth_*), emissives faint red, faceted panels, tucked aero, lights/antennas retracted",
+        "added_pivots": [
+          "camera_cockpit"
+        ]
+      }
+    }
   },
   "cra1_specter": {
     "triangles_lod0": 3638,
@@ -96,6 +254,83 @@
       "CRA1_GearRetract",
       "CRA1_RudderLeft",
       "CRA1_VTOLTransition"
-    ]
+    ],
+    "modes": {
+      "flight": {
+        "file": "assets/models/vehicles/CRA1_specter_flight.glb",
+        "lod1": "assets/models/vehicles/CRA1_specter_flight_lod1.glb",
+        "triangles_lod0": 6460,
+        "triangles_lod1": 922,
+        "triangles_interior": 2712,
+        "materials": [
+          "CanopyGlass",
+          "Cockpit_Gauge",
+          "Cockpit_HUD",
+          "Cockpit_Screen",
+          "Cockpit_ScreenDim",
+          "Cockpit_Seat",
+          "Cockpit_Trim",
+          "Cockpit_Tub",
+          "Crimson",
+          "CrimsonDark",
+          "EmissiveRed",
+          "EmissiveWhite",
+          "Gunmetal",
+          "Rubber"
+        ],
+        "notes": "baseline look, polished: pitot, antenna blade, formation lights; cockpit"
+      },
+      "vtol": {
+        "file": "assets/models/vehicles/CRA1_specter_vtol.glb",
+        "lod1": "assets/models/vehicles/CRA1_specter_vtol_lod1.glb",
+        "triangles_lod0": 7316,
+        "triangles_lod1": 1108,
+        "triangles_interior": 2712,
+        "materials": [
+          "Battle_Glow",
+          "CanopyGlass",
+          "Cockpit_Gauge",
+          "Cockpit_HUD",
+          "Cockpit_Screen",
+          "Cockpit_ScreenDim",
+          "Cockpit_Seat",
+          "Cockpit_Trim",
+          "Cockpit_Tub",
+          "Crimson",
+          "CrimsonDark",
+          "EmissiveRed",
+          "EmissiveWhite",
+          "Gunmetal",
+          "Rubber"
+        ],
+        "notes": "VTOL_L/R posed rotated down at rest (-90 deg X), intake doors open, fan rings lit",
+        "rest_pose": {
+          "VTOL_L": "rotation_euler (-90,0,0) deg",
+          "VTOL_R": "rotation_euler (-90,0,0) deg"
+        }
+      },
+      "stealth": {
+        "file": "assets/models/vehicles/CRA1_specter_stealth.glb",
+        "lod1": "assets/models/vehicles/CRA1_specter_stealth_lod1.glb",
+        "triangles_lod0": 7092,
+        "triangles_lod1": 1039,
+        "triangles_interior": 2712,
+        "materials": [
+          "Cockpit_Gauge",
+          "Cockpit_HUD",
+          "Cockpit_ScreenDim",
+          "Cockpit_Seat",
+          "Cockpit_Trim",
+          "Cockpit_Tub",
+          "Rubber",
+          "Stealth_Facet",
+          "Stealth_Glass",
+          "Stealth_Glow",
+          "Stealth_Gunmetal",
+          "Stealth_Skin"
+        ],
+        "notes": "matte radar-absorbent materials (Stealth_*), emissives faint red, faceted panels, tucked aero, lights/antennas retracted"
+      }
+    }
   }
 }

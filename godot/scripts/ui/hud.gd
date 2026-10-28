@@ -24,6 +24,8 @@ var _bar: PanelContainer
 var _marker: Control
 ## extra status for the selected item (weapon ammo / reload), set by the game each frame
 var weapon_status := ""
+## [title, sub] shown in the selected-item card while driving; the hotbar hides
+var vehicle_text: Array = []
 
 
 func _ready() -> void:
@@ -317,7 +319,11 @@ func update_hud(now: int, heading: float, show_crosshair: bool) -> void:
 	_strip.position.x = 180.0 - deg - 360.0 - 22.5
 	var id := inventory.selected_item()
 	var d := inventory.def(id) if id != "" else {}
-	if d.is_empty():
+	_bar.visible = vehicle_text.is_empty()
+	if not vehicle_text.is_empty():
+		_sel_title.text = vehicle_text[0]
+		_sel_sub.text = vehicle_text[1]
+	elif d.is_empty():
 		_sel_title.text = "No item selected"
 		_sel_sub.text = "Press 1-8 or open the inventory"
 	else:

@@ -10,6 +10,8 @@ extends Node3D
 ##   --camdist=m --pitch=r              camera distance / pitch (close-ups)
 ##   --slot=N                           select hotbar slot N (1-8) at start
 ##   --menu=main|pause|inventory|...    open a menu (scripted runs start in-game otherwise)
+##   --vehicle=id                       summon a vehicle and get in (crx1_interceptor / crb1_batcycle / cra1_specter)
+##   --chase                            start driving in the chase camera
 ##   --equip=item_id                    put an item in slot 1 and select it
 ##   --aimat=x,y,z                      keep the camera centre on a world point (weapon tests)
 ##   --notify=text                      post a HUD notification at start
@@ -37,6 +39,7 @@ var _forced_quality := ""
 var _autosave := 0.0
 var audio: CKAudio
 var weapons: Weapons
+var drive: DriveController
 var targets: TargetRange
 var _step_dist := 0.0
 var _last_pos := Vector3.ZERO
@@ -125,6 +128,13 @@ func _ready() -> void:
 	weapons.sound.connect(audio.play)
 	weapons.notify.connect(notify)
 	add_child(weapons)
+	drive = DriveController.new()
+	drive.player = player
+	drive.cam = cam
+	drive.audio = audio
+	drive.sound.connect(audio.play)
+	drive.notify.connect(notify)
+	add_child(drive)
 	targets = TargetRange.new()
 	add_child(targets)
 	# training dummies on the north avenue sidewalks (facing the spawn) and in the industrial yard
@@ -140,6 +150,14 @@ func _ready() -> void:
 	if args.has("hold"):
 		for act in String(args["hold"]).split(","):
 			Input.action_press(act)
+	if args.has("vehicle"):
+		quick_vehicle = args["vehicle"]
+		(func():
+			drive.summon(quick_vehicle, false)
+			drive.enter(drive.vehicles[quick_vehicle])
+			if args.has("chase"):
+				drive.driving.first_person = false
+				drive._apply_camera()).call_deferred()
 	if args.has("equip"):
 		inventory.assign(args["equip"], 0)
 		select_slot.call_deferred(0)
@@ -328,21 +346,20 @@ func _process(dt: float) -> void:
 	if get_tree().paused:
 		_finish_check()
 		return
-	_gameplay_input(now)
-	if Input.is_action_just_pressed("jump") and player.mode == "ground":
-		audio.play("armor.jump")
-	player.handle_input()
-	player.cam_yaw = cam.yaw
-	player.glide_held = Input.is_action_pressed("jump")
-	cam.aiming = player.aiming
-	_interact()
+	if drive.driving:
+		drive.drive(dt, CKInput.take_look())
+		prompt = []
+	else:
+		_on_foot(now)
+	hud.vehicle_text = drive.hud_text() if drive.driving else []
 	player.can_exert = vitals.energy > 1
 	if args.has("aimat"):
 		var d := (_vec(args["aimat"], Vector3.ZERO) - cam.camera.global_position).normalized()
 		cam.yaw = lerp_angle(cam.yaw, atan2(-d.x, -d.z), 0.5)
 		cam.pitch = lerpf(cam.pitch, asin(-d.y), 0.5)
 	equipment.update(dt, now)
-	weapons.update(dt, now, Input.is_action_just_pressed("primaryAction"), Input.is_action_pressed("primaryAction"))
+	var firing := drive.driving == null
+	weapons.update(dt, now, firing and Input.is_action_just_pressed("primaryAction"), firing and Input.is_action_pressed("primaryAction"))
 	hud.weapon_status = weapons.status(now)
 	inventory.tick(now)
 	vitals.update(dt, now, "sprint" if player.sprinting() else "glide" if player.mode == "glide" else "")
@@ -364,6 +381,8 @@ func _process(dt: float) -> void:
 		print("[ck] f%d pos=%s %s lod=%d fps=%d%s" % [frame, player.global_position.snapped(Vector3.ONE * 0.01),
 			player.status, player.hero.lod_level, Engine.get_frames_per_second(),
 			" citadel rooms=%d" % citadel.visible_rooms if underground else ""])
+		if drive.driving:
+			print("    drive ", drive.hud_text(), " up=", drive.driving.global_basis.y.snapped(Vector3.ONE * 0.01))
 		var held: Node3D = player.hero._held
 		if held and frame == 60:
 			var sk := player.hero.skeleton
@@ -412,6 +431,17 @@ func _finish_check() -> void:
 		_finish()
 
 
+func _on_foot(now: int) -> void:
+	_gameplay_input(now)
+	if Input.is_action_just_pressed("jump") and player.mode == "ground":
+		audio.play("armor.jump")
+	player.handle_input()
+	player.cam_yaw = cam.yaw
+	player.glide_held = Input.is_action_pressed("jump")
+	cam.aiming = player.aiming
+	_interact()
+
+
 ## Hotbar: 1-8 select (never use), Q/R or wheel cycle, primary action uses; vehicle call.
 func _gameplay_input(now: int) -> void:
 	for i in 8:
@@ -432,10 +462,7 @@ func _gameplay_input(now: int) -> void:
 			print("[ck] use ", inventory.selected_item())
 		equipment.use_selected(now)
 	if Input.is_action_just_pressed("summonMenu"):
-		var v := inventory.def("crx1_interceptor")
-		player.act("CK_Summon")
-		audio.play("vehicle.summon")
-		notify("%s: %s" % [v["displayName"], v.get("unavailableReason", "on the way")], v["iconId"], "warn")
+		drive.summon(quick_vehicle, underground)
 
 
 func _nearest_prop() -> RigidBody3D:
@@ -455,7 +482,13 @@ func _interact() -> void:
 	var prop := _nearest_prop() if not underground else null
 	var near_portal := not underground and p.distance_to(portal) < 9
 	var near_exit := underground and p.distance_to(citadel.anchor("Anchor_Exit")) < 4
+	var car := drive.nearby()
 	prompt = []
+	if car:
+		prompt = ["interact", "Enter the " + drive.label(car)]
+		if Input.is_action_just_pressed("interact"):
+			drive.enter(car)
+		return
 	if prop or near_portal or near_exit:
 		prompt = ["interact", "Shove" if prop else "Enter the Red Citadel" if near_portal else "Elevator to New Gotham"]
 	if not Input.is_action_just_pressed("interact"):

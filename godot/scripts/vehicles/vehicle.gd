@@ -106,6 +106,15 @@ func _load_model(path: String) -> void:
 				add_child(copy)
 		body.get_parent().remove_child(body)
 		body.queue_free()
+	# canopy / windscreen glass must be see-through for the cockpit camera
+	for g in model.find_children("*glass*", "MeshInstance3D", true, false):
+		var glass := StandardMaterial3D.new()
+		glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		glass.albedo_color = Color(0.12, 0.16, 0.2, 0.22)
+		glass.roughness = 0.05
+		glass.metallic = 0.3
+		g.material_override = glass
+		g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_emissive.clear()
 	for g in model.find_children("*", "MeshInstance3D", true, false):
 		for s in g.mesh.get_surface_count():
@@ -269,7 +278,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var ground := _ground_distance(state)
 	var vel := state.linear_velocity
 	if mode == "vtol":
-		_jet_attitude.y -= look.x * cfg["yaw_rate"] * 4.0 * dt + steer_in * 1.2 * dt
+		_jet_attitude.y -= look.x + steer_in * 1.2 * dt
 		_jet_attitude.x = lerpf(_jet_attitude.x, -throttle * 0.15, dt * 3)
 		_jet_attitude.z = lerpf(_jet_attitude.z, steer_in * 0.12, dt * 3)
 		var flat_fwd := Vector3(sin(_jet_attitude.y), 0, cos(_jet_attitude.y))
@@ -284,9 +293,14 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_jet_speed = clampf(_jet_speed + throttle * cfg["accel"] * dt - (0.0 if throttle > 0 else 2.0 * dt), 0.0, limit)
 		var airborne: bool = _jet_speed > cfg["takeoff"] or ground > 1.0
 		if airborne:
-			_jet_attitude.x = clampf(_jet_attitude.x + look.y * cfg["pitch_rate"] * 3.0 * dt, -1.2, 1.2)
+			_jet_attitude.x = clampf(_jet_attitude.x + look.y * cfg["pitch_rate"], -1.2, 1.2)
+			if look.y == 0.0 and throttle > 0.0 and ground < 40.0:
+				# arcade auto-rotate: with throttle and no pitch input the Specter climbs to ~40 m
+				_jet_attitude.x = lerpf(_jet_attitude.x, -0.22, minf(1.0, dt * 1.5))
+			elif look.y == 0.0:
+				_jet_attitude.x = lerpf(_jet_attitude.x, 0.0, minf(1.0, dt * 0.8))
 			_jet_attitude.z = lerpf(_jet_attitude.z, -steer_in * 1.1, dt * cfg["roll_rate"])
-			_jet_attitude.y -= (look.x * cfg["yaw_rate"] * 2.0 + sin(_jet_attitude.z) * 0.9) * dt
+			_jet_attitude.y -= look.x * cfg["yaw_rate"] + sin(_jet_attitude.z) * 0.9 * dt
 		else:
 			_jet_attitude.y -= steer_in * 0.6 * dt
 			_jet_attitude.x = lerpf(_jet_attitude.x, 0.0, dt * 4)
@@ -298,6 +312,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		vel.y += -9.8 * (1.0 - lift) * 2.0
 		if ground < 0.05 and vel.y < 0:
 			vel.y = 0
+	look = Vector2.ZERO # mouse deltas steer the jet directly; consume them once
 	state.linear_velocity = vel
 	state.angular_velocity = Vector3.ZERO
 	state.transform = Transform3D(Basis.from_euler(_jet_attitude, EULER_ORDER_YXZ), state.transform.origin)
@@ -342,7 +357,7 @@ func _process(dt: float) -> void:
 		var steer_node := model.find_child("Steer", true, false) as Node3D
 		if steer_node:
 			steer_node.rotation.y = steering
-		var target := -steering / cfg["steer"] * cfg["lean"] * clampf(absf(spd) / 15.0, 0.0, 1.0)
+		var target: float = -steering / cfg["steer"] * cfg["lean"] * clampf(absf(spd) / 15.0, 0.0, 1.0)
 		_lean = lerpf(_lean, target, minf(1.0, dt * 5.0))
 		model.rotation.z = _lean
 	# engine
@@ -356,7 +371,7 @@ func _process(dt: float) -> void:
 
 
 func _update_cameras(dt: float) -> void:
-	if model == null:
+	if model == null or not chase_cam.is_inside_tree():
 		return
 	var spd := absf(speed())
 	var k := clampf(spd / maxf(top_speed, 1.0), 0.0, 1.0)
@@ -365,6 +380,8 @@ func _update_cameras(dt: float) -> void:
 	var base: Transform3D
 	if cock:
 		base = _rel(cock)
+		var off: Array = cfg.get("cockpit_offset", [0, 0, 0])
+		base.origin += Vector3(off[0], off[1], off[2])
 	else:
 		var c: Array = cfg.get("cockpit", [0, 1.5, 0])
 		base = Transform3D(Basis(), Vector3(c[0], c[1], c[2]))

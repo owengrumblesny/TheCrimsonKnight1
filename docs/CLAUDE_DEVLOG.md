@@ -144,3 +144,7 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 - Five fictional weapons from `godot/data/weapons.json`. The sidearm and carbine are hitscan; the launcher and cannon fire splash projectiles; the blade is a melee swing. Each has muzzle flash, tracers, sparks and scorch decals, recoil, magazines with reload (T, plus auto-reload), the Gear_* clips, and an over-the-shoulder aim on RMB (tighter arm and FOV). A hit marker shows on hit and turns crimson on a knockdown.
 - Six training dummies (100 HP): four on the north avenue and two in the industrial yard. Weapons and vehicles are unlocked in Godot by `godot/data/items_godot.json`; the web data is untouched.
 - Scripted checks: the sidearm knocks a dummy down in 4 hits; the carbine fires full-auto and reloads; the launcher knocks one down with splash; the cannon and blade hit.
+
+## 2026-10-28: Godot port M3.5b (drivable vehicles)
+- `Vehicle` (VehicleBody3D) and `DriveController`: summon with V, enter and exit with E/F (enter/exit/drive clips, door and canopy clips, hero on seat_attach), first person by default (canopy glass made see-through, head-bob, FOV kick), chase cam on V, modes on B, engine loops from the synth.
+- Tested by script: the car at full throttle and in battle mode, the bike turning at speed, the jet's takeoff roll and VTOL climb.

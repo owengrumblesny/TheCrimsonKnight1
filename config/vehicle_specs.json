@@ -14,6 +14,7 @@
     "fictional_top_speed_mph": 240,
     "modes": [
       "pursuit",
+      "battle",
       "stealth"
     ],
     "model": "assets/models/vehicles/CRB1_batcycle.glb"

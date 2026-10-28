@@ -156,3 +156,36 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 ## 2026-10-28: Godot port, remaining items
 - Loading screen and animation debug panel are ported, and the radial mask on effect sprites is back.
 - The Citadel was rebuilt in Blender. The builder now skips the hub's tunnel-mouth wall colliders and adds elevator-shaft colliders, so the Godot runtime patches are gone. Verified: import (165 colliders, 0 failures), the arrival-room and tunnel walks, and the LOW benchmark. The rebuild also brings in the v3 armour statue, which takes the GLB to 22 MB.
+
+## 2026-10-28: vehicle modes + first-person cockpits
+- `tools/blender/ck_build_vehicle_modes.py` (≈4 min, all renders included) builds every vehicle × mode from the `ck_build_vehicles.py` base, so pivots, anchors and clip names stay identical. The script asserts this. Output: `assets/models/vehicles/<Base>_<mode>.glb` + `_lod1.glb`, a `modes` map per vehicle in `config/vehicle_assets.json` (file, lod1, triangles, materials, rest-pose notes), and 18 entries in `asset_manifest.json`. `ck_build_vehicles.py` now keeps that `modes` map when it rewrites the config.
+- Modes: CR-X1 pursuit / battle / stealth; CR-B1 pursuit / **battle (new, added to `vehicle_specs.json`)** / stealth; CR-A1 flight / vtol / stealth.
+  - **Stealth** (every vehicle): materials swap to `Stealth_Skin/Facet/Gunmetal/Glass` (matte, near-black with a crimson undertone), every emissive becomes `Stealth_Glow` (faint red). Faceted RAM panels (car nose, chines, low skirts, deck; bike cowl, sides, skirts; jet chines, serrated exhaust shrouds, VTOL fan covers). Headlights become slit shutters, antennas, pitot and nav lights are removed, car fins retract, and jet spikes fold flat.
+  - **Battle:** the car poses `BattlePanel_L/R` deployed with missile pods on them and `Turret` raised with twin cannons, plus a front ram, bolted skirt armour and hub armour. The bike gets fairing armour, twin forward guns, rear missile pods, a cowl ram and rear wheel guards.
+  - **VTOL:** `VTOL_L/R` rest at -90° with clamshell intake doors open, vanes and a downward glow.
+  - **Rest-pose caveat:** in battle/vtol files the posed pivots rest deployed, but `CRX1_BattleMode` / `CRA1_VTOLTransition` still key from stowed to deployed. Play the clip on the base model for the transition, then swap files (or skip the clip). The posed pivots are listed under `rest_pose` in the config.
+- **Cockpits** (in all variants): the car and jet hulls are cut with an exact boolean into a tub under a transparent `CanopyGlass` (the canopy's flat underside was removed so it doesn't veil the view). The car has a seat, dash, binnacle with an emissive cluster and ring gauges, a HUD combiner, a centre stack, a steering wheel and A-pillars. The jet has a taller canopy bubble (the old one sat below `camera_cockpit`), an ejection seat, glare shield, 3 MFDs, HUD, side consoles, a throttle and a yoke. The bike has a new `camera_cockpit` empty (0, -0.12, 1.52), grips, bar ends, levers, switch pods, mirrors, a TFT cluster on `Steer`, a windscreen and a tank nav strip. Interior meshes are `IN_*` and are left out of LOD1.
+- Triangles (LOD0 / LOD1, interior included in LOD0): CR-X1 18.0k / 3.8k, battle 19.5k / 4.2k, stealth 18.3k / 3.9k (base 15.9k / 3.9k). CR-B1 9.5–10.5k / 2.0–2.2k (base 8.0k / 2.0k). CR-A1 6.5–7.3k / 0.9–1.1k (base 3.6k / 0.9k; the cockpit is 2.7k of that).
+- Renders: `docs/renders/vehicle_modes/<Base>_<mode>_{front,rear,cockpit}.png` + `<Base>_modes_sheet.png`.
+- **Grades (honest):** all variants are **PROTOTYPE**. Modes read clearly apart: stealth is unmistakable, battle reads, and VTOL reads from the doors. The geometry is still primitive kit-bash on the base blockouts (bike tyres look like tractor treads, flat panels), with no baked AO or decals. Cockpits are **PROTOTYPE**: clean and readable from the eye point, with emissive screens, but the screens are plain colour and have no UI textures, the car canopy is cramped (the eye is only 0.14 m below the roof), and the jet yoke sits mostly below the default view.
+- Not done: no in-engine check (Godot loads these later), no `.blend` sources saved (the script is the source).
+
+## 2026-10-28: vehicle realism pass + CR-X1 bike launch bay
+- Owen asked for much more realistic vehicles, as additions to the existing models (no remake). `tools/blender/ck_vehicle_kit.py` adds lathed and swept detail parts. `ck_build_vehicle_modes.py` runs a per-vehicle detail pass before each mode:
+  - **CR-X1:** projector headlamps in housings, tail-lens covers, nozzle petals, liners and flame-holders, lug nuts, centre caps, sidewall ribs and valves, plate and arch bolts, hood louvres, chassis rails, tow hooks, door handles, a badge.
+  - **CR-B1:** twin front discs, a rear disc and calipers, fork lowers, seals and caps, brake hoses, belt drive and pulleys, a rear coil-over with reservoir, exhausts, a radiator, pegs and levers, projector lamps, a rear hugger.
+  - **CR-A1:** gear oleos, torque links, hubs and doors, a taxi lamp, nozzle petals and flame-holders, wing access panels with bolts, fuel caps, vortex generators, actuator fairings, weapons-bay doors, blade antennas.
+  - Stealth leaves the lamps and petals off: they're retracted or shrouded.
+- **Baked materials** (the CR-X9 v3 approach): every opaque material maps to a paint id (Crimson to Paint, Gunmetal to Armor, and so on).
+  - One smart-UV atlas per variant, baked from a single merged copy. Per-object baking took over 13 min for the first pass alone; the merged copy takes about 2 min per variant.
+  - The bake captures AO, edges, paint id, grime, scratches and road dust, plus a normal map with rounded edges, orange peel, scratches, carbon weave and tyre grain.
+  - Each mode has its own palette: standard (candy crimson with clearcoat), battle (heavier wear and dirt), stealth (matte radar-absorbent coating).
+  - Output is 2K base/MR/normal maps, embedded as JPEG in the GLB; LOD1 uses 1K. The cockpit screens get procedural gauge and nav-map textures.
+- **CR-X1 bike launch bay** (Owen: "where the bike ejects from the batmobile, like in the dark knight"). It's our own design:
+  - The nose is cut (exact boolean) into two clamshell petals, `BayDoor_L/R`, built from the existing nose pieces, so the closed car looks unchanged.
+  - Behind them is a lit, open-top bay with rails, a catapult block and a `BikeSled`.
+  - The new clip `CRX1_BikeEject` (frames 0–46 at 30 fps) runs: petals open (0–18), the sled runs forward (18–34) and drops to the road (34–46).
+  - `bike_launch_anchor` (on the sled) is where the game parents the CR-B1; `bike_launch_exit` is on the road ahead. Details are in `vehicle_assets.json` under `modes.*.bike_eject`. Review render: `docs/renders/vehicle_modes/CRX1_interceptor_*_eject.png`.
+- Triangles roughly double: CR-X1 ~32–34k (LOD1 7–8k), CR-B1 ~17–18k (LOD1 ~4k), CR-A1 ~13–16k (LOD1 2.5–3.2k). That's within the hero budget; the laptop uses LOD1.
+- Review renders now use a physical sky and an asphalt ground.
+- Grade: **PROTOTYPE+**. Materials and mechanical detail now read as real hardware, but the base silhouettes are still the original kit-bash shapes (boxy plates, tractor-tread tyres). The next step toward HERO would be reshaping those.

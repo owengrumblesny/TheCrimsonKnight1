@@ -30,6 +30,21 @@
         "--strictPort"
       ],
       "port": 4173
+    },
+    {
+      "name": "crimson-knight-dev-main",
+      "runtimeExecutable": "npm.cmd",
+      "runtimeArgs": [
+        "--prefix",
+        "C:/Users/oweng/OneDrive/Desktop/Crimson Knight 1/game",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5174",
+        "--strictPort"
+      ],
+      "port": 5174
     }
   ]
 }

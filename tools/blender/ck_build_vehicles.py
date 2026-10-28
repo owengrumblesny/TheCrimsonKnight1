@@ -311,7 +311,14 @@ def main():
         bpy.context.view_layer.update()
         finish(root, base)
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(L.ROOT, "assets", "source", "blender", base + ".blend"))
-    with open(os.path.join(L.ROOT, "config", "vehicle_assets.json"), "w") as fh:
+    cfg_path = os.path.join(L.ROOT, "config", "vehicle_assets.json")
+    if os.path.exists(cfg_path):  # keep the per-mode map written by ck_build_vehicle_modes.py
+        with open(cfg_path) as fh:
+            old = json.load(fh)
+        for key, rep in REPORT.items():
+            if "modes" in old.get(key, {}):
+                rep["modes"] = old[key]["modes"]
+    with open(cfg_path, "w") as fh:
         json.dump(REPORT, fh, indent=2)
     print("[vehicles] OK")
 

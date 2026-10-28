@@ -15,6 +15,8 @@ var _light_pool: Array = []
 var _pool_timer := 0.0
 var _rand_state := 0
 var _proto_cache := {}
+## Shared wet-street material: the ground and every surface that used png_wet_asphalt (road tiles).
+var wet: ShaderMaterial
 
 
 func _rand() -> float:
@@ -24,6 +26,7 @@ func _rand() -> float:
 
 func build() -> void:
 	name = "Sector_Downtown"
+	wet = _wet_material()
 	_rand_state = int(CKData.json("world")["seed"])
 	_ground()
 
@@ -137,12 +140,7 @@ func build() -> void:
 func _ground() -> void:
 	var mesh := PlaneMesh.new()
 	mesh.size = Vector2(400, 400)
-	var mat := StandardMaterial3D.new()
-	mat.albedo_texture = load(CKData.texture_path("wet_asphalt"))
-	mat.uv1_scale = Vector3(200, 200, 1)
-	mat.roughness = 0.28
-	mat.metallic = 0.15
-	mesh.material = mat
+	mesh.material = wet
 	var mi := MeshInstance3D.new()
 	mi.name = "Ground"
 	mi.mesh = mesh
@@ -153,6 +151,36 @@ func _ground() -> void:
 	body.name = "Ground_static"
 	add_child(body)
 	_box(body, Vector3(400, 2, 400), Transform3D(Basis(), Vector3(0, -1, 0)))
+
+
+func _wet_material() -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = load("res://godot/shaders/wet_asphalt.gdshader")
+	m.set_shader_parameter("albedo_tex", load(CKData.texture_path("wet_asphalt")))
+	var puddles := FastNoiseLite.new()
+	puddles.seed = 7
+	puddles.frequency = 0.02
+	puddles.fractal_octaves = 3
+	var pt := NoiseTexture2D.new()
+	pt.noise = puddles
+	pt.seamless = true
+	pt.width = 512
+	pt.height = 512
+	pt.generate_mipmaps = true
+	m.set_shader_parameter("puddle_noise", pt)
+	var ripple := FastNoiseLite.new()
+	ripple.seed = 11
+	ripple.frequency = 0.08
+	var rt := NoiseTexture2D.new()
+	rt.noise = ripple
+	rt.seamless = true
+	rt.as_normal_map = true
+	rt.bump_strength = 4.0
+	rt.width = 256
+	rt.height = 256
+	rt.generate_mipmaps = true
+	m.set_shader_parameter("ripple_normal", rt)
+	return m
 
 
 func _p(x: float, z: float, rot := 0.0, y := 0.0, scale := 1.0) -> Dictionary:
@@ -197,7 +225,7 @@ func proto(id: String) -> Dictionary:
 	for n in scene.find_children("*", "", true, false):
 		if n is MeshInstance3D and n.is_visible_in_tree() and n.mesh:
 			var xf: Transform3D = inv * n.global_transform
-			meshes.append({"mesh": n.mesh, "xf": xf, "skin": n.skin != null})
+			meshes.append({"mesh": _wet_surfaces(n.mesh), "xf": xf, "skin": n.skin != null})
 			var b: AABB = xf * n.mesh.get_aabb()
 			bounds = b if first else bounds.merge(b)
 			first = false
@@ -208,6 +236,23 @@ func proto(id: String) -> Dictionary:
 	var info := {"meshes": meshes, "cols": cols, "bounds": bounds}
 	_proto_cache[id] = info
 	return info
+
+
+## Copy of a mesh with its png_wet_asphalt surfaces switched to the wet-street shader (others untouched).
+func _wet_surfaces(mesh: Mesh) -> Mesh:
+	var hit := false
+	for i in mesh.get_surface_count():
+		var m := mesh.surface_get_material(i)
+		if m and m.resource_path.ends_with("png_wet_asphalt.tres"):
+			hit = true
+	if not hit or wet == null:
+		return mesh
+	var copy: Mesh = mesh.duplicate()
+	for i in copy.get_surface_count():
+		var m := copy.surface_get_material(i)
+		if m and m.resource_path.ends_with("png_wet_asphalt.tres"):
+			copy.surface_set_material(i, wet)
+	return copy
 
 
 ## Chunked MultiMeshInstance3D per sub-mesh; static colliders from *_COL boxes (else bounds).

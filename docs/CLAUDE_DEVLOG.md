@@ -130,3 +130,8 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 - HUD, hotbar, main menu, pause, inventory, map, loadout and settings (including key rebinding) are rebuilt as Godot Controls with the UI-pack icons and the web theme colours. Save, continue, new sandbox and autosave use the web JSON shape in user://. F3 shows a perf readout.
 - Checks: screenshots of every screen; a scripted menu-hotkey run; `test_logic.gd` passes 85/85.
 - Not ported: loading screen, animation debug panel, audio. Grade: **PROTOTYPE.** The UI is functional and matches the web layout, but it hasn't been played with a mouse by a person.
+
+## 2026-10-28: Godot port M6 (desktop graphics pass; M5 benchmark deferred)
+- Added a wet-street shader for the ground and road tiles: puddle mask, mirror-like puddles, and world-space ripple normals (the placeholder roads have no tangents). SSR, volumetric fog and glow are on HIGH; SDFGI, SSIL and TAA are added on ULTRA. LOW is unchanged apart from the puddle mask, with ripples off.
+- Found the cause of the "phantom" movement in earlier tests: the test windows take keyboard focus while someone is using the PC. Scripted runs now ignore real input, and test windows open off-screen.
+- M5 (benchmark harness and Forward+ vs Mobile) is skipped at Owen's request. Grade for the graphics: **PROTOTYPE.** The streets now read as wet and lit, but the building windows are flat white emissive quads and the kit buildings are still low-detail.

@@ -49,6 +49,15 @@ func _ready() -> void:
 	settings = prefs["settings"]
 	CKInput.overrides = prefs["bindings"]
 	CKInput.apply()
+	if args.has("frames"):
+		# scripted runs ignore the real keyboard, mouse and pads (someone may be typing while the test window
+		# pops up); --hold/--press drive actions directly, which needs no bound events
+		CKInput.bindings_changed.connect(func():
+			for act in InputMap.get_actions():
+				if not String(act).begins_with("ui_"):
+					InputMap.action_erase_events(act))
+		CKInput.apply()
+		print("[ck] scripted run: real input ignored")
 	# first launch: LOW on integrated GPUs (the target laptop's Radeon 610M), HIGH otherwise
 	if prefs["fresh"]:
 		settings["quality"] = Quality.detect_default()
@@ -159,6 +168,7 @@ func apply_settings() -> void:
 	var q: String = _forced_quality if _forced_quality != "" else settings["quality"]
 	var pools_changed: bool = stage.preset["dynamic_lights"] != Quality.PRESETS[q]["dynamic_lights"] or district._light_pool.is_empty()
 	stage.apply_quality(q)
+	district.wet.set_shader_parameter("ripples", 0.0 if q == "low" else 1.0)
 	if pools_changed:
 		district.set_light_pool(stage.preset["dynamic_lights"], stage.preset["light_shadows"])
 		citadel.set_light_pool(maxi(4, stage.preset["dynamic_lights"]))

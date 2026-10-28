@@ -52,6 +52,8 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 | Perf overlay (F3) | `main.gd` | Done (M4), as a plain readout of fps, draws and primitives. Not a benchmark |
 | Loading screen | not ported | Startup builds the world synchronously behind Godot's boot splash |
 | Animation debug panel (`) | not ported | |
+| Desktop graphics (M6): wet streets with puddles (near-mirror roughness) and animated ripples; SSR, volumetric fog (lamp halos), glow on HIGH/ULTRA; SDFGI + SSIL + TAA on ULTRA | `godot/shaders/wet_asphalt.gdshader`, `quality.gd`, `stage.gd` | **Done (M6).** LOW keeps the puddle mask with ripples off and no SSAO/SSR/SDFGI/volumetric fog/MSAA |
+| Benchmark harness (6 scenes × 4 presets), Forward+ vs Mobile | not ported | **Deferred by Owen.** No performance claims |
 | Audio (synth placeholders) | not ported | Equipment emits `sound(id)` signals. A player for them is still to do |
 
 ## Decisions
@@ -72,7 +74,7 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 - The Citadel light pool uses Blender light watts ÷ 8 as Godot energy, and underground uses a flat warm ambient. Both were tuned by eye.
 
 - The item catalog is exported from `game/src/ui/inventoryData.ts` to `godot/data/items.json` with the web build's own esbuild (`godot/tools/export_web_data.sh`), so both builds share the same values. `icon_manifest.json`, `hotbar_layout.json` and `menu_spec.json` are copied the same way.
-- **Unexplained drift, seen twice:** in two windowed test runs the player started running at about 6 m/s around frame 150 with no scripted input. Repeated runs with identical arguments did not show it, and a later diagnostic run printed no movement input and no joypads. It may have been stray real input to the test window, but that is not confirmed. `--log` now prints the move vector and connected joypads whenever movement input is non-zero, to catch it next time.
+- **Stray input in test runs (explained):** windowed test runs pop up and take keyboard focus, so someone typing on the PC was typing into the game. Logged move vectors showed W/A/D input, and one ULTRA screenshot showed a drone launch and a slot-7 refusal that the script never sent. Since M6, scripted runs (`--frames`) unbind every real key, button and pad (`--hold` and `--press` drive actions directly), and test windows are opened at `--position 3000,2000`. The earlier "phantom drift" in M2/M3 was this, not a game bug.
 
 - The UI is built in code from Control nodes with one shared Theme (`CKUI.theme()`) whose colours come from `game/src/ui/ui.css`. Icons load from `CRIMSON_KNIGHT_UI_PACK/`, which is identical to the web build's `public/ui`.
 - Godot 4 gotcha: `set_anchors_preset()` keeps a zero-size control at zero size. UI code uses `CKUI.place()` (explicit anchors and offsets) or `set_anchors_and_offsets_preset()`.
@@ -80,4 +82,4 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 - Scripted `--press` now sends real InputEventActions, so menu hotkeys can be tested too. They take effect on the next frame.
 
 ## Proof screenshots
-`docs/godot_shots/`: `m1_high.png` (HIGH, LOD0 hero by the Night Owl Diner billboard) and `m1_low_run.png` (LOW, running north on the avenue), `m2_citadel_hub.png` (Citadel hub with the armour statue) `m2_training_door.png` (corridor door into the Training room), `m3_npcs_intersection.png` (police officer and civilians, vertex-coloured NPCs) and `m3_grapnel_front.png` (grapnel selected), and `m4_*.png` (main menu, in-game HUD, portal prompt, inventory, settings, map, loadout).
+`docs/godot_shots/`: `m1_high.png` (HIGH, LOD0 hero by the Night Owl Diner billboard) and `m1_low_run.png` (LOW, running north on the avenue), `m2_citadel_hub.png` (Citadel hub with the armour statue) `m2_training_door.png` (corridor door into the Training room), `m3_npcs_intersection.png` (police officer and civilians, vertex-coloured NPCs) and `m3_grapnel_front.png` (grapnel selected), `m4_*.png` (main menu, in-game HUD, portal prompt, inventory, settings, map, loadout), and `m6_{low,high,ultra}_wet_street.png` (the same viewpoint on three presets).

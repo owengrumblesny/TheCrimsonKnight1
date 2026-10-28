@@ -113,7 +113,10 @@ func set_underground(on: bool) -> void:
 	env.background_color = CAVE if on else NIGHT
 	env.fog_light_color = env.background_color
 	env.fog_density = 0.006 if on else preset["fog_density"]
-	env.ambient_light_energy = 0.8 if on else 1.4
+	# underground: flat warm fill (the night sky would light the cave blue); the web build used a hemi light
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR if on else Environment.AMBIENT_SOURCE_SKY
+	env.ambient_light_color = Color(0.42, 0.35, 0.38)
+	env.ambient_light_energy = 0.7 if on else 1.4
 	moon.visible = not on
 	rain.visible = not on and preset["rain"] > 0
 

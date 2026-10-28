@@ -306,6 +306,8 @@ def cavern():
     L.box("hub_floor", (96, 80, 0.4), (0, 0, -0.2), "Concrete", r, bevel=0.02)
     L.collider("hub_floor", (104, 88, 0.6), (0, 0, -0.3), r)
     for i in range(16):  # rock wall collision ring
+        if i in (4, 12):  # tunnel mouths (hangar tunnel / hub access tunnel) stay open
+            continue
         a = 2 * math.pi * i / 16
         L.collider(f"hub_wall{i}", (14, 3, 12), (math.cos(a) * (rx - 4), math.sin(a) * (ry - 4), 6), r).rotation_euler = (0, 0, a + math.pi / 2)
     # grate panels set into the floor + painted lanes

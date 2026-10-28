@@ -148,11 +148,11 @@ func _ground() -> void:
 	mi.mesh = mesh
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(mi)
+	# a finite slab, not a WorldBoundaryShape3D: that is a half-space and would push the Citadel (y -120) up
 	var body := StaticBody3D.new()
-	var col := CollisionShape3D.new()
-	col.shape = WorldBoundaryShape3D.new()
-	body.add_child(col)
+	body.name = "Ground_static"
 	add_child(body)
+	_box(body, Vector3(400, 2, 400), Transform3D(Basis(), Vector3(0, -1, 0)))
 
 
 func _p(x: float, z: float, rot := 0.0, y := 0.0, scale := 1.0) -> Dictionary:

@@ -35,6 +35,8 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 | Dynamic props (boxes, barrels, cones, pallets) | `district.gd` RigidBody3D | Done (M1); shove interaction is M3 |
 | Night lighting, moon shadows, fog, rain, hero key light | `godot/scripts/render/stage.gd` | Done (M1) |
 | LOW/MEDIUM/HIGH/ULTRA presets, auto-LOW on integrated GPUs | `godot/scripts/render/quality.gd` + `stage.apply_quality()` | Done (M1); settings menu is M4 |
+| Red Citadel: *_COL physics, room visibility (30 m), Light_* pool from glTF extras, sliding doors, parked vehicles with far LOD | `godot/scripts/world/citadel.gd` | **Done (M2).** Walked elevator → corridor → Training door, and tunnel → hub |
+| District ↔ Citadel transitions (portal E → Anchor_Arrival; Anchor_Exit E → portal), underground lighting, city hidden underground | `main.gd` `_interact()`, `stage.set_underground()` | Done (M2). The keycard check arrives with the inventory (M3) |
 
 ## Decisions
 - **Godot's name-suffix import hints are off** (`nodes/use_name_suffixes=false`), because Godot would otherwise turn `*_COL` into visible trimesh colliders. The post-import script makes box colliders instead, matching the web build.
@@ -46,5 +48,12 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 - The player node's origin is at the feet (the web build used the capsule centre). The capsule shape is offset by half its height.
 - The rain is a GPUParticles3D field of 6000 streaks (scaled by the preset), following the player.
 
+- **Citadel asset fixes, applied at runtime in Godot:**
+  - The hub's 16-segment wall-collider ring blocked both tunnel mouths (segments 4 and 12). `citadel.gd` drops those two colliders, and `tools/blender/ck_build_citadel.py` now skips them. The GLB has not been rebuilt yet.
+  - The elevator shaft walls had no `*_COL`, so walking north from the arrival point fell into the void. `citadel.gd` adds box colliders for them.
+  - Both bugs are also in the web build, which was left unmodified.
+- The district ground collider is a 400 × 400 m slab. A WorldBoundaryShape3D is a half-space and pushed the Citadel (y −120) back up to street level.
+- The Citadel light pool uses Blender light watts ÷ 8 as Godot energy, and underground uses a flat warm ambient. Both were tuned by eye.
+
 ## Proof screenshots
-`docs/godot_shots/`: `m1_high.png` (HIGH, LOD0 hero by the Night Owl Diner billboard) and `m1_low_run.png` (LOW, running north on the avenue).
+`docs/godot_shots/`: `m1_high.png` (HIGH, LOD0 hero by the Night Owl Diner billboard) and `m1_low_run.png` (LOW, running north on the avenue), `m2_citadel_hub.png` (Citadel hub with the armour statue) and `m2_training_door.png` (corridor door into the Training room).

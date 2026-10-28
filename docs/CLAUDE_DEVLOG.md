@@ -115,3 +115,8 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 - Ported the player controller (`player.gd`, CharacterBody3D at 60 Hz with physics interpolation), the hero clip machine and LOD (`hero.gd`), the SpringArm3D follow camera, `CKInput` (the web binding table, so web saves stay compatible), the district (chunked MultiMeshInstance3D, *_COL statics, lamp light pool, billboards, portal), and the stage (night sky, moon shadows, fog, rain, presets).
 - Scripted checks (`--hold`, `--press`, `--log`): runs at 6.7 m/s, jumps and lands, stops at a facade, and steps the curb. Screenshots are in `docs/godot_shots/`.
 - Grade: **PROTOTYPE.** The lighting is tuned by eye. The citadel, NPCs, gadgets and UI are not wired yet.
+
+## 2026-10-28: Godot port M2 (Red Citadel)
+- `citadel.gd` adds room visibility, the light pool fed by Light_* glTF extras, sliding doors and parked vehicles with a far LOD. `main.gd` handles the portal and exit-elevator transitions and the underground lighting switch.
+- Found and fixed two Citadel collision bugs that the web build shares: hub ring-wall colliders across both tunnel mouths, and elevator shaft walls with no colliders. The fixes are applied at runtime in Godot, and the Blender builder is patched (not rebuilt).
+- Scripted walks: elevator → corridor → Training room; tunnel → hub; exit → portal. Grade: **PROTOTYPE.**

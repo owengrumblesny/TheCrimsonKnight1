@@ -10,6 +10,9 @@ extends Node3D
 
 var stage: Stage
 var district: District
+var citadel: Citadel
+var underground := false
+var portal := Vector3.ZERO
 var player: Player
 var cam: FollowCamera
 var args := {}
@@ -25,11 +28,18 @@ func _ready() -> void:
 	district = District.new()
 	add_child(district)
 	district.build()
+	citadel = Citadel.new()
+	add_child(citadel)
+	citadel.build()
+	var pa: Array = CKData.json("world")["redCitadelPortal"]
+	portal = Vector3(pa[0], pa[1], pa[2])
 	var spawn: Array = CKData.json("world")["spawn"]
 	player = Player.new()
 	player.name = "Player"
 	add_child(player)
 	player.teleport(_vec(args.get("at", ""), Vector3(spawn[0], spawn[1] - 2, spawn[2])))
+	if args.get("at", "") == "citadel":
+		player.teleport(citadel.anchor("Anchor_Arrival"))
 	cam = FollowCamera.new()
 	cam.target = player
 	add_child(cam)
@@ -40,6 +50,7 @@ func _ready() -> void:
 	var q: String = args.get("quality", Quality.detect_default())
 	stage.apply_quality(q)
 	district.set_light_pool(stage.preset["dynamic_lights"], stage.preset["light_shadows"])
+	citadel.set_light_pool(maxi(4, stage.preset["dynamic_lights"]))
 	if args.has("hold"):
 		for act in String(args["hold"]).split(","):
 			Input.action_press(act)
@@ -71,15 +82,41 @@ func _process(dt: float) -> void:
 	player.cam_yaw = cam.yaw
 	player.glide_held = Input.is_action_pressed("jump")
 	cam.aiming = Input.is_action_pressed("grapple")
-	district.update_lights(player.global_position, now, dt)
+	_interact()
+	underground = citadel.update(player.global_position, dt)
+	stage.set_underground(underground)
+	district.visible = not underground # sector streaming: the city does not render underground
+	if not underground:
+		district.update_lights(player.global_position, now, dt)
 	stage.follow(player.global_position)
 	player.hero.update_lod(cam.camera.global_position.distance_to(player.global_position),
 		stage.preset["lod_scale"], stage.preset["hero_min_lod"])
 	if args.has("log") and frame % 30 == 0:
-		print("[ck] f%d pos=%s %s lod=%d fps=%d" % [frame, player.global_position.snapped(Vector3.ONE * 0.01),
-			player.status, player.hero.lod_level, Engine.get_frames_per_second()])
+		print("[ck] f%d pos=%s %s lod=%d fps=%d%s" % [frame, player.global_position.snapped(Vector3.ONE * 0.01),
+			player.status, player.hero.lod_level, Engine.get_frames_per_second(),
+			" citadel rooms=%d" % citadel.visible_rooms if underground else ""])
+		for i in player.get_slide_collision_count():
+			var c := player.get_slide_collision(i)
+			print("    hit ", c.get_collider().name if c.get_collider() else "?", " n=", c.get_normal().snapped(Vector3.ONE * 0.01))
 	if args.has("frames") and frame >= int(args["frames"]):
 		_finish()
+
+
+## Real interactables: Citadel entrance and exit elevator (shoving props comes with M3).
+func _interact() -> void:
+	var p := player.global_position
+	var near_portal := not underground and p.distance_to(portal) < 9
+	var near_exit := underground and p.distance_to(citadel.anchor("Anchor_Exit")) < 4
+	if not Input.is_action_just_pressed("interact"):
+		return
+	if near_portal:
+		player.teleport(citadel.anchor("Anchor_Arrival"))
+		player.heading = PI # face north (-Z), toward the hub tunnel
+		cam.yaw = 0.0
+		cam.snap()
+	elif near_exit:
+		player.teleport(portal + Vector3(0, 0.5, 8))
+		cam.snap()
 
 
 func _finish() -> void:

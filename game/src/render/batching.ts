@@ -16,7 +16,7 @@ export function mergeByMaterial(root: THREE.Object3D): MergedPart[] {
   const groups = new Map<THREE.Material, THREE.BufferGeometry[]>();
   root.traverse((o) => {
     const mesh = o as THREE.Mesh;
-    if (!mesh.isMesh || Array.isArray(mesh.material)) return;
+    if (!mesh.isMesh || Array.isArray(mesh.material) || mesh.name.endsWith('_COL')) return; // collision proxies never render
     const g = mesh.geometry.index ? mesh.geometry.toNonIndexed() : mesh.geometry.clone();
     g.applyMatrix4(mesh.matrixWorld);
     g.morphAttributes = {};

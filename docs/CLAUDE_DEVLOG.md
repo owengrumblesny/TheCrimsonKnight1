@@ -86,3 +86,14 @@ cd game && npm install && npm run dev                                      # htt
 Verified: `?test=assets` loads 246/246 models and 613/613 images in dev and production builds; menus, flipbook, gadget equip and landing effects checked in the browser.
 
 Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, environment tiles 100–350 px), so they work as UI, billboard and reference art but are too small to serve as 3D texture maps. That includes the "texture maps" swatches (~50 px). NPC and prop cut-outs are catalogued for when those models are built.
+
+---
+
+## Master Asset Directive, priorities 4–6 — 2026-10-27
+
+- **New Gotham city kit in the district** (`world/district.ts`): kit buildings facade-to-facade on both avenues, LOD1 beyond 64 m and a 48-building LOD1 skyline ring. Kit street lights, with the light pool following the rotated lamp heads; traffic lights, crosswalks, signs, manholes, drains, trees, sidewalk props, a dumpster alley, an industrial yard (a stacked container uses the new `Placement.y`), and dynamic kit boxes, cones, pallets and toolboxes. Static physics now comes from each asset's `*_COL` proxies.
+- **NPC / enemy families** (`tools/blender/ck_build_npcs.py`): 14 humanoids on the CR-X9 skeleton (cape chain removed) plus a patrol drone. Each NPC is one skinned mesh with one vertex-colour material (palette baked from slot colours), 2.0–3.4k tris, with clips NPC_Idle/Walk/Alert/Cower/Talk. `world/npcs.ts` places 34 of them plus the drone, idle only (**no AI**, per the directive), with distance-throttled mixers. Lineup review: `references/renders/npcs/lineup.png`. Fixed after review: heads enlarged, hair region widened.
+- **Gadgets & fictional weapons** (`tools/blender/ck_build_gear.py`): 18 models `gear_<itemId>` with grip origins, a socket `attach` extra, Muzzle/Emitter/OffHand/Tip anchors, moving-part pivots and Gear_Deploy/Fire/Idle clips. Inventory `modelId`s are re-linked to them. `Hero.hold()` shows the selected item on its CR-X9 v2 socket bone, with alignment derived per socket from the idle pose. Review: `references/renders/gear/`.
+- **Tooling:** `tools/manifest_add.py` (registers build configs into the manifest, now 327 assets), `tools/blender/ck_render_lineup.py` (side-by-side review sheets).
+- **Tests:** `tests/assets.test.ts` checks the item→model links, the gear sockets, and NPC registration/budget (22 tests pass); `tsc` and `npm run build` are clean.
+- **Not done:** the laptop re-benchmark with the kit, NPCs and batching fix. The run was started, but Windows was on its lock screen, which pauses the page's rendering. See `docs/PERFORMANCE.md` for the command.

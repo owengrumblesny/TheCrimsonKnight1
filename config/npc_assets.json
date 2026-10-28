@@ -1,0 +1,336 @@
+{
+  "source": "tools/blender/ck_build_npcs.py",
+  "forward": "+Z (Three.js)",
+  "height_m": 1.84,
+  "note": "No AI yet: placed idle in the district. One vertex-coloured material per NPC.",
+  "npcs": [
+    {
+      "id": "npc_civilian_a",
+      "file": "assets/models/npcs/npc_civilian_a.glb",
+      "label": "Civilian (jacket)",
+      "role": "civilian",
+      "triangles": 2132,
+      "bones": 21,
+      "scale": 1.0,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_civilian_b",
+      "file": "assets/models/npcs/npc_civilian_b.glb",
+      "label": "Civilian (t-shirt)",
+      "role": "civilian",
+      "triangles": 1976,
+      "bones": 21,
+      "scale": 1.0,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_office_worker",
+      "file": "assets/models/npcs/npc_office_worker.glb",
+      "label": "Office worker",
+      "role": "civilian",
+      "triangles": 2136,
+      "bones": 21,
+      "scale": 1.0,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_construction_worker",
+      "file": "assets/models/npcs/npc_construction_worker.glb",
+      "label": "Construction worker",
+      "role": "civilian",
+      "triangles": 2656,
+      "bones": 21,
+      "scale": 1.0,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_police_officer",
+      "file": "assets/models/npcs/npc_police_officer.glb",
+      "label": "New Gotham PD officer",
+      "role": "law",
+      "triangles": 2776,
+      "bones": 21,
+      "scale": 1.0,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_security_guard",
+      "file": "assets/models/npcs/npc_security_guard.glb",
+      "label": "Owen Enterprises security",
+      "role": "law",
+      "triangles": 2720,
+      "bones": 21,
+      "scale": 1.0,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_scientist",
+      "file": "assets/models/npcs/npc_scientist.glb",
+      "label": "Owen Enterprises scientist",
+      "role": "civilian",
+      "triangles": 2412,
+      "bones": 21,
+      "scale": 1.0,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_mechanic",
+      "file": "assets/models/npcs/npc_mechanic.glb",
+      "label": "Mechanic",
+      "role": "civilian",
+      "triangles": 2304,
+      "bones": 21,
+      "scale": 1.0,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_criminal_thug",
+      "file": "assets/models/npcs/npc_criminal_thug.glb",
+      "label": "Street thug",
+      "role": "enemy",
+      "triangles": 2248,
+      "bones": 21,
+      "scale": 1.0,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_mercenary",
+      "file": "assets/models/npcs/npc_mercenary.glb",
+      "label": "Mercenary",
+      "role": "enemy",
+      "triangles": 3008,
+      "bones": 21,
+      "scale": 1.0,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_enforcer",
+      "file": "assets/models/npcs/npc_enforcer.glb",
+      "label": "Heavy enforcer",
+      "role": "enemy",
+      "triangles": 3084,
+      "bones": 21,
+      "scale": 1.12,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_stealth_operative",
+      "file": "assets/models/npcs/npc_stealth_operative.glb",
+      "label": "Stealth operative",
+      "role": "enemy",
+      "triangles": 2308,
+      "bones": 21,
+      "scale": 1.0,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_riot_trooper",
+      "file": "assets/models/npcs/npc_riot_trooper.glb",
+      "label": "Riot trooper",
+      "role": "enemy",
+      "triangles": 3428,
+      "bones": 21,
+      "scale": 1.0,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_security_robot",
+      "file": "assets/models/npcs/npc_security_robot.glb",
+      "label": "Sentinel security robot",
+      "role": "enemy",
+      "triangles": 2696,
+      "bones": 21,
+      "scale": 1.08,
+      "materials": 1,
+      "clips": [
+        "NPC_Idle",
+        "NPC_Walk",
+        "NPC_Alert",
+        "NPC_Cower",
+        "NPC_Talk"
+      ],
+      "sockets": {
+        "hand_R": "Hand_R",
+        "hand_L": "Hand_L",
+        "head": "Head"
+      }
+    },
+    {
+      "id": "npc_patrol_drone",
+      "file": "assets/models/npcs/npc_patrol_drone.glb",
+      "label": "Patrol drone",
+      "role": "enemy",
+      "triangles": 2080,
+      "rigged": false,
+      "clips": [
+        "NPC_DroneHover",
+        "NPC_DroneScan"
+      ],
+      "pivots": [
+        "Rotor_0",
+        "Rotor_1",
+        "Rotor_2",
+        "Rotor_3",
+        "Drone_Gimbal"
+      ],
+      "hover_height_m": 3.5
+    }
+  ]
+}

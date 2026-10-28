@@ -24,6 +24,8 @@ import { InventoryService, SaveService } from './ui/uiState';
 import './ui/ui.css';
 import { Citadel } from './world/citadel';
 import { District } from './world/district';
+import { NpcCrowd } from './world/npcs';
+import { itemById } from './ui/inventoryData';
 
 /** ?nolock: automated tests — no automatic pointer lock and no pause-on-lock-loss. */
 const TEST_NO_LOCK = new URLSearchParams(location.search).has('nolock');
@@ -53,11 +55,13 @@ async function startGame(): Promise<void> {
   const district = new District(stage.scene, physics);
   const effects = new Effects(stage.scene);
   const citadel = new Citadel(stage.scene, physics);
+  const npcs = new NpcCrowd(stage.scene, physics);
   const [hero] = await Promise.all([
     loading.track('CR-X9 Crimson Knight', Hero.load()),
     loading.track('New Gotham district', district.build()),
     loading.track('effect sprites', effects.load()),
     loading.track('Red Citadel', citadel.build()),
+    loading.track('NPC population', npcs.build()),
   ]);
   stage.scene.add(hero.root);
   if (worldConfig.weather === 'rain') stage.enableRain();
@@ -82,6 +86,7 @@ async function startGame(): Promise<void> {
     }
     audio.play('ui.select');
     player.setGadget(inventory.selectedItemId); // equip animation only — never uses the item
+    void hero.hold(itemById.get(inventory.selectedItemId ?? '')?.modelId ?? null);
   };
   const hotbar = new Hotbar(inventory, bindings, selectSlot);
   hud.root.appendChild(hotbar.el);
@@ -332,6 +337,8 @@ async function startGame(): Promise<void> {
     underground = citadel.update(focus, dt);
     stage.setUnderground(underground);
     district.group.visible = !underground; // sector streaming: the city does not render underground
+    npcs.group.visible = !underground;
+    if (!underground) npcs.update(focus, dt);
     if (!underground) district.updateLights(focus, now, dt);
     if (!bench.active) cam.update(dt, input, player.position, input.held('grapple'));
     hero.updateLod(stage.camera.position.distanceTo(player.position), stage.preset.lodScale);

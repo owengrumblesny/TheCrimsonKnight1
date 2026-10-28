@@ -62,6 +62,12 @@ def material(name):
         "Fabric": dict(png="gunmetal.png", tint=0.7, rough=0.95),
         "Skin": dict(png="concrete.png", tint=(2.6, 1.85, 1.45), rough=0.6),
         "Plant": dict(png="cavern_stone.png", tint=(0.45, 1.25, 0.5), rough=0.9),
+        "WindowLit": dict(png="glass.png", emit=(1.0, 0.72, 0.42), strength=1.6),
+        "WindowRed": dict(png="glass.png", emit=(1.0, 0.18, 0.15), strength=1.4),
+        "Paint": dict(png="concrete.png", tint=(2.6, 2.6, 2.5), rough=0.6),
+        "Cardboard": dict(png="concrete.png", tint=(1.75, 1.3, 0.85), rough=0.9),
+        "Bark": dict(png="cavern_stone.png", tint=(0.9, 0.7, 0.55), rough=0.95),
+        "Neon": dict(png="red_emissive.png", emit=(1, 0.1, 0.2), strength=6),
     }[name]
     m = bpy.data.materials.new(name)
     nodes, links = m.node_tree.nodes, m.node_tree.links

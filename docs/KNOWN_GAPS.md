@@ -24,10 +24,12 @@ Not done:
 
 No third-party audio is used, so no credits are owed yet.
 
-## 3D (Part II) — see docs/ASSET_AUDIT.md for per-family status
-- **Hero:** procedural rigged model with 22 clips. Missing clips are listed in ANIMATION_MAP.md. No cloth or spring cape.
-- **Vehicles:** blockouts only; no pivots, interiors or driving.
-- **City:** cube/cylinder placeholders re-textured with Owen's material PNGs; bounding-box colliders; no LODs.
-- **NPCs / enemies:** blockouts only; no rigs or AI.
-- **Red Citadel:** concept art + portal marker only.
+## 3D (Part II + Master Asset Directive) — see docs/ASSET_AUDIT.md for per-family grades
+- **No asset is HERO grade.** Everything scripted is PROTOTYPE at best. The CR-X9 helmet is egg-shaped and the neck shows; vehicle surfaces are faceted; NPCs have no faces or hands detail. An artist sculpt/texture pass is required for showcase quality.
+- **Gameplay systems are deliberately not implemented** (directive: assets first): no grappling physics beyond the existing pull, gliding, driving, combat or NPC AI. NPCs stand idle; vehicles are parked in the Citadel hangar; the gear is display/attachment only.
+- **Held gear alignment** is derived from the idle pose per socket (`Hero.hold`). Two-handed weapons do not IK the off hand to `OffHand` yet.
+- **Hero:** missing clips are listed in ANIMATION_MAP.md. No runtime cape simulation.
+- **City:** a single downtown intersection sector with a LOD1 skyline ring. No streaming of further sectors, no interiors in the city buildings, and kit buildings are not enterable.
+- **NPC crowd:** shares one skeleton, so body variety comes only from girth, clothing and accessories (no height or gender morph targets). Skinned NPCs use per-NPC mixers, which is fine at 34 NPCs but would need GPU-instanced animation for crowds.
+- **Download size:** every small GLB embeds its own copies of the material PNGs (18 gear models = 7 MB, kit = 18 MB). Sharing external textures across GLBs is the next load-time win.
 - **Physics note:** the ground slab is offset from the spawn after a fall-through bug at (0, 0); the root cause wasn't isolated (see systems/physics.ts).

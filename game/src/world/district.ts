@@ -8,6 +8,7 @@ import type RAPIER from '@dimforge/rapier3d-compat';
 interface Placement {
   x: number;
   z: number;
+  y?: number;
   rotY?: number;
   scale?: number;
 }
@@ -68,59 +69,117 @@ export class District {
     await this.instanced('road_tile_v01', roadTiles, { collide: false, shadow: false });
     await this.instanced('sidewalk_tile_v01', walks, { collide: true, shadow: false });
 
-    // building rows along both avenues, skipping the intersection corners' sidewalks
-    const kinds = ['building_low_v01', 'building_mid_v01', 'building_high_v01', 'building_low_v02', 'building_mid_v02',
-      'building_high_v02', 'tower_v01', 'building_mid_v03'];
+    // ---- building rows: kit buildings placed facade-to-facade along both avenues ----
+    // footprints (width along the street, depth) from config/citykit.json; facades sit 11 m from the road centre
+    const FOOT: Record<string, [number, number]> = {
+      kit_gothic_tower: [16, 16], kit_office_tower: [17, 17], kit_apartment: [14, 13], kit_warehouse: [24, 20], kit_shopfront: [10, 12],
+    };
+    const kinds = ['kit_apartment', 'kit_shopfront', 'kit_office_tower', 'kit_apartment', 'kit_warehouse', 'kit_shopfront', 'kit_gothic_tower'];
     const lots = new Map<string, Placement[]>();
-    for (let i = -9; i <= 9; i += 1.5) {
-      if (Math.abs(i) < 2) continue;
+    const add = (id: string, p: Placement) => (lots.get(id) ?? lots.set(id, []).get(id)!).push(p);
+    for (const axis of ['x', 'z'] as const) {
       for (const side of [-1, 1]) {
-        const k1 = kinds[Math.floor(this.rand() * kinds.length)];
-        const k2 = kinds[Math.floor(this.rand() * kinds.length)];
-        (lots.get(k1) ?? lots.set(k1, []).get(k1)!).push({ x: i * 6, z: side * 15, rotY: side > 0 ? Math.PI : 0 });
-        (lots.get(k2) ?? lots.set(k2, []).get(k2)!).push({ x: side * 15, z: i * 6, rotY: side > 0 ? -Math.PI / 2 : Math.PI / 2 });
+        for (const dir of [-1, 1]) {
+          let cursor = 12;
+          while (cursor < 116) {
+            const kind = kinds[Math.floor(this.rand() * kinds.length)];
+            const [w, d] = FOOT[kind];
+            if (cursor + w > 120) break;
+            const along = dir * (cursor + w / 2);
+            const off = side * (11 + d / 2);
+            // near the intersection: full detail; further out: the merged LOD1 version (static distance split)
+            const id = Math.abs(along) < 64 ? kind : `${kind}_lod1`;
+            if (axis === 'x') add(id, { x: along, z: off, rotY: side > 0 ? Math.PI : 0 });
+            else add(id, { x: off, z: along, rotY: side > 0 ? -Math.PI / 2 : Math.PI / 2 });
+            cursor += w + 1.5;
+          }
+        }
       }
     }
     for (const [id, list] of lots) await this.instanced(id, list, { collide: true, mapKind: 'building' });
+    // simplified distant skyline (LOD1 only, no collision): fills the horizon cheaply
+    const sky = new Map<string, Placement[]>();
+    for (let i = 0; i < 48; i++) {
+      const a = (i / 48) * Math.PI * 2 + this.rand() * 0.05;
+      const r = 150 + this.rand() * 70;
+      const kind = ['kit_office_tower', 'kit_gothic_tower', 'kit_apartment'][i % 3];
+      (sky.get(kind) ?? sky.set(kind, []).get(kind)!).push({ x: Math.cos(a) * r, z: Math.sin(a) * r, rotY: -a - Math.PI / 2, scale: 1 + this.rand() * 0.9 });
+    }
+    for (const [kind, list] of sky) await this.instanced(`${kind}_lod1`, list, { collide: false, shadow: false });
     this.mapFeatures.push({ kind: 'road', minX: -63, maxX: 63, minZ: -3, maxZ: 3 }, { kind: 'road', minX: -3, maxX: 3, minZ: -63, maxZ: 63 });
 
-    // street lights with real lights near the spawn
+    // ---- street lights (arm over the road); the real light pool follows the lamp heads ----
     const lamps: Placement[] = [];
-    for (let i = -8; i <= 8; i += 2) {
-      if (i === 0) continue;
-      lamps.push({ x: i * 6, z: -7.5, rotY: Math.PI / 2 }, { x: 7.5, z: i * 6, rotY: Math.PI });
+    for (let i = -9; i <= 9; i += 2) {
+      if (Math.abs(i) < 2) continue;
+      lamps.push({ x: i * 6, z: -3.7, rotY: -Math.PI / 2 }, { x: i * 6 + 6, z: 3.7, rotY: Math.PI / 2 });
+      lamps.push({ x: 3.7, z: i * 6, rotY: Math.PI }, { x: -3.7, z: i * 6 + 6, rotY: 0 });
     }
-    await this.instanced('street_light_v01', lamps, { collide: true });
-    for (const l of lamps) this.lamps.push({ pos: new THREE.Vector3(l.x, 3.6, l.z), offUntil: 0 });
+    await this.instanced('kit_streetlight', lamps, { collide: true });
+    for (const l of lamps) {
+      const head = new THREE.Vector3(1.75, 6.55, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), l.rotY ?? 0);
+      this.lamps.push({ pos: new THREE.Vector3(l.x, 0, l.z).add(head), offUntil: 0 });
+    }
 
+    // ---- intersection: traffic lights, crosswalks, signs; road furniture ----
+    await this.instanced('kit_traffic_light', [
+      { x: 4.4, z: 4.4, rotY: Math.PI }, { x: -4.4, z: -4.4, rotY: 0 }, { x: -4.4, z: 4.4, rotY: Math.PI / 2 }, { x: 4.4, z: -4.4, rotY: -Math.PI / 2 },
+    ], { collide: true });
+    await this.instanced('kit_crosswalk', [{ x: 7.5, z: 0, rotY: 0 }, { x: -7.5, z: 0, rotY: 0 }, { x: 0, z: 7.5, rotY: Math.PI / 2 }, { x: 0, z: -7.5, rotY: Math.PI / 2 }],
+      { collide: false, shadow: false });
+    await this.instanced('kit_street_sign', [{ x: 5.5, z: -5.5, rotY: 0.3 }, { x: -5.5, z: 5.5, rotY: Math.PI + 0.3 }], { collide: true });
+    const covers: Placement[] = [];
+    const drains: Placement[] = [];
+    for (let i = -8; i <= 8; i++) {
+      if (Math.abs(i) < 2) continue;
+      covers.push({ x: i * 7.3, z: 0.9 * (i % 2 ? 1 : -1) }, { x: 0.9 * (i % 2 ? -1 : 1), z: i * 7.3 });
+      drains.push({ x: i * 6.5 + 2, z: 2.75 }, { x: 2.75, z: i * 6.5 + 2, rotY: Math.PI / 2 });
+    }
+    await this.instanced('kit_manhole', covers, { collide: false, shadow: false });
+    await this.instanced('kit_drain', drains, { collide: false, shadow: false });
+    const trees: Placement[] = [];
+    for (let i = -8; i <= 8; i++) {
+      if (Math.abs(i) < 2) continue;
+      trees.push({ x: i * 7 + 3, z: 8.2, rotY: i }, { x: i * 7 + 3, z: -8.2, rotY: i * 2 }, { x: 8.2, z: i * 7 + 3, rotY: i * 3 }, { x: -8.2, z: i * 7 + 3, rotY: i });
+    }
+    await this.instanced('kit_street_tree', trees, { collide: true });
+
+    // ---- sidewalk props ----
     const scatter = (ids: string[], n: number, r: number): Map<string, Placement[]> => {
       const out = new Map<string, Placement[]>();
       for (let i = 0; i < n; i++) {
         const along = (this.rand() - 0.5) * 2 * r;
         const side = this.rand() < 0.5 ? -1 : 1;
-        const off = side * (4.6 + this.rand() * 2.4);
+        const off = side * (4.9 + this.rand() * 2.0);
         const p = this.rand() < 0.5 ? { x: along, z: off } : { x: off, z: along };
-        if (Math.hypot(p.x, p.z) < 6) continue;
+        if (Math.hypot(p.x, p.z) < 9) continue;
         const id = ids[i % ids.length];
         (out.get(id) ?? out.set(id, []).get(id)!).push({ ...p, rotY: this.rand() * Math.PI * 2 });
       }
       return out;
     };
-    for (const [id, list] of scatter(['trash_can_v01', 'fire_hydrant_v01', 'bench_v01', 'mailbox_v01', 'planter_v01',
-      'parking_meter_v01', 'bollard_v01', 'bus_stop_v01', 'dumpster_v01'], 70, 55)) {
-      await this.instanced(id, list, { collide: true });
+    for (const [id, list] of scatter(['kit_trash_can', 'kit_hydrant', 'kit_bench', 'kit_mailbox', 'kit_recycling_bin', 'kit_vending_machine',
+      'kit_utility_cabinet', 'kit_garbage_bag', 'kit_bus_shelter', 'kit_dumpster', 'kit_bush'], 80, 60)) {
+      await this.instanced(id, list, { collide: id !== 'kit_garbage_bag' && id !== 'kit_bush' });
     }
+    // dumpster alley + an industrial corner (containers, generator, fencing, barriers)
+    await this.instanced('kit_dumpster', [{ x: -40, z: 9.4, rotY: Math.PI }, { x: -37.5, z: 9.4, rotY: Math.PI }], { collide: true });
+    await this.instanced('kit_shipping_container', [{ x: 92, z: -7, rotY: 0 }, { x: 92, z: -7, rotY: 0, y: 2.6 }, { x: 99, z: 7, rotY: 0.2 }],
+      { collide: true });
+    await this.instanced('kit_generator', [{ x: 84, z: 6.5, rotY: 0 }], { collide: true });
+    await this.instanced('kit_fence', [{ x: 88, z: 10.2, rotY: 0 }, { x: 94, z: 10.2, rotY: 0 }], { collide: true });
+    await this.instanced('kit_jersey_barrier', [{ x: -30, z: -1.6, rotY: 0 }, { x: -26.8, z: -1.6, rotY: 0 }, { x: 30, z: 1.6, rotY: 0 }], { collide: true });
     const cars: Placement[] = [];
     for (let i = 0; i < 10; i++) {
       const along = (this.rand() - 0.5) * 100;
-      if (Math.abs(along) < 10) continue;
+      if (Math.abs(along) < 12) continue;
       const lane = this.rand() < 0.5 ? -1.6 : 1.6;
       cars.push(i % 2 ? { x: along, z: lane, rotY: 0 } : { x: lane, z: along, rotY: Math.PI / 2 });
     }
     await this.instanced('car_prop_v01', cars, { collide: true });
 
-    // physics playthings
-    for (const [id, list] of scatter(['crate_v01', 'barrel_v01', 'traffic_cone_v01', 'pallet_v01'], 28, 30)) {
+    // ---- physics playthings (kit boxes, cones, pallets + the barrels) ----
+    for (const [id, list] of scatter(['kit_cardboard_box', 'barrel_v01', 'kit_traffic_cone', 'kit_pallet', 'kit_toolbox'], 30, 34)) {
       for (const p of list) await this.dynamicProp(id, p);
     }
 
@@ -199,7 +258,7 @@ export class District {
 
   private matrixFor(p: Placement): THREE.Matrix4 {
     return new THREE.Matrix4().compose(
-      new THREE.Vector3(p.x, 0, p.z),
+      new THREE.Vector3(p.x, p.y ?? 0, p.z),
       new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), p.rotY ?? 0),
       new THREE.Vector3().setScalar(p.scale ?? 1),
     );
@@ -219,9 +278,17 @@ export class District {
       inst.computeBoundingSphere();
       this.group.add(inst);
     }
+    // physics from the asset's own *_COL proxies (e.g. a stepped tower gets stepped colliders); else its bounds
+    const cols: THREE.Box3[] = [];
+    proto.traverse((o) => {
+      if (o.name.endsWith('_COL')) cols.push(new THREE.Box3().setFromObject(o));
+    });
     for (const p of list) {
       const box = localBox.clone().applyMatrix4(this.matrixFor(p));
-      if (opts.collide) this.physics.addStaticBox(box);
+      if (opts.collide) {
+        if (cols.length) for (const c of cols) this.physics.addStaticBox(c.clone().applyMatrix4(this.matrixFor(p)));
+        else this.physics.addStaticBox(box);
+      }
       if (opts.mapKind) this.mapFeatures.push({ kind: opts.mapKind, minX: box.min.x, minZ: box.min.z, maxX: box.max.x, maxZ: box.max.z });
     }
   }
@@ -235,7 +302,8 @@ export class District {
     const pivot = new THREE.Group();
     pivot.add(obj);
     obj.traverse((o) => {
-      if ((o as THREE.Mesh).isMesh) o.castShadow = o.receiveShadow = true;
+      if (o.name.endsWith('_COL')) o.visible = false;
+      else if ((o as THREE.Mesh).isMesh) o.castShadow = o.receiveShadow = true;
     });
     const placed = box.clone().applyMatrix4(this.matrixFor({ ...p, rotY: 0 })); // body starts axis-aligned with its visual
     const body = this.physics.addDynamicBox(placed, id.startsWith('traffic_cone') ? 3 : 25);

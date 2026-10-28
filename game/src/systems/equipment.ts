@@ -99,7 +99,7 @@ export class Equipment {
     batarang: () => {
       const { dir } = this.aimRay();
       const start = this.feet.add(new THREE.Vector3(0, 1.4, 0)).addScaledVector(dir, 0.6);
-      void registry.instance('batarang_prop_v01').then((m) => {
+      void registry.instance('gear_batarang').then((m) => {
         m.scale.setScalar(1.6);
         m.position.copy(start);
         this.ctx.scene.add(m);
@@ -141,7 +141,7 @@ export class Equipment {
       return true;
     },
     drone: (now) => {
-      void registry.instance('drone_v01').then((drone) => {
+      void registry.instance('gear_drone').then((drone) => {
         const light = new THREE.SpotLight(0xffffff, 40, 25, 0.5, 0.6);
         drone.add(light, light.target);
         light.target.position.set(0, -5, 0);
@@ -201,7 +201,7 @@ export class Equipment {
     },
     beacon: () => {
       const at = this.feet;
-      void registry.instance('beacon_v01').then((b) => {
+      void registry.instance('gear_beacon').then((b) => {
         b.position.copy(at);
         const light = new THREE.PointLight(0xff2030, 10, 12, 1.5);
         light.position.y = 0.8;

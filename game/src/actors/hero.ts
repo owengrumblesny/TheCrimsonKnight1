@@ -90,6 +90,43 @@ export class Hero {
   }
 
   /** Show one level of detail. */
+  private held: THREE.Object3D | null = null;
+  private holdToken = 0;
+  private socketAlign = new Map<string, THREE.Quaternion>();
+
+  /**
+   * Show a gear model (gear_<itemId>) on the CR-X9 v2 socket named in the model's "attach" extra
+   * (Socket_Hand_R / Socket_Hand_L / Socket_Belt_*). Visual only; ground-deployed gear is not held.
+   */
+  async hold(modelId: string | null): Promise<void> {
+    const token = ++this.holdToken;
+    this.held?.removeFromParent();
+    this.held = null;
+    if (!modelId?.startsWith('gear_')) return;
+    const model = await registry.instance(modelId);
+    if (token !== this.holdToken) return;
+    let attach = 'Socket_Hand_R';
+    model.traverse((o) => {
+      if (typeof o.userData.attach === 'string') attach = o.userData.attach;
+      if ((o as THREE.Mesh).isMesh) o.castShadow = true;
+    });
+    const socket = this.root.getObjectByName(attach);
+    if (!socket || attach === 'ground') return;
+    // socket bones are not authored gear-aligned: the first time a socket is used, derive the offset that
+    // makes the model face the hero's forward, upright, in the current pose (cached per socket)
+    let align = this.socketAlign.get(attach);
+    if (!align) {
+      this.root.updateMatrixWorld(true);
+      const qs = socket.getWorldQuaternion(new THREE.Quaternion());
+      const qr = this.root.getWorldQuaternion(new THREE.Quaternion());
+      align = qs.invert().multiply(qr);
+      this.socketAlign.set(attach, align);
+    }
+    model.quaternion.copy(align);
+    socket.add(model);
+    this.held = model;
+  }
+
   setLod(level: number): void {
     if (!this.lods[1].length) return;
     this.lodLevel = level;

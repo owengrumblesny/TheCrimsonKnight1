@@ -1,0 +1,391 @@
+{
+  "source": "tools/blender/ck_build_gear.py",
+  "forward": "+Z (Three.js)",
+  "conventions": "origin = grip; attach = CR-X9 v2 socket; Muzzle/Emitter/OffHand/Tip anchors; Gear_* clips",
+  "gear": [
+    {
+      "id": "gear_batarang",
+      "inventory_id": "batarang",
+      "label": "Crimson Batarang",
+      "category": "gadget",
+      "file": "assets/models/gear/gear_batarang.glb",
+      "triangles": 272,
+      "rigged": false,
+      "attach": "Socket_Belt_R",
+      "origin": "grip",
+      "anchors": [],
+      "pivots": [
+        "Wing_L",
+        "Wing_R"
+      ],
+      "clips": [
+        "Gear_Deploy",
+        "Gear_Idle"
+      ],
+      "note": "wings fold into the hub on the belt; Gear_Deploy snaps them open"
+    },
+    {
+      "id": "gear_grapple",
+      "inventory_id": "grapple",
+      "label": "Grapnel Gun",
+      "category": "gadget",
+      "file": "assets/models/gear/gear_grapple.glb",
+      "triangles": 712,
+      "rigged": false,
+      "attach": "Socket_Hand_R",
+      "origin": "grip",
+      "anchors": [
+        "Muzzle",
+        "Cable_Origin"
+      ],
+      "pivots": [
+        "Claw_0",
+        "Claw_1",
+        "Claw_2"
+      ],
+      "clips": [
+        "Gear_Fire"
+      ],
+      "note": "claws spread on Gear_Fire"
+    },
+    {
+      "id": "gear_scanner",
+      "inventory_id": "scanner",
+      "label": "Tactical Scanner",
+      "category": "gadget",
+      "file": "assets/models/gear/gear_scanner.glb",
+      "triangles": 236,
+      "rigged": false,
+      "attach": "Socket_Hand_L",
+      "origin": "grip",
+      "anchors": [
+        "Emitter"
+      ],
+      "pivots": [
+        "Antenna"
+      ],
+      "clips": [
+        "Gear_Deploy"
+      ],
+      "note": "screen uses the Screen material; antenna flips up"
+    },
+    {
+      "id": "gear_drone",
+      "inventory_id": "drone",
+      "label": "Recon Drone",
+      "category": "gadget",
+      "file": "assets/models/gear/gear_drone.glb",
+      "triangles": 1204,
+      "rigged": false,
+      "attach": "ground",
+      "origin": "centre",
+      "anchors": [
+        "Emitter"
+      ],
+      "pivots": [
+        "Rotor_0",
+        "Rotor_1",
+        "Rotor_2",
+        "Rotor_3"
+      ],
+      "clips": [
+        "Gear_Idle"
+      ],
+      "note": "Gear_Idle spins the rotors; game flies the root"
+    },
+    {
+      "id": "gear_smoke",
+      "inventory_id": "smoke",
+      "label": "Smoke Pellet",
+      "category": "gadget",
+      "file": "assets/models/gear/gear_smoke.glb",
+      "triangles": 532,
+      "rigged": false,
+      "attach": "Socket_Belt_L",
+      "origin": "grip",
+      "anchors": [
+        "Emitter"
+      ],
+      "pivots": [
+        "Pin"
+      ],
+      "clips": [
+        "Gear_Deploy"
+      ],
+      "note": "pin pulls on Gear_Deploy"
+    },
+    {
+      "id": "gear_shield",
+      "inventory_id": "shield",
+      "label": "Energy Shield",
+      "category": "gadget",
+      "file": "assets/models/gear/gear_shield.glb",
+      "triangles": 308,
+      "rigged": false,
+      "attach": "Socket_Hand_L",
+      "origin": "grip",
+      "anchors": [],
+      "pivots": [
+        "Shield_Field"
+      ],
+      "clips": [
+        "Gear_Deploy"
+      ],
+      "note": "forearm emitter; hexagonal hard-light field scales in"
+    },
+    {
+      "id": "gear_cloak",
+      "inventory_id": "cloak",
+      "label": "Optical Cloak",
+      "category": "gadget",
+      "file": "assets/models/gear/gear_cloak.glb",
+      "triangles": 220,
+      "rigged": false,
+      "attach": "Socket_Belt_R",
+      "origin": "grip",
+      "anchors": [],
+      "pivots": [
+        "Cloak_Fins"
+      ],
+      "clips": [
+        "Gear_Deploy"
+      ],
+      "note": "belt module; game drives the refraction shader on the hero"
+    },
+    {
+      "id": "gear_beacon",
+      "inventory_id": "beacon",
+      "label": "Tracking Beacon",
+      "category": "gadget",
+      "file": "assets/models/gear/gear_beacon.glb",
+      "triangles": 468,
+      "rigged": false,
+      "attach": "ground",
+      "origin": "ground",
+      "anchors": [
+        "Emitter"
+      ],
+      "pivots": [
+        "Leg_0",
+        "Leg_1",
+        "Leg_2"
+      ],
+      "clips": [
+        "Gear_Deploy"
+      ],
+      "note": "legs splay on Gear_Deploy"
+    },
+    {
+      "id": "gear_emp",
+      "inventory_id": "emp",
+      "label": "EMP Device",
+      "category": "gadget",
+      "file": "assets/models/gear/gear_emp.glb",
+      "triangles": 792,
+      "rigged": false,
+      "attach": "Socket_Belt_L",
+      "origin": "grip",
+      "anchors": [
+        "Emitter"
+      ],
+      "pivots": [
+        "EMP_Cap"
+      ],
+      "clips": [
+        "Gear_Deploy",
+        "Gear_Idle"
+      ],
+      "note": "twist-arm cap; coils use the Neon material"
+    },
+    {
+      "id": "gear_sonic",
+      "inventory_id": "sonic",
+      "label": "Sonic Emitter",
+      "category": "gadget",
+      "file": "assets/models/gear/gear_sonic.glb",
+      "triangles": 724,
+      "rigged": false,
+      "attach": "Socket_Hand_R",
+      "origin": "grip",
+      "anchors": [
+        "Muzzle"
+      ],
+      "pivots": [
+        "Sonic_Dish"
+      ],
+      "clips": [
+        "Gear_Fire"
+      ],
+      "note": "dish pulses forward on Gear_Fire"
+    },
+    {
+      "id": "gear_decoy",
+      "inventory_id": "decoy",
+      "label": "Hologram Decoy",
+      "category": "gadget",
+      "file": "assets/models/gear/gear_decoy.glb",
+      "triangles": 620,
+      "rigged": false,
+      "attach": "ground",
+      "origin": "ground",
+      "anchors": [],
+      "pivots": [
+        "Decoy_Hologram"
+      ],
+      "clips": [
+        "Gear_Deploy"
+      ],
+      "note": "projects a full-size hologram silhouette of the CR-X9"
+    },
+    {
+      "id": "gear_holoprojector",
+      "inventory_id": "holoprojector",
+      "label": "Holoprojector",
+      "category": "gadget",
+      "file": "assets/models/gear/gear_holoprojector.glb",
+      "triangles": 112,
+      "rigged": false,
+      "attach": "Socket_Hand_L",
+      "origin": "grip",
+      "anchors": [],
+      "pivots": [
+        "Holo_Panel"
+      ],
+      "clips": [
+        "Gear_Deploy"
+      ],
+      "note": "unfolds a city-map hologram panel"
+    },
+    {
+      "id": "gear_gauntlet",
+      "inventory_id": "gauntlet",
+      "label": "Wrist Gauntlet",
+      "category": "gadget",
+      "file": "assets/models/gear/gear_gauntlet.glb",
+      "triangles": 356,
+      "rigged": false,
+      "attach": "Socket_Hand_L",
+      "origin": "wrist",
+      "anchors": [
+        "Emitter"
+      ],
+      "pivots": [
+        "Gauntlet_Lid"
+      ],
+      "clips": [
+        "Gear_Deploy"
+      ],
+      "note": "forearm module; lid flips to show screen"
+    },
+    {
+      "id": "gear_phantom_sidearm",
+      "inventory_id": "phantom_sidearm",
+      "label": "Phantom Sidearm",
+      "category": "fictional_weapon",
+      "file": "assets/models/gear/gear_phantom_sidearm.glb",
+      "triangles": 480,
+      "rigged": false,
+      "attach": "Socket_Hand_R",
+      "origin": "grip",
+      "anchors": [
+        "Muzzle"
+      ],
+      "pivots": [
+        "Slide"
+      ],
+      "clips": [
+        "Gear_Fire"
+      ],
+      "note": "energy shroud recoils on Gear_Fire"
+    },
+    {
+      "id": "gear_crimson_carbine",
+      "inventory_id": "crimson_carbine",
+      "label": "Crimson Carbine",
+      "category": "fictional_weapon",
+      "file": "assets/models/gear/gear_crimson_carbine.glb",
+      "triangles": 860,
+      "rigged": false,
+      "attach": "Socket_Hand_R",
+      "origin": "grip",
+      "anchors": [
+        "Muzzle",
+        "OffHand"
+      ],
+      "pivots": [
+        "Carbine_Sight",
+        "Cell"
+      ],
+      "clips": [
+        "Gear_Deploy",
+        "Gear_Fire"
+      ],
+      "note": "two-handed; OffHand = left-hand IK target"
+    },
+    {
+      "id": "gear_energy_launcher",
+      "inventory_id": "energy_launcher",
+      "label": "Energy Launcher",
+      "category": "fictional_weapon",
+      "file": "assets/models/gear/gear_energy_launcher.glb",
+      "triangles": 1420,
+      "rigged": false,
+      "attach": "Socket_Hand_R",
+      "origin": "grip",
+      "anchors": [
+        "Muzzle",
+        "OffHand"
+      ],
+      "pivots": [
+        "Launcher_Sight"
+      ],
+      "clips": [
+        "Gear_Deploy"
+      ],
+      "note": "shoulder-carried energy tube; sight flips out"
+    },
+    {
+      "id": "gear_energy_cannon",
+      "inventory_id": "energy_cannon",
+      "label": "Energy Cannon",
+      "category": "fictional_weapon",
+      "file": "assets/models/gear/gear_energy_cannon.glb",
+      "triangles": 612,
+      "rigged": false,
+      "attach": "Socket_Hand_R",
+      "origin": "grip",
+      "anchors": [
+        "Muzzle",
+        "OffHand"
+      ],
+      "pivots": [
+        "Cannon_Barrels"
+      ],
+      "clips": [
+        "Gear_Fire"
+      ],
+      "note": "rotary emitter spins on Gear_Fire"
+    },
+    {
+      "id": "gear_energy_blade",
+      "inventory_id": "energy_blade",
+      "label": "Energy Blade",
+      "category": "fictional_weapon",
+      "file": "assets/models/gear/gear_energy_blade.glb",
+      "triangles": 396,
+      "rigged": false,
+      "attach": "Socket_Hand_R",
+      "origin": "grip",
+      "anchors": [
+        "Tip"
+      ],
+      "pivots": [
+        "Blade_Edge"
+      ],
+      "clips": [
+        "Gear_Deploy"
+      ],
+      "note": "hard-light blade extends on Gear_Deploy; blade along +Z (up)"
+    }
+  ]
+}

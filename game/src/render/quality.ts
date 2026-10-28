@@ -25,6 +25,8 @@ export interface Preset {
   anisotropy: number;
   /** multiplies LOD switch distances (lower = earlier switch to cheaper meshes) */
   lodScale: number;
+  /** cheapest hero LOD allowed up close: LOW uses the CR-X9 laptop LOD (LOD1) even in third person */
+  heroMinLod: number;
   /** MSAA can only change on reload */
   antialias: boolean;
 }
@@ -33,22 +35,22 @@ export const PRESETS: Record<Quality, Preset> = {
   low: {
     renderHeight: 720, maxPixelRatio: 1, shadows: true, shadowMap: 1024, shadowRange: 16, softShadows: false,
     drawDistance: 220, fogDensity: 0.016, dynamicLights: 3, envIntensity: 0.8, bloom: false, rain: 0.3,
-    anisotropy: 2, lodScale: 0.6, antialias: false,
+    anisotropy: 2, lodScale: 0.6, heroMinLod: 1, antialias: false,
   },
   medium: {
     renderHeight: 900, maxPixelRatio: 1, shadows: true, shadowMap: 1536, shadowRange: 26, softShadows: true,
     drawDistance: 350, fogDensity: 0.013, dynamicLights: 6, envIntensity: 1, bloom: false, rain: 0.6,
-    anisotropy: 4, lodScale: 0.85, antialias: true,
+    anisotropy: 4, lodScale: 0.85, heroMinLod: 0, antialias: true,
   },
   high: {
     renderHeight: 0, maxPixelRatio: 1.25, shadows: true, shadowMap: 2048, shadowRange: 34, softShadows: true,
     drawDistance: 600, fogDensity: 0.011, dynamicLights: 10, envIntensity: 1.2, bloom: true, rain: 1,
-    anisotropy: 8, lodScale: 1, antialias: true,
+    anisotropy: 8, lodScale: 1, heroMinLod: 0, antialias: true,
   },
   ultra: {
     renderHeight: 0, maxPixelRatio: 2, shadows: true, shadowMap: 4096, shadowRange: 45, softShadows: true,
     drawDistance: 900, fogDensity: 0.009, dynamicLights: 12, envIntensity: 1.3, bloom: true, rain: 1,
-    anisotropy: 16, lodScale: 1.4, antialias: true,
+    anisotropy: 16, lodScale: 1.4, heroMinLod: 0, antialias: true,
   },
 };
 

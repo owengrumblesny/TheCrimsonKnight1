@@ -134,9 +134,9 @@ export class Hero {
   }
 
   /** Pick LOD from camera distance; lodScale comes from the graphics preset (lower = switch sooner). */
-  updateLod(cameraDistance: number, lodScale: number): void {
+  updateLod(cameraDistance: number, lodScale: number, minLod = 0): void {
     const d = cameraDistance / lodScale;
-    const level = d < 9 ? 0 : d < 26 ? 1 : 2;
+    const level = Math.max(minLod, d < 9 ? 0 : d < 26 ? 1 : 2);
     if (level !== this.lodLevel) this.setLod(level);
   }
 

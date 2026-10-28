@@ -1,20 +1,25 @@
 {
   "asset": "assets/models/characters/crimson_knight_CRX9_rigged.glb",
-  "version": 2,
-  "source": "tools/blender/ck_build_crx9_v2.py",
+  "version": 3,
+  "source": "tools/blender/ck_build_crx9_v3.py",
   "height_m": 1.95,
   "forward": "+Z (Three.js)",
   "skeleton_bones": 68,
   "triangles": {
-    "LOD0": 52700,
-    "LOD1": 22132,
-    "LOD2": 7318
+    "LOD0": 132726,
+    "LOD1": 47406,
+    "LOD2": 14302
   },
   "lod_distances_m": [
     0,
     9,
     26
   ],
+  "laptop_lod": 1,
+  "textures": {
+    "armor": "2048px base/mr/normal",
+    "undersuit": "2048px base/mr/normal"
+  },
   "sockets": [
     "Socket_Head",
     "Socket_Hand_L",

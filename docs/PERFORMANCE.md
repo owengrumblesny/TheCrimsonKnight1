@@ -37,12 +37,16 @@ Both runs were made with a YouTube video playing in another Chrome window, and C
 
 | Scene | LOW | MEDIUM | HIGH | ULTRA |
 |---|---|---|---|---|
-| CR-X9 close-up | 13.5 | 17.5 | 14.7 | 10.7 |
-| Citadel command | 59.7 | 53.1 | 42.8 | 31.3 |
-| Citadel hangar | 60.0 | 60.0 | 49.5 | 39.7 |
-| New Gotham street | 31.6 | 21.5 | 19.9 | 15.9 |
-| New Gotham rooftop | 26.8 | 17.4 | 14.2 | 10.9 |
-| Dense intersection | 34.3 | 24.1 | 21.6 | 16.7 |
+| CR-X9 close-up | 13.5 | 17.5 | 14.7 | 11.7 |
+| Citadel command | 59.7 | 53.1 | 42.8 | 48.1 |
+| Citadel hangar | 60.0 | 60.0 | 49.5 | 43.0 |
+| New Gotham street | 31.6 | 21.5 | 19.9 | 15.6 |
+| New Gotham rooftop | 26.8 | 17.4 | 14.2 | 12.8 |
+| Dense intersection | 34.3 | 24.1 | 21.6 | 13.5 |
+
+(The after-fix ULTRA column is `bench-ultra-1793200020794.json`. `bench-ultra-1793199817889.json` came from a page that hot-reloaded mid-run, so it is not used.)
+
+CR-X9 v3 (2026-10-28) raised the hero to 132.7k / 47.4k / 14.3k triangles (LOD0/1/2) with 2K baked maps. LOW now caps the hero at LOD1 (`heroMinLod`). Not re-benchmarked: Owen asked for fewer benchmark runs, and the Godot port (`docs/GODOT_PORT_HANDOFF.md`) will re-measure.
 
 LOW now meets 30 fps in the street and intersection scenes, and the Citadel meets it on every preset. The CR-X9 close-up and the rooftop scene are still below target.
 

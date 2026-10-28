@@ -341,7 +341,7 @@ async function startGame(): Promise<void> {
     if (!underground) npcs.update(focus, dt);
     if (!underground) district.updateLights(focus, now, dt);
     if (!bench.active) cam.update(dt, input, player.position, input.held('grapple'));
-    hero.updateLod(stage.camera.position.distanceTo(player.position), stage.preset.lodScale);
+    hero.updateLod(stage.camera.position.distanceTo(player.position), stage.preset.lodScale, stage.preset.heroMinLod);
     stage.follow(player.position);
     if (live) stage.updateRain(dt);
     const sel = inventory.selectedItemId;

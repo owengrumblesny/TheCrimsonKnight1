@@ -97,3 +97,10 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 - **Tooling:** `tools/manifest_add.py` (registers build configs into the manifest, now 327 assets), `tools/blender/ck_render_lineup.py` (side-by-side review sheets).
 - **Tests:** `tests/assets.test.ts` checks the item→model links, the gear sockets, and NPC registration/budget (22 tests pass); `tsc` and `npm run build` are clean.
 - **Not done:** the laptop re-benchmark with the kit, NPCs and batching fix. The run was started, but Windows was on its lock screen, which pauses the page's rendering. See `docs/PERFORMANCE.md` for the command.
+
+
+## 2026-10-28: culling fix, CR-X9 v3 realistic pass, Godot handoff
+- Benchmark (Radeon 610M): city scenes regressed to ~900k triangles per frame (district-wide InstancedMeshes were never culled, and NPC frustum culling was off). Fixed with chunked instancing, no far-LOD shadows, and NPC cull spheres plus distance shadows. LOW street/intersection now 31.6/34.3 fps. See PERFORMANCE.md.
+- Owen asked for Arkham Knight-style realistic assets, starting with the hero, realism first with a laptop LOD. `tools/blender/ck_build_crx9_v3.py`: anatomy built from about 70 muscle volumes (voxel union plus a morphological closing), armour plates cut from that surface with real thickness, relaxed outlines and bevelled rims, a sculpted cowl with carved eye sockets and raked blade fins (kept clear of bat ears) and a crest, and a projected chest emblem. Cycles bakes AO, edge, grime, scratch and normal passes, combined in numpy into 2K base/MR/normal maps. Same skeleton and clips. Build time is about 6 minutes.
+- Game: `heroMinLod` preset field; LOW pins the hero to LOD1.
+- Owen wants the game remade in Godot 4 for native performance. The handoff prompt is in `docs/GODOT_PORT_HANDOFF.md`.

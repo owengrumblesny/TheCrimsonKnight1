@@ -3,7 +3,7 @@
   "crx1_interceptor": {
     "kind": "car", "label": "CR-X1 Interceptor", "mass": 1650, "engine": 13000, "reverse": 5000, "brake": 40, "steer": 0.5,
     "wheel_radius": {"F": 0.6, "R": 0.76}, "suspension": {"rest": 0.22, "travel": 0.25, "stiffness": 55, "damping": 4.0, "friction": 3.2},
-    "com": [0, 0.45, 0], "cockpit_offset": [0, 0.18, -0.15], "cockpit_pitch": 0.02, "engine_hz": 55, "engine_noise": 0.35, "door_clip": "CRX1_DoorsOpen",
+    "com": [0, 0.45, 0], "cockpit_pitch": -0.05, "engine_hz": 55, "engine_noise": 0.35, "door_clip": "CRX1_DoorsOpen", "eject_clip": "CRX1_BikeEject",
     "modes": {
       "pursuit": {"top": 62, "emissive": 1.0, "engine_volume": 1.0},
       "battle": {"top": 48, "emissive": 1.4, "engine_volume": 1.1, "clip": "CRX1_BattleMode"},
@@ -17,12 +17,13 @@
     "cockpit": [0, 1.72, -0.12], "cockpit_pitch": -0.2,
     "modes": {
       "pursuit": {"top": 55, "emissive": 1.0, "engine_volume": 1.0},
+      "battle": {"top": 46, "emissive": 1.3, "engine_volume": 1.1},
       "stealth": {"top": 34, "emissive": 0.12, "engine_volume": 0.3}
     }
   },
   "cra1_specter": {
     "kind": "jet", "label": "CR-A1 Specter", "mass": 9000, "takeoff": 32, "max": 140, "accel": 18, "pitch_rate": 1.1, "roll_rate": 2.0,
-    "yaw_rate": 0.5, "cockpit_offset": [0, 0.1, 0], "cockpit_pitch": -0.05, "vtol_speed": 16, "vtol_climb": 9, "engine_hz": 40, "engine_noise": 0.6, "door_clip": "CRA1_CanopyOpen",
+    "yaw_rate": 0.5, "cockpit_pitch": -0.05, "vtol_speed": 16, "vtol_climb": 9, "engine_hz": 40, "engine_noise": 0.6, "door_clip": "CRA1_CanopyOpen",
     "gear_clip": "CRA1_GearRetract",
     "modes": {
       "flight": {"top": 140, "emissive": 1.0, "engine_volume": 1.0},

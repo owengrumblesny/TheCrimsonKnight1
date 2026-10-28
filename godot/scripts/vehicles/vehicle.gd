@@ -57,7 +57,7 @@ func _ready() -> void:
 	center_of_mass = Vector3(cfg.get("com", [0, 0.4, 0])[0], cfg.get("com", [0, 0.4, 0])[1], cfg.get("com", [0, 0.4, 0])[2])
 	continuous_cd = true
 	can_sleep = false
-	_load_model(CKData.model_path(id))
+	_load_model(_mode_model_path(modes[0]))
 	if kind == "jet":
 		custom_integrator = true
 		gravity_scale = 0.0
@@ -66,7 +66,7 @@ func _ready() -> void:
 	_engine.unit_size = 8
 	_engine.max_distance = 120
 	add_child(_engine)
-	var pivot := model.find_child("sound_engine", true, false) as Node3D
+	var pivot := model.find_child("sound_engine", true, true) as Node3D
 	if pivot:
 		_engine.position = pivot.position
 	for c in [fpv_cam, chase_cam]:
@@ -91,12 +91,43 @@ func _load_model(path: String) -> void:
 	for c in get_children():
 		if c is CollisionShape3D:
 			c.queue_free()
+	# whatever rides on the old seat (the driver) moves to the new model's seat
+	var riders: Array = []
+	var lean := 0.0
 	if model:
+		lean = model.rotation.z
+		var old_seat := model.find_child("seat_attach", true, true)
+		if old_seat:
+			for c in old_seat.get_children():
+				if c.owner != model:
+					riders.append(c)
+					old_seat.remove_child(c)
+		model.name = "OldModel"
 		model.queue_free()
 	model = load(path).instantiate()
 	model.name = "Model"
+	model.rotation.z = lean
 	add_child(model)
-	anim = model.find_child("AnimationPlayer", true, false)
+	var new_seat := model.find_child("seat_attach", true, true)
+	for c in riders:
+		new_seat.add_child(c)
+	# far LOD (vehicle-modes *_lod1.glb), swapped by distance
+	var lod_path := path.get_basename() + "_lod1.glb"
+	if ResourceLoader.exists(lod_path) and not path.ends_with("_lod1.glb"):
+		var far: Node3D = load(lod_path).instantiate()
+		far.name = "FarLOD"
+		model.add_child(far)
+		for b in far.find_children("*", "CollisionObject3D", true, false):
+			b.queue_free()
+		var far_anim := far.find_child("AnimationPlayer", true, false)
+		if far_anim:
+			far_anim.queue_free()
+		for g in model.find_children("*", "GeometryInstance3D", true, false):
+			if far.is_ancestor_of(g):
+				g.visibility_range_begin = 45
+			else:
+				g.visibility_range_end = 45
+	anim = model.find_child("AnimationPlayer", true, true)
 	for body in model.find_children("*", "StaticBody3D", true, false):
 		for cs in body.get_children():
 			if cs is CollisionShape3D:
@@ -106,8 +137,12 @@ func _load_model(path: String) -> void:
 				add_child(copy)
 		body.get_parent().remove_child(body)
 		body.queue_free()
-	# canopy / windscreen glass must be see-through for the cockpit camera
+	# canopy / windscreen glass must be see-through for the cockpit camera (the vehicle-modes models ship
+	# alpha-blended glass already; only opaque placeholder glass is replaced)
 	for g in model.find_children("*glass*", "MeshInstance3D", true, false):
+		var gm = g.mesh.surface_get_material(0) if g.mesh else null
+		if gm is BaseMaterial3D and gm.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED:
+			continue
 		var glass := StandardMaterial3D.new()
 		glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		glass.albedo_color = Color(0.12, 0.16, 0.2, 0.22)
@@ -126,14 +161,14 @@ func _load_model(path: String) -> void:
 	match kind:
 		"car":
 			for side in ["FL", "FR", "RL", "RR"]:
-				var susp := model.find_child("Susp_" + side, true, false) as Node3D
+				var susp := model.find_child("Susp_" + side, true, true) as Node3D
 				if susp:
 					_add_wheel(_rel(susp).origin, side.begins_with("F"), cfg["wheel_radius"]["F" if side.begins_with("F") else "R"],
-						susp, model.find_child("Steer_" + side, true, false), model.find_child("Wheel_" + side, true, false))
+						susp, model.find_child("Steer_" + side, true, true), model.find_child("Wheel_" + side, true, true))
 		"bike":
 			var o: float = cfg.get("outrigger", 0.2)
 			for pair in [["F", "Wheel_F", true], ["R", "Wheel_R", false]]:
-				var wn := model.find_child(pair[1], true, false) as Node3D
+				var wn := model.find_child(pair[1], true, true) as Node3D
 				if wn == null:
 					continue
 				var at := _rel(wn).origin
@@ -184,38 +219,66 @@ func cycle_mode() -> void:
 	set_mode(modes[(modes.find(mode) + 1) % modes.size()])
 
 
+## Per-mode GLB (config/vehicle_assets.json <id>.modes.<mode>.file, from the vehicle-modes models) or the
+## base model. A `model` key (asset id or res:// path) in godot/data/vehicles.json also works.
+func _mode_model_path(m: String) -> String:
+	var d := mode_def(m)
+	var f: String = d.get("file", d.get("model", ""))
+	if f == "":
+		return CKData.model_path(id)
+	if f.begins_with("res://"):
+		return f
+	if f.begins_with("assets/"):
+		return "res://" + f
+	return CKData.model_path(f)
+
+
+var _swap_token := 0
+
+
 func set_mode(m: String, instant := false) -> void:
 	var old := mode
 	var od := mode_def(old) if old != "" else {}
 	var d := mode_def(m)
 	mode = m
-	# optional per-mode model (vehicle-modes GLBs), else per-mode materials on the shared model
-	var want_model: String = d.get("model", "")
-	if want_model != "" or od.get("model", "") != "":
-		var path := want_model if want_model.begins_with("res://") else CKData.model_path(want_model) if want_model != "" else CKData.model_path(id)
-		if path != "" and ResourceLoader.exists(path):
-			_load_model(path)
-	for mesh_name in d.get("materials", {}):
-		var mi := model.find_child(mesh_name, true, false) as MeshInstance3D
-		var mat_path: String = d["materials"][mesh_name]
-		if mi and ResourceLoader.exists(mat_path):
-			mi.material_override = load(mat_path)
-	# leaving a mode with a transition clip plays it backwards
-	if anim:
+	top_speed = d.get("top", 50.0)
+	_engine_volume = d.get("engine_volume", 1.0)
+	var path := _mode_model_path(m)
+	var swap: bool = model == null or path != _mode_model_path(old)
+	# the vehicle-modes battle/VTOL files rest deployed; their clips run stowed -> deployed. Play the
+	# transition on the current model, then swap to the new mode's model.
+	var delay := 0.0
+	if anim and not instant:
 		var out: String = od.get("clip", "")
 		var into: String = d.get("clip", "")
 		if out != "" and anim.has_animation(out):
 			anim.play_backwards(out)
-			if instant:
-				anim.seek(0.0, true)
-		if into != "" and anim.has_animation(into):
+			delay = anim.get_animation(out).length
+		elif into != "" and anim.has_animation(into):
 			anim.play(into)
-			if instant:
-				anim.seek(anim.get_animation(into).length, true)
-	top_speed = d.get("top", 50.0)
-	_engine_volume = d.get("engine_volume", 1.0)
-	for m2 in _emissive:
-		m2.emission_energy_multiplier = _emissive[m2] * d.get("emissive", 1.0)
+			delay = anim.get_animation(into).length
+	_swap_token += 1
+	var token := _swap_token
+	var finish := func():
+		if token != _swap_token:
+			return
+		if swap and ResourceLoader.exists(path):
+			_load_model(path)
+		# {mesh_name: res:// material} overrides; the vehicle-modes config lists material *names* instead (info only)
+		var mats = d.get("materials", {})
+		for mesh_name in (mats if mats is Dictionary else {}):
+			var mi := model.find_child(mesh_name, true, true) as MeshInstance3D
+			var mat_path := String(mats[mesh_name])
+			if mi and mat_path.begins_with("res://") and ResourceLoader.exists(mat_path):
+				mi.material_override = load(mat_path)
+		# own-model modes are already lit for their look (stealth is dimmed in the asset)
+		var k: float = 1.0 if d.has("file") else d.get("emissive", 1.0)
+		for m2 in _emissive:
+			m2.emission_energy_multiplier = _emissive[m2] * k
+	if delay > 0.0 and swap:
+		get_tree().create_timer(delay).timeout.connect(finish)
+	else:
+		finish.call()
 	if not instant:
 		mode_changed.emit(m)
 
@@ -354,7 +417,7 @@ func _process(dt: float) -> void:
 		if w["steer"]:
 			w["steer"].rotation.y = steering
 	if kind == "bike":
-		var steer_node := model.find_child("Steer", true, false) as Node3D
+		var steer_node := model.find_child("Steer", true, true) as Node3D
 		if steer_node:
 			steer_node.rotation.y = steering
 		var target: float = -steering / cfg["steer"] * cfg["lean"] * clampf(absf(spd) / 15.0, 0.0, 1.0)
@@ -376,7 +439,7 @@ func _update_cameras(dt: float) -> void:
 	var spd := absf(speed())
 	var k := clampf(spd / maxf(top_speed, 1.0), 0.0, 1.0)
 	# cockpit camera: the GLB's camera_cockpit, or (bike) head height over the grips
-	var cock := model.find_child("camera_cockpit", true, false) as Node3D
+	var cock := model.find_child("camera_cockpit", true, true) as Node3D
 	var base: Transform3D
 	if cock:
 		base = _rel(cock)
@@ -400,7 +463,7 @@ func _update_cameras(dt: float) -> void:
 	fpv_cam.transform = Transform3D(base.basis * look_basis, base.origin + bob)
 	fpv_cam.fov = 72.0 + 16.0 * k + (6.0 if boost else 0.0)
 	# chase camera: eases toward camera_chase, looking at the vehicle
-	var chase := model.find_child("camera_chase", true, false) as Node3D
+	var chase := model.find_child("camera_chase", true, true) as Node3D
 	var want := global_transform * (_rel(chase).origin if chase else Vector3(0, 2.5, -7))
 	chase_cam.global_position = want if dt == 0.0 else chase_cam.global_position.lerp(want, minf(1.0, dt * 6.0))
 	var aim := global_position + Vector3(0, 1.2 if kind != "jet" else 2.5, 0)
@@ -414,9 +477,9 @@ func active_camera() -> Camera3D:
 
 
 func seat() -> Node3D:
-	return model.find_child("seat_attach", true, false) as Node3D
+	return model.find_child("seat_attach", true, true) as Node3D
 
 
 func anchor(n: String) -> Vector3:
-	var a := model.find_child(n, true, false) as Node3D
+	var a := model.find_child(n, true, true) as Node3D
 	return a.global_position if a else global_position + global_basis.x * 2.0

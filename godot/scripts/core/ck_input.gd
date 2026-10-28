@@ -15,6 +15,7 @@ const ACTIONS := [
 	["interact", "Interact / enter vehicle", "Actions", false], ["summonMenu", "Call vehicle / driving camera", "Actions", false],
 	["secondaryAction", "Aim weapon (hold)", "Actions", false], ["reload", "Reload weapon", "Actions", false],
 	["vehicleMode", "Vehicle mode", "Vehicle", false], ["vehicleExit", "Exit vehicle", "Vehicle", false],
+	["eject", "Eject CR-B1 from the CR-X1", "Vehicle", false],
 	["slotPrev", "Previous hotbar slot", "Hotbar", false], ["slotNext", "Next hotbar slot", "Hotbar", false],
 	["slot1", "Hotbar slot 1", "Hotbar", false], ["slot2", "Hotbar slot 2", "Hotbar", false],
 	["slot3", "Hotbar slot 3", "Hotbar", false], ["slot4", "Hotbar slot 4", "Hotbar", false],
@@ -43,7 +44,7 @@ func _ready() -> void:
 	for a in ACTIONS:
 		defaults[a[0]] = c.get(a[0], "")
 	defaults.merge({"slotPrev": "KeyQ", "slotNext": "KeyR", "inventory": "Tab", "map": "KeyM", "perfOverlay": "F3",
-		"reload": "KeyT", "vehicleMode": "KeyB"}, true)
+		"reload": "KeyT", "vehicleMode": "KeyB", "eject": "KeyX"}, true)
 	for i in 8:
 		defaults["slot%d" % (i + 1)] = "Digit%d" % (i + 1)
 	apply()

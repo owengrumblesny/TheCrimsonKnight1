@@ -9,3 +9,5 @@ __pycache__/
 # Godot extracts textures embedded in the GLBs next to them on import (regenerated, not source)
 assets/models/**/*.png
 assets/models/**/*.png.import
+assets/models/**/*.jpg
+assets/models/**/*.jpg.import

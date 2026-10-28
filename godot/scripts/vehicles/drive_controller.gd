@@ -3,7 +3,8 @@ extends Node
 ## Summoning, entering, driving and exiting the CR vehicles (Godot port).
 ##  On foot: V calls the quick-select vehicle (loadout / inventory); E near it gets in.
 ##  Driving: W/S throttle-brake-reverse, A/D steer (jet: roll), Space handbrake (jet VTOL: up), C (VTOL: down),
-##  Shift boost, mouse free-look (jet: pitch/yaw), B mode, V first-person/chase camera, E or F exit when slow.
+##  Shift boost, mouse free-look (jet: pitch/yaw), B mode, V first-person/chase camera, E or F exit when slow,
+##  X (CR-X1 only): eject the CR-B1 from the nose bay and ride away on it at road speed.
 ## First person is the default; the hero rides on seat_attach and is hidden in first person.
 
 signal notify(text: String, icon: String, kind: String)
@@ -20,6 +21,7 @@ var driving: Vehicle
 var vehicles := {} # id -> Vehicle (one of each, re-summoning moves it)
 var _enter_time := 0.0
 var _player_layers := Vector2i(1, 1)
+var _ejecting := false
 
 
 func _ready() -> void:
@@ -74,10 +76,11 @@ func nearby() -> Vehicle:
 	return null
 
 
-func enter(v: Vehicle) -> void:
+func enter(v: Vehicle, quick := false) -> void:
 	driving = v
 	v.driver_in = true
-	_player_layers = Vector2i(player.collision_layer, player.collision_mask)
+	if player.collision_layer != 0: # an eject hands over car -> bike with the body already disabled
+		_player_layers = Vector2i(player.collision_layer, player.collision_mask)
 	player.collision_layer = 0
 	player.collision_mask = 0
 	player.frozen = true
@@ -87,11 +90,12 @@ func enter(v: Vehicle) -> void:
 	hero.reparent(v.seat(), false)
 	hero.transform = Transform3D()
 	hero.set_lod(0)
-	hero.play("CK_VehicleEnter", 0.1, 1.0, true)
-	_enter_time = 0.9
-	v.play_door(true)
-	get_tree().create_timer(1.1).timeout.connect(func(): if driving == v: v.play_door(false))
-	sound.emit("vehicle.door")
+	hero.play("CK_Drive" if quick else "CK_VehicleEnter", 0.1, 1.0, true)
+	_enter_time = 0.0 if quick else 0.9
+	if not quick:
+		v.play_door(true)
+		get_tree().create_timer(1.1).timeout.connect(func(): if driving == v: v.play_door(false))
+		sound.emit("vehicle.door")
 	cam.active = false
 	_apply_camera()
 	notify.emit("%s · %s mode. W/S drive, B mode, V camera, E exit" % [label(v), v.mode.capitalize()], "interceptor", "info")
@@ -131,6 +135,56 @@ func exit() -> void:
 	cam.camera.make_current()
 
 
+## CR-X1 bike launch (vehicle-modes CRX1_BikeEject): nose petals open (0-18), the sled runs forward with the
+## CR-B1 on bike_launch_anchor (18-34), drops it to the road (34-46); then the bike is released and the
+## Knight is on it. The car keeps rolling and closes its bay.
+func eject() -> void:
+	var car := driving
+	if car == null or car.id != "crx1_interceptor" or _ejecting:
+		return
+	var clip: String = car.cfg.get("eject_clip", "")
+	var anchor := car.model.find_child("bike_launch_anchor", true, true) as Node3D
+	if anchor == null or car.anim == null or not car.anim.has_animation(clip):
+		notify.emit("This CR-X1 model has no bike launch bay", "batcycle", "warn")
+		return
+	_ejecting = true
+	var bike: Vehicle = vehicles.get("crb1_batcycle")
+	if bike == null:
+		bike = Vehicle.create("crb1_batcycle")
+		get_parent().add_child(bike)
+		bike.set_engine_stream(audio.engine_loop(bike.cfg["engine_hz"], bike.cfg["engine_noise"]))
+		vehicles["crb1_batcycle"] = bike
+	bike.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
+	bike.freeze = true
+	bike.collision_layer = 0
+	bike.collision_mask = 0
+	bike.reparent(anchor, false)
+	bike.transform = Transform3D()
+	car.anim.play(clip)
+	sound.emit("vehicle.mode")
+	notify.emit("CR-B1 launch", "batcycle", "info")
+	await get_tree().create_timer(car.anim.get_animation(clip).length).timeout
+	var xf := bike.global_transform
+	var vel := car.linear_velocity + car.global_basis.z * 3.0
+	bike.reparent(get_parent(), false)
+	bike.global_transform = Transform3D(Basis(Vector3.UP, car.rotation.y), xf.origin + Vector3(0, 0.15, 0))
+	bike.collision_layer = 1
+	bike.collision_mask = 1
+	bike.freeze = false
+	bike.linear_velocity = vel
+	bike.reset_physics_interpolation()
+	# swap the driver: the car coasts on, the Knight rides the bike out of the bay
+	car.driver_in = false
+	car.throttle = 0
+	car.steer_in = 0
+	var first := car.first_person
+	driving = null
+	bike.first_person = first
+	enter(bike, true)
+	get_tree().create_timer(1.2).timeout.connect(func(): car.anim.play_backwards(clip))
+	_ejecting = false
+
+
 func _apply_camera() -> void:
 	driving.active_camera().make_current()
 	player.hero.visible = not driving.first_person
@@ -153,6 +207,8 @@ func drive(dt: float, look: Vector2) -> void:
 	if Input.is_action_just_pressed("summonMenu"):
 		v.first_person = not v.first_person
 		_apply_camera()
+	if Input.is_action_just_pressed("eject"):
+		eject()
 	if _enter_time > 0:
 		_enter_time -= dt
 		if _enter_time <= 0:

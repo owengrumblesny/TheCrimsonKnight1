@@ -416,6 +416,9 @@ func _process(dt: float) -> void:
 			" citadel rooms=%d" % citadel.visible_rooms if underground else ""])
 		if drive.driving:
 			print("    drive ", drive.hud_text(), " up=", drive.driving.global_basis.y.snapped(Vector3.ONE * 0.01))
+			var c := get_viewport().get_camera_3d()
+			print("    camera ", c.get_parent().name if c.get_parent() else "?", "/", c.name, " at ", c.global_position.snapped(Vector3.ONE * 0.1),
+				" car at ", drive.driving.global_position.snapped(Vector3.ONE * 0.1))
 		var held: Node3D = player.hero._held
 		if held and frame == 60:
 			var sk := player.hero.skeleton

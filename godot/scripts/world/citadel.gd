@@ -51,27 +51,6 @@ func build() -> void:
 		bounds = box if first else bounds.merge(box)
 		first = false
 	bounds = bounds.grow(4)
-	# asset bug: the hub's 16-segment rock-wall collider ring also covers the two tunnel mouths (segments 4 and
-	# 12, which have no visual wall). tools/blender/ck_build_citadel.py now skips them; until the GLB is
-	# rebuilt, drop them here.
-	for n in ["hub_wall4_COL", "hub_wall12_COL"]:
-		var body := model.find_child(n, true, false)
-		if body:
-			body.get_parent().remove_child(body)
-			body.queue_free()
-	# asset gap: the elevator shaft walls ship without *_COL proxies, so the back wall led into the void
-	# between the hub and corridor floors. Box colliders from their bounds until the asset gets proxies.
-	var shaft := StaticBody3D.new()
-	shaft.name = "ElevatorShaft_static"
-	add_child(shaft)
-	for m in model.find_children("elv_shaft*", "MeshInstance3D", true, false):
-		var b: AABB = m.global_transform * m.get_aabb()
-		var cs := CollisionShape3D.new()
-		var box := BoxShape3D.new()
-		box.size = b.size
-		cs.shape = box
-		cs.position = b.get_center()
-		shaft.add_child(cs)
 	for m in model.find_children("*", "GeometryInstance3D", true, false):
 		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF # interior: the light pool is unshadowed
 	_park("crx1_interceptor", "Anchor_CRX1", PI)

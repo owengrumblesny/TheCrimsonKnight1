@@ -1,8 +1,8 @@
 {
   "asset": "assets/models/citadel/red_citadel.glb",
-  "triangles": 118554,
+  "triangles": 143828,
   "rooms": {
-    "Hub": 41336,
+    "Hub": 66610,
     "Command": 7904,
     "Workshop": 2660,
     "Armory": 3076,

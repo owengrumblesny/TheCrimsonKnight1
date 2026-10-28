@@ -262,8 +262,10 @@ def corridor():
     # arrival elevator (north side of the corridor, opening into the hub tunnel)
     el = room_root("Elevator")
     L.box("elv_shaft_back", (6, 0.3, 12), (12, -47.5, 6), "Concrete", el, bevel=0.02)
+    L.collider("elv_shaft_back", (6, 0.3, 12), (12, -47.5, 6), el)  # without it the arrival walk led into the void
     for k in (-1, 1):
         L.box(f"elv_shaft_side{k}", (0.3, 5, 12), (12 + k * 3, -50, 6), "Concrete", el, bevel=0.02)
+        L.collider(f"elv_shaft_side{k}", (0.3, 5, 12), (12 + k * 3, -50, 6), el)
     platform = L.empty("Elevator_Platform", (12, -50, 0), None)
     L.box("elv_platform", (5.4, 4.4, 0.25), (0, 0, 0.12), "Grate", platform, bevel=0.02)
     L.box("elv_rail", (5.4, 0.08, 0.08), (0, -2.1, 1.1), "Crimson", platform, bevel=0.01)

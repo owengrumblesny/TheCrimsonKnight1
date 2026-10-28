@@ -152,3 +152,7 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 ## 2026-10-28: Godot port M5 (benchmark and laptop optimisation)
 - `--bench` runs the six web benchmark scenes and writes JSON to `docs/benchmarks/godot-*.json`. The first LOW run on the 610M was draw-call bound: 1.9–3k draws and 18–30 fps in the city.
 - Kit assets are now merged by material with generated LODs, and every repeated asset is chunked. LOW now runs 41–96 fps in every scene. MEDIUM was retuned as the average-laptop preset (FXAA, LOD1 hero, no SSAO) and runs about 30 fps here. Forward+ beat Mobile in every scene. Details: `docs/PERFORMANCE_GODOT.md`.
+
+## 2026-10-28: Godot port, remaining items
+- Loading screen and animation debug panel are ported, and the radial mask on effect sprites is back.
+- The Citadel was rebuilt in Blender. The builder now skips the hub's tunnel-mouth wall colliders and adds elevator-shaft colliders, so the Godot runtime patches are gone. Verified: import (165 colliders, 0 failures), the arrival-room and tunnel walks, and the LOW benchmark. The rebuild also brings in the v3 armour statue, which takes the GLB to 22 MB.

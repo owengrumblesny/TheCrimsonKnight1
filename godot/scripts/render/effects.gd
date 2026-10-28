@@ -1,8 +1,8 @@
 class_name Effects
 extends Node3D
 ## Sprite bursts using the effect images cut from Owen's boards (effects/b_*), port of render/effects.ts.
-## The cut-outs sit on near-black backgrounds, so additive blending hides the background (the web radial
-## tile-border mask is not ported yet). Each burst is a one-shot CPUParticles3D.
+## The cut-outs sit on near-black backgrounds, so additive blending hides the background, and a radial mask
+## hides the tile borders (godot/shaders/effect_sprite.gdshader). Each burst is a one-shot CPUParticles3D.
 
 var _mats := {}
 
@@ -13,16 +13,9 @@ func _ready() -> void:
 		var tex: Texture2D = load(CKData.board_image_path("effects/b_" + k))
 		if tex == null:
 			continue
-		var m := StandardMaterial3D.new()
-		m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		m.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		m.albedo_texture = tex
-		m.albedo_color = Color(0.8, 0.8, 0.8)
-		m.vertex_color_use_as_albedo = true # particle colour ramp fades it out
-		m.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-		m.no_depth_test = false
-		m.disable_receive_shadows = true
+		var m := ShaderMaterial.new()
+		m.shader = load("res://godot/shaders/effect_sprite.gdshader")
+		m.set_shader_parameter("sprite", tex)
 		_mats[k] = m
 
 

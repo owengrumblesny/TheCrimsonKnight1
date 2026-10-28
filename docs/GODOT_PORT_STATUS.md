@@ -19,7 +19,7 @@ The Godot port lives beside the web build. `project.godot` sits at the repo root
 | M6 desktop graphics | Done (`c063c08`) | PROTOTYPE |
 | Audio | Done (`904ce35`) | PROTOTYPE (not listened to) |
 
-Still to do: the loading screen, the animation debug panel, the web radial mask on effect sprites, and a Citadel GLB rebuild with the fixed builder. Nobody has played the port by hand yet; every check so far was scripted (`--hold`/`--press`) or headless.
+Everything in the handoff is ported, along with guns and drivable vehicles, which Owen added on top. Nobody has played the port by hand yet; every check so far was scripted (`--hold`/`--press`) or headless.
 
 ## How to run
 ```
@@ -57,7 +57,7 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 | Hotbar selection: 1-8, Q/R, wheel; equip clip and gear on the socket | `main.gd` `select_slot()`, `hero.hold()` | Done (M3). Grapnel verified at `Socket_Hand_R` |
 | Gadgets: batarang, grapnel, scanner, drone, smoke, shield, cloak, beacon, EMP, sonic, helmet lamp, power cell, med kit, repair, photo mode | `godot/scripts/systems/equipment.gd` | Done (M3). Scripted use of batarang, scanner (16 props found), shield and drone, plus the cooldown refusal |
 | Vitals (health/armour/energy, impact damage, regen, critical recall) | `godot/scripts/systems/vitals.gd` | Done (M3) |
-| Landing / gadget effects from the board sprites | `godot/scripts/render/effects.gd` (CPUParticles3D) | Done (M3); the radial tile-border mask isn't ported |
+| Landing / gadget effects from the board sprites, radial tile-border mask | `godot/scripts/render/effects.gd`, `godot/shaders/effect_sprite.gdshader` | Done |
 | Shove props (E), keycard check on the Citadel portal, vehicle call message | `main.gd` `_interact()`, `_gameplay_input()` | Done (M3) |
 | HUD: vitals with helmet portrait, compass, notifications (max 4, fade), selected-item card, crosshair (aiming / batarang / grapnel), interact prompt with UI-pack keycaps | `godot/scripts/ui/hud.gd` | **Done (M4)** |
 | Hotbar: 8 slots, circle icons, live key labels, quantities, N/A badges, cooldown sweeps, click to select, flash on key | `hud.gd` | Done (M4) |
@@ -65,8 +65,8 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 | Settings: quality preset, fullscreen, audio levels (saved), UI scale, Show HUD, reduce motion, key rebinding with swap, reset | `menus.gd` | Done (M4). Reduce motion is saved but has no effect yet (the web used it for CSS transitions) |
 | Save / Continue / New Sandbox / autosave every 30 s; settings + bindings saved separately | `godot/scripts/systems/save_service.gd` (user://, same JSON shape as the web) | Done (M4) |
 | Perf overlay (F3) | `main.gd` | Done (M4), as a plain readout of fps, draws and primitives. Not a benchmark |
-| Loading screen | not ported | Startup builds the world synchronously behind Godot's boot splash |
-| Animation debug panel (`) | not ported | |
+| Loading screen: cycling board art, step label, progress bar, idle key-pose flipbook | `godot/scripts/ui/loading_screen.gd` | Done |
+| Animation debug panel (`): loop any CK_* clip on the Knight beside its board key-pose flipbook | `godot/scripts/ui/anim_debug.gd` | Done |
 | Desktop graphics (M6): wet streets with puddles (near-mirror roughness) and animated ripples; SSR, volumetric fog (lamp halos), glow on HIGH/ULTRA; SDFGI + SSIL + TAA on ULTRA | `godot/shaders/wet_asphalt.gdshader`, `quality.gd`, `stage.gd` | **Done (M6).** LOW keeps the puddle mask with ripples off and no SSAO/SSR/SDFGI/volumetric fog/MSAA |
 | Guns (Godot only, Owen's request): sidearm and carbine (hitscan), launcher and cannon (splash projectiles), blade (melee); muzzle flash, tracers, decals, recoil, ammo/reload (T), RMB over-the-shoulder aim, hit marker, 6 target dummies | `godot/scripts/systems/weapons.gd`, `godot/data/weapons.json`, `world/targets.gd` | **Done (M3.5a).** Each weapon tested against dummies |
 | Drivable vehicles (Godot only): CR-X1 car and CR-B1 bike (VehicleBody3D, bike auto-balance and lean), CR-A1 jet (arcade flight + VTOL); V summon, E/F enter and exit, first-person default with head-bob and FOV kick, V chase cam, B modes (car pursuit/battle/stealth, bike pursuit/stealth, jet flight/vtol/stealth: clips, top speed, emissives, engine volume), engine sound | `godot/scripts/vehicles/vehicle.gd`, `drive_controller.gd`, `godot/data/vehicles.json` | **Done (M3.5b).** Car reached its 224 km/h cap; bike stays upright turning at 120 km/h; jet takes off and climbs in VTOL. Per-mode GLB/material swaps read from config, ready for the vehicle-modes models |
@@ -83,10 +83,7 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 - The player node's origin is at the feet (the web build used the capsule centre). The capsule shape is offset by half its height.
 - The rain is a GPUParticles3D field of 6000 streaks (scaled by the preset), following the player.
 
-- **Citadel asset fixes, applied at runtime in Godot:**
-  - The hub's 16-segment wall-collider ring blocked both tunnel mouths (segments 4 and 12). `citadel.gd` drops those two colliders, and `tools/blender/ck_build_citadel.py` now skips them. The GLB has not been rebuilt yet.
-  - The elevator shaft walls had no `*_COL`, so walking north from the arrival point fell into the void. `citadel.gd` adds box colliders for them.
-  - Both bugs are also in the web build, which was left unmodified.
+- **Citadel asset fixes, now in the asset:** `tools/blender/ck_build_citadel.py` skips the two hub ring-wall colliders that blocked the tunnel mouths, and adds colliders to the elevator shaft walls (the arrival walk north used to fall into the void). The GLB was rebuilt, so `citadel.gd` no longer patches either at runtime. The rebuild also picked up the current CR-X9 v3 for the hub's armour statue. That raised the Citadel from 118.5k to 143.8k triangles and the GLB from 7.6 MB to 22 MB. The Citadel benchmark scenes still run 64–73 fps on LOW. The web build loads the same GLB, so its download is larger too.
 - The district ground collider is a 400 × 400 m slab. A WorldBoundaryShape3D is a half-space and pushed the Citadel (y −120) back up to street level.
 - The Citadel light pool uses Blender light watts ÷ 8 as Godot energy, and underground uses a flat warm ambient. Both were tuned by eye.
 

@@ -15,6 +15,8 @@ extends Node3D
 ##   --equip=item_id                    put an item in slot 1 and select it
 ##   --aimat=x,y,z                      keep the camera centre on a world point (weapon tests)
 ##   --bench                            run the 6-scene benchmark for the current preset, write JSON, quit
+##   --animdebug=CK_Clip                open the animation debug panel on a clip
+##   --burst=sparks|smoke|debris|electrical   keep spawning effect sprites (effects test)
 ##   --notify=text                      post a HUD notification at start
 
 var stage: Stage
@@ -41,6 +43,7 @@ var _autosave := 0.0
 var audio: CKAudio
 var weapons: Weapons
 var drive: DriveController
+var anim_debug: AnimDebug
 var targets: TargetRange
 var _step_dist := 0.0
 var _last_pos := Vector3.ZERO
@@ -77,16 +80,24 @@ func _ready() -> void:
 		_forced_quality = args["quality"]
 	audio = CKAudio.new()
 	add_child(audio)
+	# loading screen: each heavy build step gets a drawn frame; gameplay waits until the world exists
+	set_process(false)
+	var loading := LoadingScreen.new(5)
+	add_child(loading)
+	await loading.step("night city lighting")
 	stage = Stage.new()
 	add_child(stage)
+	await loading.step("New Gotham district")
 	district = District.new()
 	add_child(district)
 	district.build()
+	await loading.step("Red Citadel")
 	citadel = Citadel.new()
 	add_child(citadel)
 	citadel.build()
 	var pa: Array = CKData.json("world")["redCitadelPortal"]
 	portal = Vector3(pa[0], pa[1], pa[2])
+	await loading.step("NPC population")
 	npcs = NpcCrowd.new()
 	add_child(npcs)
 	npcs.build()
@@ -94,6 +105,7 @@ func _ready() -> void:
 	add_child(effects)
 	var sp: Array = CKData.json("world")["spawn"]
 	spawn = Vector3(sp[0], sp[1] - 2, sp[2])
+	await loading.step("CR-X9 Crimson Knight")
 	player = Player.new()
 	player.name = "Player"
 	add_child(player)
@@ -164,6 +176,10 @@ func _ready() -> void:
 		select_slot.call_deferred(0)
 	if args.has("slot"):
 		select_slot.call_deferred(int(args["slot"]) - 1)
+	if args.has("animdebug"):
+		(func():
+			anim_debug.toggle()
+			anim_debug.select(args["animdebug"])).call_deferred()
 	if args.has("notify"):
 		notify(args["notify"], "notification")
 	if args.has("menu"):
@@ -181,6 +197,8 @@ func _ready() -> void:
 	else:
 		menus.show_screen("main")
 		_on_menus_open(true)
+	loading.finish()
+	set_process(true)
 
 
 func _build_ui() -> void:
@@ -200,6 +218,9 @@ func _build_ui() -> void:
 	perf.add_theme_color_override("font_shadow_color", Color.BLACK)
 	perf.visible = false
 	layer.add_child(perf)
+	anim_debug = AnimDebug.new()
+	anim_debug.player = player
+	layer.add_child(anim_debug)
 	menus = Menus.new()
 	menus.game = self
 	menus.inventory = inventory
@@ -310,6 +331,8 @@ func _equip_selected() -> void:
 
 func _on_land(vy: float, hard: bool, feet: Vector3) -> void:
 	effects.landing(feet, hard)
+	if args.has("log"):
+		print("[ck] f%d landed vy=%.1f hard=%s" % [frame, vy, hard])
 	audio.play("armor.land", minf(1.0, -vy / 20.0))
 	var dmg := vitals.impact(vy, Time.get_ticks_msec(), CKData.json("physics")["player"]["hardLandingSpeed"])
 	if dmg > 0:
@@ -323,7 +346,7 @@ func _vec(s: String, fallback: Vector3) -> Vector3:
 
 ## Menu hotkeys while playing (Esc / Tab / M) and the F3 perf readout. Menus handle their own keys.
 func _unhandled_input(e: InputEvent) -> void:
-	if not started or menus.is_open():
+	if menus == null or not started or menus.is_open(): # menus is null while loading
 		return
 	if e.is_action_pressed("pause"):
 		menus.show_screen("pause")
@@ -333,6 +356,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		menus.show_screen("map")
 	elif e.is_action_pressed("perfOverlay"):
 		perf.visible = not perf.visible
+	elif e.is_action_pressed("sandboxMenu") and not drive.driving:
+		anim_debug.toggle()
 	else:
 		return
 	get_viewport().set_input_as_handled()
@@ -431,6 +456,8 @@ func _process(dt: float) -> void:
 	if started and _autosave > 30:
 		_autosave = 0
 		saves.write(_snapshot())
+	if args.has("burst") and frame % 12 == 0: # effect-sprite test: keep bursts in front of the Knight
+		effects.burst(args["burst"], player.global_position + Vector3(sin(player.heading), 0, cos(player.heading)) * 1.5 + Vector3.UP, 6, 0.8, 1.2, 1.5)
 	_finish_check()
 
 

@@ -9,6 +9,8 @@ extends Node3D
 ##   --log                              print player status every 30 frames
 ##   --camdist=m --pitch=r              camera distance / pitch (close-ups)
 ##   --slot=N                           select hotbar slot N (1-8) at start
+##   --menu=main|pause|inventory|...    open a menu (scripted runs start in-game otherwise)
+##   --notify=text                      post a HUD notification at start
 
 var stage: Stage
 var district: District
@@ -22,19 +24,37 @@ var effects: Effects
 var equipment: Equipment
 var inventory := Inventory.new()
 var vitals := Vitals.new()
+var saves := SaveService.new()
+var settings: Dictionary
+var quick_vehicle := "crx1_interceptor"
+var hud: Hud
+var menus: Menus
+var perf: Label
+var started := false
+var _forced_quality := ""
+var _autosave := 0.0
 var spawn := Vector3.ZERO
-## interact prompt for the HUD: [key label, text] or []
+## interact prompt for the HUD: [action, text] or []
 var prompt: Array = []
-var _step_dist := 0.0
-var _last_pos := Vector3.ZERO
 var args := {}
 var frame := 0
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS # keeps scripted runs ticking while a menu pauses the tree
 	for a in OS.get_cmdline_user_args():
 		var kv := a.trim_prefix("--").split("=", true, 1)
 		args[kv[0]] = kv[1] if kv.size() > 1 else "1"
+	var prefs := saves.read_settings()
+	settings = prefs["settings"]
+	CKInput.overrides = prefs["bindings"]
+	CKInput.apply()
+	# first launch: LOW on integrated GPUs (the target laptop's Radeon 610M), HIGH otherwise
+	if prefs["fresh"]:
+		settings["quality"] = Quality.detect_default()
+	# --quality forces a preset for this run only; never saved
+	if args.has("quality") and args["quality"] in Quality.ORDER:
+		_forced_quality = args["quality"]
 	stage = Stage.new()
 	add_child(stage)
 	district = District.new()
@@ -79,27 +99,131 @@ func _ready() -> void:
 	equipment.vitals = vitals
 	equipment.notify.connect(notify)
 	add_child(equipment)
-	var q: String = args.get("quality", Quality.detect_default())
-	stage.apply_quality(q)
-	district.set_light_pool(stage.preset["dynamic_lights"], stage.preset["light_shadows"])
-	citadel.set_light_pool(maxi(4, stage.preset["dynamic_lights"]))
+	equipment.photo_mode_changed.connect(func(_on): _apply_hud_visibility())
+	_build_ui()
+	apply_settings()
 	if args.has("hold"):
 		for act in String(args["hold"]).split(","):
 			Input.action_press(act)
 	if args.has("slot"):
 		select_slot.call_deferred(int(args["slot"]) - 1)
-	if not args.has("frames"):
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if args.has("notify"):
+		notify(args["notify"], "notification")
+	if args.has("menu"):
+		started = args["menu"] != "main"
+		menus.show_screen(args["menu"])
+	elif args.has("frames"):
+		started = true # scripted runs start in-game
+	else:
+		menus.show_screen("main")
+		_on_menus_open(true)
 
 
-## On-screen notification (HUD toast in M4; logged for scripted runs).
-func notify(text: String, icon := "", kind := "info") -> void:
-	print("[ck] notify(%s) %s" % [kind, text])
+func _build_ui() -> void:
+	var layer := CanvasLayer.new()
+	layer.name = "UI"
+	layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(layer)
+	hud = Hud.new()
+	hud.inventory = inventory
+	hud.vitals = vitals
+	hud.slot_clicked.connect(select_slot)
+	layer.add_child(hud)
+	perf = Label.new()
+	perf.position = Vector2(18, 110)
+	perf.add_theme_font_size_override("font_size", 13)
+	perf.add_theme_color_override("font_color", Color("#9fe7a4"))
+	perf.add_theme_color_override("font_shadow_color", Color.BLACK)
+	perf.visible = false
+	layer.add_child(perf)
+	menus = Menus.new()
+	menus.game = self
+	menus.inventory = inventory
+	menus.open_changed.connect(_on_menus_open)
+	layer.add_child(menus)
+
+
+## Menus pause the simulation; the mouse is freed while one is open.
+func _on_menus_open(open: bool) -> void:
+	if args.has("log"):
+		print("[ck] f%d menus %s %s" % [frame, "open" if open else "closed", menus.top()])
+	get_tree().paused = open
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if open or args.has("frames") else Input.MOUSE_MODE_CAPTURED
+	for a in ["moveForward", "moveBack", "moveLeft", "moveRight", "sprint", "jump", "grapple", "primaryAction"]:
+		if not args.get("hold", "").contains(a):
+			Input.action_release(a) # nothing stays held across a menu
+
+
+## Apply settings (preset, light pools, UI scale, HUD) and persist them with the bindings.
+func apply_settings() -> void:
+	var q: String = _forced_quality if _forced_quality != "" else settings["quality"]
+	var pools_changed: bool = stage.preset["dynamic_lights"] != Quality.PRESETS[q]["dynamic_lights"] or district._light_pool.is_empty()
+	stage.apply_quality(q)
+	if pools_changed:
+		district.set_light_pool(stage.preset["dynamic_lights"], stage.preset["light_shadows"])
+		citadel.set_light_pool(maxi(4, stage.preset["dynamic_lights"]))
+	get_tree().root.content_scale_factor = settings["uiScale"]
+	_apply_hud_visibility()
+	saves.write_settings(settings, CKInput.overrides)
+
+
+func _apply_hud_visibility() -> void:
+	hud.widgets.visible = settings["hudVisible"] and not equipment.photo_mode
+
+
+func _snapshot() -> Dictionary:
+	var p := player.global_position
+	return {"inventory": inventory.snapshot(), "bindings": CKInput.overrides, "quickVehicle": quick_vehicle, "settings": settings,
+		"player": {"position": [p.x, p.y, p.z], "heading": player.heading}}
+
+
+func save_now() -> void:
+	saves.write(_snapshot())
+	notify("Game saved", "save")
+
+
+func play() -> void:
+	started = true
+
+
+func continue_save() -> void:
+	var s = saves.read()
+	if s == null:
+		return
+	inventory.load_state(s["inventory"])
+	quick_vehicle = s.get("quickVehicle", quick_vehicle)
+	if s.get("player") is Dictionary:
+		var pos: Array = s["player"]["position"]
+		player.teleport(Vector3(pos[0], pos[1] + 0.05, pos[2]))
+		player.heading = s["player"]["heading"]
+		cam.snap()
+	_equip_selected()
+	started = true
+	notify("Save loaded", "load")
+
+
+func new_sandbox() -> void:
+	saves.clear()
+	inventory.reset()
+	vitals.reset()
+	player.respawn(spawn + Vector3(0, 1, 0))
+	_equip_selected()
+	started = true
+	notify("New sandbox started. Explore freely", "sandbox")
+
+
+## On-screen notification (HUD toast); also logged for scripted runs.
+func notify(text: String, icon := "notification", kind := "info") -> void:
+	hud.notify(text, icon, kind)
+	if args.has("log"):
+		print("[ck] notify(%s) %s" % [kind, text])
 
 
 ## Select a hotbar slot: equip animation and the gear model on its socket. Never uses the item.
 func select_slot(i: int) -> void:
 	var err := inventory.select_slot(i)
+	if i >= 0 and i < 8:
+		hud.flash(i)
 	if err != "":
 		notify(err, "inventory", "warn")
 		return
@@ -124,9 +248,21 @@ func _vec(s: String, fallback: Vector3) -> Vector3:
 	return Vector3(float(p[0]), float(p[1]), float(p[2])) if p.size() == 3 else fallback
 
 
+## Menu hotkeys while playing (Esc / Tab / M) and the F3 perf readout. Menus handle their own keys.
 func _unhandled_input(e: InputEvent) -> void:
+	if not started or menus.is_open():
+		return
 	if e.is_action_pressed("pause"):
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else Input.MOUSE_MODE_CAPTURED
+		menus.show_screen("pause")
+	elif e.is_action_pressed("inventory"):
+		menus.show_screen("inventory")
+	elif e.is_action_pressed("map"):
+		menus.show_screen("map")
+	elif e.is_action_pressed("perfOverlay"):
+		perf.visible = not perf.visible
+	else:
+		return
+	get_viewport().set_input_as_handled()
 
 
 func _process(dt: float) -> void:
@@ -135,10 +271,16 @@ func _process(dt: float) -> void:
 	# --press=jump@60,crouch@200: tap an action on a frame (scripted tests)
 	for tap in String(args.get("press", "")).split(",", false):
 		var at := tap.split("@")
-		if at.size() == 2 and int(at[1]) == frame:
-			Input.action_press(at[0])
-		elif at.size() == 2 and int(at[1]) + 1 == frame:
-			Input.action_release(at[0])
+		if at.size() == 2 and int(at[1]) in [frame, frame - 1]:
+			# a real input event, so menu hotkeys (_unhandled_input) see it too; it lands next frame
+			var ev := InputEventAction.new()
+			ev.action = at[0]
+			ev.pressed = int(at[1]) == frame
+			Input.parse_input_event(ev)
+	hud.visible = menus.top() != "main"
+	if get_tree().paused:
+		_finish_check()
+		return
 	_gameplay_input(now)
 	player.handle_input()
 	player.cam_yaw = cam.yaw
@@ -176,6 +318,8 @@ func _process(dt: float) -> void:
 				" bone at ", (sk.global_transform * sk.get_bone_global_pose(bone)).origin.snapped(Vector3.ONE * 0.01),
 				" meshes=", meshes.size(), " visible=", held.is_visible_in_tree(),
 				" size=", (meshes[0].get_aabb().size if meshes.size() else Vector3.ZERO).snapped(Vector3.ONE * 0.01))
+		if prompt:
+			print("    prompt ", prompt, " hud=", hud._prompt.visible, " ", hud._prompt.get_global_rect())
 		var mv: Vector2 = CKInput.move()
 		if mv != Vector2.ZERO:
 			print("    move=", mv, " joypads=", Input.get_connected_joypads().map(func(j): return Input.get_joy_name(j)),
@@ -183,6 +327,24 @@ func _process(dt: float) -> void:
 		for i in player.get_slide_collision_count():
 			var c := player.get_slide_collision(i)
 			print("    hit ", c.get_collider().name if c.get_collider() else "?", " n=", c.get_normal().snapped(Vector3.ONE * 0.01))
+	var sel := inventory.selected_item()
+	hud.update_hud(now, player.heading, player.aiming or ((sel == "grapple" or sel == "batarang") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED))
+	hud.set_prompt("interact" if prompt else "", prompt[1] if prompt else "")
+	if perf.visible:
+		perf.text = "%d fps · %.1f ms · %d draws · %dk prims · %s · %s
+(readout only, not a benchmark)" % [
+			Engine.get_frames_per_second(), 1000.0 / maxf(1, Engine.get_frames_per_second()),
+			RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME),
+			RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME) / 1000,
+			stage.quality.to_upper(), "Red Citadel (%d rooms)" % citadel.visible_rooms if underground else "Downtown"]
+	_autosave += dt
+	if started and _autosave > 30:
+		_autosave = 0
+		saves.write(_snapshot())
+	_finish_check()
+
+
+func _finish_check() -> void:
 	if args.has("frames") and frame >= int(args["frames"]):
 		_finish()
 
@@ -229,7 +391,7 @@ func _interact() -> void:
 	var near_exit := underground and p.distance_to(citadel.anchor("Anchor_Exit")) < 4
 	prompt = []
 	if prop or near_portal or near_exit:
-		prompt = [CKInput.label("interact"), "Shove" if prop else "Enter the Red Citadel" if near_portal else "Elevator to New Gotham"]
+		prompt = ["interact", "Shove" if prop else "Enter the Red Citadel" if near_portal else "Elevator to New Gotham"]
 	if not Input.is_action_just_pressed("interact"):
 		return
 	if prop:

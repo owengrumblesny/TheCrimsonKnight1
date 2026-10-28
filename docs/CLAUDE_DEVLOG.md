@@ -125,3 +125,8 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 - Ported the NPC crowd (same layout, distance throttling and shadow rules), inventory and hotbar, vitals, equipment (all 15 working items), landing and gadget effects, prop shoving and the keycard gate. The item catalog is exported from the web TS to `godot/data/items.json`.
 - Scripted checks: batarang, scanner, shield and drone all used, and the drone cooldown refused. The grapnel attaches exactly at `Socket_Hand_R`.
 - Not ported: audio. Grade: **PROTOTYPE.**
+
+## 2026-10-28: Godot port M4 (UI pack)
+- HUD, hotbar, main menu, pause, inventory, map, loadout and settings (including key rebinding) are rebuilt as Godot Controls with the UI-pack icons and the web theme colours. Save, continue, new sandbox and autosave use the web JSON shape in user://. F3 shows a perf readout.
+- Checks: screenshots of every screen; a scripted menu-hotkey run; `test_logic.gd` passes 85/85.
+- Not ported: loading screen, animation debug panel, audio. Grade: **PROTOTYPE.** The UI is functional and matches the web layout, but it hasn't been played with a mouse by a person.

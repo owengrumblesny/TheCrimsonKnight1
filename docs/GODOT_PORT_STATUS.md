@@ -44,6 +44,14 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 | Vitals (health/armour/energy, impact damage, regen, critical recall) | `godot/scripts/systems/vitals.gd` | Done (M3) |
 | Landing / gadget effects from the board sprites | `godot/scripts/render/effects.gd` (CPUParticles3D) | Done (M3); the radial tile-border mask isn't ported |
 | Shove props (E), keycard check on the Citadel portal, vehicle call message | `main.gd` `_interact()`, `_gameplay_input()` | Done (M3) |
+| HUD: vitals with helmet portrait, compass, notifications (max 4, fade), selected-item card, crosshair (aiming / batarang / grapnel), interact prompt with UI-pack keycaps | `godot/scripts/ui/hud.gd` | **Done (M4)** |
+| Hotbar: 8 slots, circle icons, live key labels, quantities, N/A badges, cooldown sweeps, click to select, flash on key | `hud.gd` | Done (M4) |
+| Main menu, pause, inventory (tabs, search, sort, cards, detail, Equip, assign 1-8), map (district geometry + locations gallery), equipment loadout, settings | `godot/scripts/ui/menus.gd`, `map_view.gd`, theme in `ck_ui.gd` | Done (M4). Menus pause the tree |
+| Settings: quality preset, fullscreen, audio levels (saved), UI scale, Show HUD, reduce motion, key rebinding with swap, reset | `menus.gd` | Done (M4). Reduce motion is saved but has no effect yet (the web used it for CSS transitions) |
+| Save / Continue / New Sandbox / autosave every 30 s; settings + bindings saved separately | `godot/scripts/systems/save_service.gd` (user://, same JSON shape as the web) | Done (M4) |
+| Perf overlay (F3) | `main.gd` | Done (M4), as a plain readout of fps, draws and primitives. Not a benchmark |
+| Loading screen | not ported | Startup builds the world synchronously behind Godot's boot splash |
+| Animation debug panel (`) | not ported | |
 | Audio (synth placeholders) | not ported | Equipment emits `sound(id)` signals. A player for them is still to do |
 
 ## Decisions
@@ -66,5 +74,10 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 - The item catalog is exported from `game/src/ui/inventoryData.ts` to `godot/data/items.json` with the web build's own esbuild (`godot/tools/export_web_data.sh`), so both builds share the same values. `icon_manifest.json`, `hotbar_layout.json` and `menu_spec.json` are copied the same way.
 - **Unexplained drift, seen twice:** in two windowed test runs the player started running at about 6 m/s around frame 150 with no scripted input. Repeated runs with identical arguments did not show it, and a later diagnostic run printed no movement input and no joypads. It may have been stray real input to the test window, but that is not confirmed. `--log` now prints the move vector and connected joypads whenever movement input is non-zero, to catch it next time.
 
+- The UI is built in code from Control nodes with one shared Theme (`CKUI.theme()`) whose colours come from `game/src/ui/ui.css`. Icons load from `CRIMSON_KNIGHT_UI_PACK/`, which is identical to the web build's `public/ui`.
+- Godot 4 gotcha: `set_anchors_preset()` keeps a zero-size control at zero size. UI code uses `CKUI.place()` (explicit anchors and offsets) or `set_anchors_and_offsets_preset()`.
+- Logic tests: `godot --headless --path . --script res://godot/tools/test_logic.gd` covers inventory, vitals, rebinding and the item → icon/model/art links (85 checks pass).
+- Scripted `--press` now sends real InputEventActions, so menu hotkeys can be tested too. They take effect on the next frame.
+
 ## Proof screenshots
-`docs/godot_shots/`: `m1_high.png` (HIGH, LOD0 hero by the Night Owl Diner billboard) and `m1_low_run.png` (LOW, running north on the avenue), `m2_citadel_hub.png` (Citadel hub with the armour statue) `m2_training_door.png` (corridor door into the Training room), `m3_npcs_intersection.png` (police officer and civilians, vertex-coloured NPCs) and `m3_grapnel_front.png` (grapnel selected).
+`docs/godot_shots/`: `m1_high.png` (HIGH, LOD0 hero by the Night Owl Diner billboard) and `m1_low_run.png` (LOW, running north on the avenue), `m2_citadel_hub.png` (Citadel hub with the armour statue) `m2_training_door.png` (corridor door into the Training room), `m3_npcs_intersection.png` (police officer and civilians, vertex-coloured NPCs) and `m3_grapnel_front.png` (grapnel selected), and `m4_*.png` (main menu, in-game HUD, portal prompt, inventory, settings, map, loadout).

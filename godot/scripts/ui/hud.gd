@@ -1,0 +1,312 @@
+class_name Hud
+extends Control
+## In-game HUD (port of ui/HudWidgets.ts + ui/Hotbar.ts): top-left vitals with the helmet portrait,
+## top-centre compass, top-right notifications, bottom-right selected item, crosshair, interact prompt,
+## and the bottom-centre 8-slot hotbar with live key labels, quantities and cooldown sweeps.
+
+signal slot_clicked(index: int)
+
+const CARD := ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+
+var inventory: Inventory
+var vitals: Vitals
+var widgets: Control # everything hidden by "Show HUD" / photo mode
+var _meters := {}
+var _strip: Control
+var _notes: VBoxContainer
+var _sel_title: Label
+var _sel_sub: Label
+var _crosshair: TextureRect
+var _prompt: HBoxContainer
+var _prompt_key := ""
+var _slots: Array = [] # {button, icon, key, qty, badge, cd}
+var _bar: PanelContainer
+
+
+func _ready() -> void:
+	name = "Hud"
+	theme = CKUI.theme()
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	widgets = Control.new()
+	widgets.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	widgets.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(widgets)
+	_build_status()
+	_build_compass()
+	_build_selected()
+	_build_hotbar()
+	_crosshair = CKUI.image_rect(CKUI.icon("crosshair"), Vector2(36, 36))
+	CKUI.place(_crosshair, Vector4(.5, .5, .5, .5), Vector4(-18, -18, 18, 18))
+	_crosshair.visible = false
+	widgets.add_child(_crosshair)
+	_prompt = HBoxContainer.new()
+	CKUI.place(_prompt, Vector4(.5, 1, .5, 1), Vector4(-200, -152, 200, -118))
+	_prompt.alignment = BoxContainer.ALIGNMENT_CENTER
+	_prompt.visible = false
+	widgets.add_child(_prompt)
+	_notes = VBoxContainer.new()
+	CKUI.place(_notes, Vector4(1, 0, 1, 0), Vector4(-358, 16, -18, 16))
+	_notes.add_theme_constant_override("separation", 6)
+	_notes.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_notes) # notifications stay visible with the HUD hidden
+	inventory.changed.connect(render_hotbar)
+	CKInput.bindings_changed.connect(render_hotbar)
+	render_hotbar()
+
+
+func _build_status() -> void:
+	var row := HBoxContainer.new()
+	row.position = Vector2(18, 16)
+	row.add_theme_constant_override("separation", 10)
+	widgets.add_child(row)
+	var portrait := CKUI.image_rect(CKUI.board("hero/a_helmet_front"), Vector2(64, 64), true)
+	var frame := PanelContainer.new()
+	frame.add_theme_stylebox_override("panel", CKUI.box(Color.BLACK, CKUI.BORDER, 10, 1, 0))
+	frame.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
+	frame.add_child(portrait)
+	row.add_child(frame)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 3)
+	row.add_child(col)
+	col.add_child(CKUI.label("CR-X9 · OWEN ENTERPRISES", 11, CKUI.BRIGHT, true))
+	var fills := {"health": [Color("#8a0c17"), CKUI.BRIGHT], "armor": [Color("#5a5f6a"), Color("#c9ced8")], "energy": [Color("#1d5e8a"), Color("#67c6ff")]}
+	for k in ["health", "armor", "energy"]:
+		var m := HBoxContainer.new()
+		m.add_theme_constant_override("separation", 6)
+		m.add_child(CKUI.image_rect(CKUI.icon(k), Vector2(20, 20)))
+		var bar := ProgressBar.new()
+		bar.custom_minimum_size = Vector2(150, 8)
+		bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		bar.show_percentage = false
+		bar.add_theme_stylebox_override("background", CKUI.box(Color("#241319"), Color("#4c1e29"), 4, 1, 0))
+		var g := Gradient.new()
+		g.set_color(0, fills[k][0])
+		g.set_color(1, fills[k][1])
+		var gt := GradientTexture2D.new()
+		gt.gradient = g
+		gt.width = 150
+		gt.height = 8
+		var fill := StyleBoxTexture.new()
+		fill.texture = gt
+		bar.add_theme_stylebox_override("fill", fill)
+		m.add_child(bar)
+		var num := CKUI.label("100", 11, CKUI.MUTED)
+		num.custom_minimum_size.x = 38
+		num.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		m.add_child(num)
+		col.add_child(m)
+		_meters[k] = [bar, num]
+
+
+func _build_compass() -> void:
+	var c := PanelContainer.new()
+	c.add_theme_stylebox_override("panel", CKUI.box(Color(CKUI.BG, 0.7), Color("#4c1e29"), 8, 1, 0))
+	CKUI.place(c, Vector4(.5, 0, .5, 0), Vector4(-180, 14, 180, 48))
+	c.clip_contents = true
+	widgets.add_child(c)
+	var inner := Control.new()
+	c.add_child(inner)
+	_strip = Control.new()
+	inner.add_child(_strip)
+	# three repeats of 8 cardinal marks (45 px each) so the strip scrolls seamlessly
+	for i in 24:
+		var l := CKUI.label(CARD[i % 8], 12, CKUI.TEXT if i % 2 == 0 else CKUI.MUTED, i % 2 == 0)
+		l.position = Vector2(i * 45, 0)
+		l.size = Vector2(45, 34)
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_strip.add_child(l)
+	var needle := ColorRect.new()
+	needle.color = CKUI.BRIGHT
+	needle.position = Vector2(179, 0)
+	needle.size = Vector2(2, 8)
+	inner.add_child(needle)
+	var ic := CKUI.image_rect(CKUI.icon("compass"), Vector2(24, 24))
+	ic.position = Vector2(6, 5)
+	inner.add_child(ic)
+
+
+func _build_selected() -> void:
+	var p := PanelContainer.new()
+	p.add_theme_stylebox_override("panel", CKUI.box(Color(CKUI.BG, 0.85), CKUI.BORDER, 10, 1, 10))
+	p.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	p.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	CKUI.place(p, Vector4(1, 1, 1, 1), Vector4(-18, -18, -18, -18))
+	p.custom_minimum_size = Vector2(230, 0)
+	var v := VBoxContainer.new()
+	p.add_child(v)
+	_sel_title = CKUI.label("", 15, CKUI.TEXT, true)
+	_sel_sub = CKUI.label("", 12, CKUI.MUTED)
+	v.add_child(_sel_title)
+	v.add_child(_sel_sub)
+	widgets.add_child(p)
+
+
+func _build_hotbar() -> void:
+	_bar = PanelContainer.new()
+	_bar.add_theme_stylebox_override("panel", CKUI.box(Color(CKUI.BG, 0.88), CKUI.BORDER, 18, 1, 10))
+	_bar.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_bar.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	CKUI.place(_bar, Vector4(.5, 1, .5, 1), Vector4(0, -14, 0, -14))
+	widgets.add_child(_bar)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 9)
+	_bar.add_child(row)
+	var disc := GradientTexture2D.new()
+	var g := Gradient.new()
+	g.set_color(0, Color(0.04, 0.03, 0.05, 0.72))
+	g.set_color(1, Color(0.04, 0.03, 0.05, 0.72))
+	g.add_point(0.999, Color(0.04, 0.03, 0.05, 0.72))
+	disc.gradient = g
+	disc.fill = GradientTexture2D.FILL_RADIAL
+	disc.fill_from = Vector2(0.5, 0.5)
+	disc.fill_to = Vector2(1.0, 0.5)
+	disc.width = 56
+	disc.height = 56
+	for i in 8:
+		var b := Button.new()
+		b.custom_minimum_size = Vector2(68, 75)
+		b.focus_mode = Control.FOCUS_NONE # digits and Space keep going to the game
+		b.add_theme_stylebox_override("normal", CKUI.box(Color("#17111a"), Color("#57313b"), 14, 1, 0))
+		b.add_theme_stylebox_override("hover", CKUI.box(Color("#211923"), CKUI.BRIGHT, 14, 1, 0))
+		b.pressed.connect(func(): slot_clicked.emit(i))
+		var ic := CKUI.image_rect(null, Vector2(48, 48))
+		CKUI.place(ic, Vector4(.5, .5, .5, .5), Vector4(-24, -24, 24, 24))
+		b.add_child(ic)
+		var cd := TextureProgressBar.new()
+		cd.texture_progress = disc
+		cd.fill_mode = TextureProgressBar.FILL_CLOCKWISE
+		cd.max_value = 1.0
+		cd.step = 0.001
+		cd.nine_patch_stretch = true
+		CKUI.place(cd, Vector4(.5, .5, .5, .5), Vector4(-28, -28, 28, 28))
+		cd.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		b.add_child(cd)
+		var key := CKUI.label("", 11, Color.WHITE, true)
+		key.position = Vector2(6, 2)
+		var kb := CKUI.box(Color("#3d1823"), Color("#3d1823"), 5, 0, 3)
+		key.add_theme_stylebox_override("normal", kb)
+		b.add_child(key)
+		var qty := CKUI.label("", 11, Color.WHITE, true)
+		qty.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		CKUI.place(qty, Vector4(1, 1, 1, 1), Vector4(-30, -19, -6, -3))
+		b.add_child(qty)
+		var badge := CKUI.label("N/A", 9, Color("#ffd0d6"))
+		CKUI.place(badge, Vector4(1, 0, 1, 0), Vector4(-26, 4, -4, 16))
+		b.add_child(badge)
+		row.add_child(b)
+		_slots.append({"button": b, "icon": ic, "key": key, "qty": qty, "badge": badge, "cd": cd})
+
+
+## Rebuild slot contents from the inventory and live bindings (rebinding updates the bar).
+func render_hotbar() -> void:
+	for i in 8:
+		var s: Dictionary = _slots[i]
+		var id: String = inventory.hotbar[i]
+		var d := inventory.def(id) if id != "" else {}
+		var qty := inventory.quantity(id) if id != "" else 0
+		var b: Button = s["button"]
+		var selected := i == inventory.selected_slot and not d.is_empty()
+		b.add_theme_stylebox_override("normal", CKUI.box(Color("#211923") if selected else Color("#17111a"),
+			CKUI.BRIGHT if selected else Color("#57313b"), 14, 2 if selected else 1, 0))
+		b.scale = Vector2.ONE * (1.05 if selected else 1.0)
+		b.pivot_offset = b.custom_minimum_size / 2
+		s["key"].text = CKUI.key_label(CKInput.code("slot%d" % (i + 1)))
+		var ic: TextureRect = s["icon"]
+		ic.texture = CKUI.icon(d["iconId"], "circle") if d else CKUI.icon("key_prompt")
+		var unusable: bool = d.is_empty() or d.get("unavailableReason") != null or qty == 0
+		ic.modulate = Color(1, 1, 1, 0.18) if d.is_empty() else Color(0.55, 0.55, 0.55) if unusable else Color.WHITE
+		s["qty"].text = str(qty) if d.get("stackable", false) else ""
+		s["badge"].visible = d.get("unavailableReason") != null and not d.is_empty()
+		var status := "Assign an item from the inventory (Tab)" if d.is_empty() else String(d["unavailableReason"]) if d.get("unavailableReason") \
+			else "None left. Restocks over time" if qty == 0 else "Use: %s%s" % [CKUI.key_label(CKInput.code("primaryAction")),
+			" · %d energy" % d["energyCost"] if d.get("energyCost") else ""]
+		b.tooltip_text = "%s\n%s" % [d.get("displayName", "Empty"), status]
+
+
+## Brief highlight when a slot's key is pressed.
+func flash(i: int) -> void:
+	var b: Button = _slots[i]["button"]
+	b.modulate = Color(1.6, 1.6, 1.6)
+	create_tween().tween_property(b, "modulate", Color.WHITE, 0.15)
+
+
+## Top-right queue: max 4 visible, each fades after ~4 s.
+func notify(text: String, icon_id := "notification", kind := "info") -> void:
+	var p := PanelContainer.new()
+	var sb := CKUI.box(Color(0.09, 0.07, 0.11, 0.94), Color("#4c1e29"), 8, 1, 8)
+	sb.border_width_left = 3
+	sb.border_color = Color("#ffb020") if kind == "warn" else CKUI.RED
+	p.add_theme_stylebox_override("panel", sb)
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 10)
+	h.add_child(CKUI.image_rect(CKUI.icon(icon_id if CKUI.has_icon(icon_id) else "notification"), Vector2(26, 26)))
+	var l := CKUI.label(text, 13)
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size.x = 280
+	h.add_child(l)
+	p.add_child(h)
+	_notes.add_child(p)
+	_notes.move_child(p, 0)
+	while _notes.get_child_count() > 4:
+		_notes.get_child(_notes.get_child_count() - 1).free()
+	var tw := p.create_tween()
+	tw.tween_interval(3.8)
+	tw.tween_property(p, "modulate:a", 0.0, 0.4)
+	tw.tween_callback(p.queue_free)
+
+
+## Contextual prompt from real bindings, e.g. ("interact", "Shove"); empty action hides it.
+func set_prompt(action: String, text := "") -> void:
+	if action == "":
+		_prompt.visible = false
+		_prompt_key = ""
+		return
+	var code := CKInput.code(action)
+	var k := code + "|" + text
+	if k == _prompt_key:
+		return
+	_prompt_key = k
+	for c in _prompt.get_children():
+		c.queue_free()
+	var cap := CKUI.keycap(code)
+	if cap:
+		_prompt.add_child(CKUI.image_rect(cap, Vector2(34, 34)))
+	else:
+		_prompt.add_child(CKUI.label("[%s]" % CKUI.key_label(code), 15, CKUI.BRIGHT, true))
+	var l := CKUI.label(text, 15, CKUI.TEXT, true)
+	l.add_theme_color_override("font_shadow_color", Color.BLACK)
+	_prompt.add_child(l)
+	_prompt.visible = true
+
+
+func update_hud(now: int, heading: float, show_crosshair: bool) -> void:
+	for k in _meters:
+		var v: float = vitals.get(k)
+		_meters[k][0].value = v
+		_meters[k][1].text = str(roundi(v))
+	# compass: heading 0 = facing +Z (south in map terms, where north is -Z)
+	var deg := fposmod(180.0 - rad_to_deg(heading), 360.0)
+	_strip.position.x = 180.0 - deg - 360.0 - 22.5
+	var id := inventory.selected_item()
+	var d := inventory.def(id) if id != "" else {}
+	if d.is_empty():
+		_sel_title.text = "No item selected"
+		_sel_sub.text = "Press 1-8 or open the inventory"
+	else:
+		var cd := inventory.cooldown_remaining(id, now)
+		var parts := []
+		if d.get("stackable", false):
+			parts.append("%d / %d" % [inventory.quantity(id), d["maxStack"]])
+		if d.get("energyCost"):
+			parts.append("%d energy" % d["energyCost"])
+		parts.append("recharging %.1f s" % (cd / 1000.0) if cd > 0 else "unavailable" if d.get("unavailableReason") \
+			else "%s to use" % CKUI.key_label(CKInput.code("primaryAction")))
+		_sel_title.text = d["displayName"]
+		_sel_sub.text = " · ".join(parts)
+	_crosshair.visible = show_crosshair
+	for i in 8:
+		var sid: String = inventory.hotbar[i]
+		_slots[i]["cd"].value = inventory.cooldown_fraction(sid, now) if sid != "" else 0.0

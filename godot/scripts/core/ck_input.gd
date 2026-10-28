@@ -78,9 +78,10 @@ func apply() -> void:
 
 
 func _add_pad() -> void:
-	var pad := {"jump": JOY_BUTTON_A, "crouch": JOY_BUTTON_B, "interact": JOY_BUTTON_X, "sprint": JOY_BUTTON_LEFT_STICK,
-		"pause": JOY_BUTTON_START, "slotPrev": JOY_BUTTON_LEFT_SHOULDER, "slotNext": JOY_BUTTON_RIGHT_SHOULDER,
-		"inventory": JOY_BUTTON_BACK}
+	# the web build's standard-gamepad layout (see the Controls note in the settings screen)
+	var pad := {"jump": JOY_BUTTON_A, "crouch": JOY_BUTTON_B, "interact": JOY_BUTTON_X, "inventory": JOY_BUTTON_Y,
+		"sprint": JOY_BUTTON_LEFT_STICK, "pause": JOY_BUTTON_START, "map": JOY_BUTTON_BACK,
+		"slotPrev": JOY_BUTTON_LEFT_SHOULDER, "slotNext": JOY_BUTTON_RIGHT_SHOULDER, "summonMenu": JOY_BUTTON_DPAD_UP}
 	for a in pad:
 		var e := InputEventJoypadButton.new()
 		e.button_index = pad[a]

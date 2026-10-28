@@ -90,6 +90,18 @@ func _render_all() -> void:
 	_streams["gadget.deploy"] = [_mix([_tone("square", 500, 1500, 0.1, 0.07), _hiss(3000, 2, 0.12, 0.2)])]
 	_streams["gadget.throw"] = [_mix([_hiss(2200, 3, 0.25, 0.35, "highpass")])]
 	_streams["gadget.pulse"] = [_mix([_tone("sine", 1800, 300, 0.6, 0.2), _hiss(600, 0.5, 0.5, 0.25)])]
+	# Godot-only additions (weapons, vehicles), same synthesis style
+	_streams["weapon.shot"] = [_mix([_tone("square", 1400, 180, 0.09, 0.22), _hiss(2600, 0.9, 0.12, 0.5, "highpass")])]
+	_streams["weapon.heavy"] = [_mix([_tone("sawtooth", 260, 60, 0.3, 0.3), _hiss(900, 0.6, 0.3, 0.45)])]
+	_streams["weapon.reload"] = [_mix([_tone("square", 600, 600, 0.04, 0.12), _tone("square", 900, 900, 0.05, 0.12, 0.25),
+		_tone("sine", 300, 1200, 0.3, 0.1, 0.45)])]
+	_streams["weapon.empty"] = [_mix([_tone("square", 1800, 1600, 0.03, 0.15)])]
+	_streams["weapon.swing"] = [_mix([_hiss(1800, 1.5, 0.22, 0.4, "bandpass"), _tone("sine", 220, 880, 0.2, 0.12)])]
+	_streams["weapon.impact"] = [_mix([_hiss(1200, 0.8, 0.15, 0.5), _tone("sine", 140, 60, 0.12, 0.3)])]
+	_streams["hit.marker"] = [_mix([_tone("triangle", 2400, 2200, 0.04, 0.18)])]
+	_streams["explosion"] = [_mix([_hiss(300, 0.5, 0.9, 1.0, "lowpass"), _tone("sine", 90, 30, 0.8, 0.8)])]
+	_streams["vehicle.door"] = [_mix([_hiss(700, 1.0, 0.12, 0.35), _tone("sine", 160, 90, 0.1, 0.3, 0.08)])]
+	_streams["vehicle.mode"] = [_mix([_tone("sawtooth", 200, 600, 0.35, 0.08), _tone("sine", 600, 900, 0.2, 0.15, 0.3)])]
 	_streams["vehicle.summon"] = [_mix([_tone("sine", 880, 880, 0.12, 0.2), _tone("sine", 1320, 1320, 0.18, 0.2, 0.14)])]
 
 
@@ -176,6 +188,28 @@ func _mix(parts: Array) -> AudioStreamWAV:
 	w.format = AudioStreamWAV.FORMAT_16_BITS
 	w.mix_rate = RATE
 	w.data = data
+	return w
+
+
+## Engine hum loop (sawtooth + sub sine + a little noise), pitched by the vehicle at runtime.
+func engine_loop(base_hz: float, noise: float) -> AudioStreamWAV:
+	var n := RATE # 1 s loop; base frequency is a whole number of cycles per second so it loops cleanly
+	var data := PackedByteArray()
+	data.resize(n * 2)
+	var f := roundf(base_hz)
+	var y := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		var saw := 2.0 * fmod(t * f, 1.0) - 1.0
+		var sub := sin(TAU * t * f * 0.5)
+		y += 0.2 * ((_rng.randf() * 2 - 1) - y)
+		data.encode_s16(i * 2, int(clampf(saw * 0.25 + sub * 0.35 + y * noise, -1.0, 1.0) * 32767))
+	var w := AudioStreamWAV.new()
+	w.format = AudioStreamWAV.FORMAT_16_BITS
+	w.mix_rate = RATE
+	w.data = data
+	w.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	w.loop_end = n
 	return w
 
 

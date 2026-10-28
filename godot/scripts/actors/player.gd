@@ -59,7 +59,7 @@ func handle_input() -> void:
 		walk_mode = not walk_mode
 	if Input.is_action_just_pressed("crouch") and mode == "ground":
 		crouched = not crouched
-	aiming = Input.is_action_pressed("grapple") and mode == "ground"
+	aiming = (Input.is_action_pressed("grapple") or Input.is_action_pressed("secondaryAction")) and mode == "ground"
 	if mode != "ground":
 		return
 	if Input.is_action_just_pressed("jump") and _jump_timer < 0:

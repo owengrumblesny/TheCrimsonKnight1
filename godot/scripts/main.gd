@@ -10,6 +10,8 @@ extends Node3D
 ##   --camdist=m --pitch=r              camera distance / pitch (close-ups)
 ##   --slot=N                           select hotbar slot N (1-8) at start
 ##   --menu=main|pause|inventory|...    open a menu (scripted runs start in-game otherwise)
+##   --equip=item_id                    put an item in slot 1 and select it
+##   --aimat=x,y,z                      keep the camera centre on a world point (weapon tests)
 ##   --notify=text                      post a HUD notification at start
 
 var stage: Stage
@@ -34,6 +36,8 @@ var started := false
 var _forced_quality := ""
 var _autosave := 0.0
 var audio: CKAudio
+var weapons: Weapons
+var targets: TargetRange
 var _step_dist := 0.0
 var _last_pos := Vector3.ZERO
 var spawn := Vector3.ZERO
@@ -113,13 +117,32 @@ func _ready() -> void:
 	equipment.vitals = vitals
 	equipment.notify.connect(notify)
 	equipment.sound.connect(audio.play)
+	weapons = Weapons.new()
+	weapons.player = player
+	weapons.cam = cam
+	weapons.effects = effects
+	weapons.inventory = inventory
+	weapons.sound.connect(audio.play)
+	weapons.notify.connect(notify)
+	add_child(weapons)
+	targets = TargetRange.new()
+	add_child(targets)
+	# training dummies on the north avenue sidewalks (facing the spawn) and in the industrial yard
+	targets.build([[Vector3(5.4, 0.15, -26), 0.0, "N1"], [Vector3(-5.4, 0.15, -30), 0.0, "N2"], [Vector3(5.4, 0.15, -38), 0.0, "N3"],
+		[Vector3(-5.4, 0.15, -44), 0.0, "N4"], [Vector3(86, 0, 3), -PI / 2, "Y1"], [Vector3(88, 0, 0.5), -PI / 2, "Y2"]])
 	add_child(equipment)
 	equipment.photo_mode_changed.connect(func(_on): _apply_hud_visibility())
 	_build_ui()
+	weapons.hit_confirmed.connect(hud.hit_marker)
+	if args.has("log"):
+		weapons.hit_confirmed.connect(func(kill): print("[ck] f%d hit%s %s" % [frame, " KNOCKDOWN" if kill else "", weapons.status(Time.get_ticks_msec())]))
 	apply_settings()
 	if args.has("hold"):
 		for act in String(args["hold"]).split(","):
 			Input.action_press(act)
+	if args.has("equip"):
+		inventory.assign(args["equip"], 0)
+		select_slot.call_deferred(0)
 	if args.has("slot"):
 		select_slot.call_deferred(int(args["slot"]) - 1)
 	if args.has("notify"):
@@ -166,7 +189,7 @@ func _on_menus_open(open: bool) -> void:
 		print("[ck] f%d menus %s %s" % [frame, "open" if open else "closed", menus.top()])
 	get_tree().paused = open
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if open or args.has("frames") else Input.MOUSE_MODE_CAPTURED
-	for a in ["moveForward", "moveBack", "moveLeft", "moveRight", "sprint", "jump", "grapple", "primaryAction"]:
+	for a in ["moveForward", "moveBack", "moveLeft", "moveRight", "sprint", "jump", "grapple", "primaryAction", "secondaryAction"]:
 		if not args.get("hold", "").contains(a):
 			Input.action_release(a) # nothing stays held across a menu
 
@@ -256,6 +279,7 @@ func _equip_selected() -> void:
 	var id := inventory.selected_item()
 	player.set_gadget(id)
 	player.hero.hold(inventory.def(id).get("modelId", "") if id != "" else "")
+	weapons.on_equip(id)
 
 
 func _on_land(vy: float, hard: bool, feet: Vector3) -> void:
@@ -310,10 +334,16 @@ func _process(dt: float) -> void:
 	player.handle_input()
 	player.cam_yaw = cam.yaw
 	player.glide_held = Input.is_action_pressed("jump")
-	cam.aiming = Input.is_action_pressed("grapple")
+	cam.aiming = player.aiming
 	_interact()
 	player.can_exert = vitals.energy > 1
+	if args.has("aimat"):
+		var d := (_vec(args["aimat"], Vector3.ZERO) - cam.camera.global_position).normalized()
+		cam.yaw = lerp_angle(cam.yaw, atan2(-d.x, -d.z), 0.5)
+		cam.pitch = lerpf(cam.pitch, asin(-d.y), 0.5)
 	equipment.update(dt, now)
+	weapons.update(dt, now, Input.is_action_just_pressed("primaryAction"), Input.is_action_pressed("primaryAction"))
+	hud.weapon_status = weapons.status(now)
 	inventory.tick(now)
 	vitals.update(dt, now, "sprint" if player.sprinting() else "glide" if player.mode == "glide" else "")
 	if vitals.critical():
@@ -353,7 +383,7 @@ func _process(dt: float) -> void:
 			var c := player.get_slide_collision(i)
 			print("    hit ", c.get_collider().name if c.get_collider() else "?", " n=", c.get_normal().snapped(Vector3.ONE * 0.01))
 	var sel := inventory.selected_item()
-	hud.update_hud(now, player.heading, player.aiming or ((sel == "grapple" or sel == "batarang") and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED))
+	hud.update_hud(now, player.heading, player.aiming or ((sel == "grapple" or sel == "batarang" or weapons.is_weapon(sel)) and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED))
 	hud.set_prompt("interact" if prompt else "", prompt[1] if prompt else "")
 	if perf.visible:
 		perf.text = "%d fps · %.1f ms · %d draws · %dk prims · %s · %s
@@ -395,7 +425,9 @@ func _gameplay_input(now: int) -> void:
 		inventory.cycle(1)
 	if inventory.selected_slot != before:
 		_equip_selected()
-	if Input.is_action_just_pressed("primaryAction"):
+	if Input.is_action_just_pressed("reload"):
+		weapons.reload(now)
+	if Input.is_action_just_pressed("primaryAction") and not weapons.is_weapon(inventory.selected_item()):
 		if args.has("log"):
 			print("[ck] use ", inventory.selected_item())
 		equipment.use_selected(now)

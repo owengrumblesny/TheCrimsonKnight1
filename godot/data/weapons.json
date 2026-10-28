@@ -1,0 +1,8 @@
+{
+  "about": "Godot port: fictional weapon tuning (original designs, no real-world names). kind = hitscan | projectile | melee. Times in seconds, damage in target hit points (dummies have 100). Sandbox: unlimited reserve, magazines reload.",
+  "phantom_sidearm": {"kind": "hitscan", "interval": 0.22, "auto": false, "mag": 12, "reload": 1.2, "damage": 25, "range": 120, "spread": 0.004, "recoil": 0.035, "impulse": 4, "color": "#ff405d", "fireClip": "Gear_Fire"},
+  "crimson_carbine": {"kind": "hitscan", "interval": 0.095, "auto": true, "mag": 30, "reload": 1.8, "damage": 14, "range": 160, "spread": 0.012, "recoil": 0.022, "impulse": 3, "color": "#ff405d", "fireClip": "Gear_Fire", "equipClip": "Gear_Deploy"},
+  "energy_launcher": {"kind": "projectile", "interval": 0.9, "auto": false, "mag": 4, "reload": 2.5, "damage": 120, "splash": 4.5, "speed": 38, "gravity": 4, "range": 120, "recoil": 0.09, "impulse": 14, "color": "#ff7a30", "size": 0.22, "equipClip": "Gear_Deploy"},
+  "energy_cannon": {"kind": "projectile", "interval": 0.14, "auto": true, "mag": 40, "reload": 3.0, "damage": 22, "splash": 1.4, "speed": 70, "gravity": 0, "range": 140, "spread": 0.01, "recoil": 0.03, "impulse": 5, "color": "#ff2a50", "size": 0.12, "fireClip": "Gear_Fire"},
+  "energy_blade": {"kind": "melee", "interval": 0.5, "auto": false, "mag": 0, "reload": 0, "damage": 60, "range": 2.4, "arc": 1.4, "hitDelay": 0.18, "recoil": 0.0, "impulse": 9, "color": "#ff405d", "equipClip": "Gear_Deploy"}
+}

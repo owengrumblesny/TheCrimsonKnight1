@@ -21,6 +21,9 @@ var _prompt: HBoxContainer
 var _prompt_key := ""
 var _slots: Array = [] # {button, icon, key, qty, badge, cd}
 var _bar: PanelContainer
+var _marker: Control
+## extra status for the selected item (weapon ammo / reload), set by the game each frame
+var weapon_status := ""
 
 
 func _ready() -> void:
@@ -40,6 +43,10 @@ func _ready() -> void:
 	CKUI.place(_crosshair, Vector4(.5, .5, .5, .5), Vector4(-18, -18, 18, 18))
 	_crosshair.visible = false
 	widgets.add_child(_crosshair)
+	_marker = HitMarker.new()
+	CKUI.place(_marker, Vector4(.5, .5, .5, .5), Vector4(-20, -20, 20, 20))
+	_marker.modulate.a = 0.0
+	widgets.add_child(_marker)
 	_prompt = HBoxContainer.new()
 	CKUI.place(_prompt, Vector4(.5, 1, .5, 1), Vector4(-200, -152, 200, -118))
 	_prompt.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -225,6 +232,24 @@ func render_hotbar() -> void:
 		b.tooltip_text = "%s\n%s" % [d.get("displayName", "Empty"), status]
 
 
+## Hit marker around the crosshair: white on hit, crimson on a knockdown.
+func hit_marker(kill: bool) -> void:
+	_marker.self_modulate = CKUI.BRIGHT if kill else Color.WHITE
+	_marker.modulate.a = 1.0
+	_marker.scale = Vector2.ONE * (1.3 if kill else 1.0)
+	_marker.pivot_offset = Vector2(20, 20)
+	var tw := _marker.create_tween()
+	tw.tween_property(_marker, "modulate:a", 0.0, 0.25)
+
+
+class HitMarker:
+	extends Control
+	func _draw() -> void:
+		var c := size / 2
+		for d in [Vector2(1, 1), Vector2(-1, 1), Vector2(1, -1), Vector2(-1, -1)]:
+			draw_line(c + d * 6, c + d * 14, Color.WHITE, 2.5, true)
+
+
 ## Brief highlight when a slot's key is pressed.
 func flash(i: int) -> void:
 	var b: Button = _slots[i]["button"]
@@ -302,6 +327,8 @@ func update_hud(now: int, heading: float, show_crosshair: bool) -> void:
 			parts.append("%d / %d" % [inventory.quantity(id), d["maxStack"]])
 		if d.get("energyCost"):
 			parts.append("%d energy" % d["energyCost"])
+		if weapon_status != "":
+			parts.append(weapon_status)
 		parts.append("recharging %.1f s" % (cd / 1000.0) if cd > 0 else "unavailable" if d.get("unavailableReason") \
 			else "%s to use" % CKUI.key_label(CKInput.code("primaryAction")))
 		_sel_title.text = d["displayName"]

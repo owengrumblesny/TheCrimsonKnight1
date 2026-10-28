@@ -139,3 +139,8 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 ## 2026-10-28: Godot port, audio
 - Ported `systems/audio.ts`. The same synthesized recipes (oscillator sweeps and biquad-filtered noise) are pre-rendered to AudioStreamWAV at startup and played on Music, Ambience, SFX, Vehicles and UI buses. Also added: rain ambience ducked under menus, footsteps, and the jump, land, gadget and UI sounds. No downloaded audio.
 - `test_logic.gd` checks every sound is non-silent with a sane length (99/99 pass). Nobody has listened to it yet.
+
+## 2026-10-28: Godot port M3.5a (guns; Owen asked for them)
+- Five fictional weapons from `godot/data/weapons.json`. The sidearm and carbine are hitscan; the launcher and cannon fire splash projectiles; the blade is a melee swing. Each has muzzle flash, tracers, sparks and scorch decals, recoil, magazines with reload (T, plus auto-reload), the Gear_* clips, and an over-the-shoulder aim on RMB (tighter arm and FOV). A hit marker shows on hit and turns crimson on a knockdown.
+- Six training dummies (100 HP): four on the north avenue and two in the industrial yard. Weapons and vehicles are unlocked in Godot by `godot/data/items_godot.json`; the web data is untouched.
+- Scripted checks: the sidearm knocks a dummy down in 4 hits; the carbine fires full-auto and reloads; the launcher knocks one down with splash; the cannon and blade hit.

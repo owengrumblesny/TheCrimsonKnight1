@@ -17,7 +17,12 @@ var _restock_at := {}
 
 func _init() -> void:
 	var data: Dictionary = CKData.data("items")
+	var over: Dictionary = CKData.data("items_godot")["items"]
 	for d in data["items"]:
+		d = d.duplicate()
+		d.merge(over.get(d["id"], {}), true) # Godot-only overrides (weapons and vehicles are playable here)
+		if d.get("unavailableReason") == null:
+			d.erase("unavailableReason")
 		items[d["id"]] = d
 		order.append(d["id"])
 	reset()

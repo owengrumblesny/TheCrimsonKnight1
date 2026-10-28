@@ -1,0 +1,13 @@
+{
+  "about": "Godot-only overrides merged over items.json (which is exported from the web build). Weapons and vehicles are playable in the Godot port, so their web 'not built yet' reasons are cleared here.",
+  "items": {
+    "phantom_sidearm": {"unavailableReason": null, "description": "Compact energy sidearm. Fast single shots; aim with the right mouse button. Reload with T."},
+    "crimson_carbine": {"unavailableReason": null, "description": "Automatic energy carbine. Hold to fire; aim with the right mouse button. Reload with T."},
+    "energy_launcher": {"unavailableReason": null, "description": "Shoulder energy tube. Slow plasma rounds that burst on impact and knock props flying."},
+    "energy_cannon": {"unavailableReason": null, "description": "Rotary energy cannon. Rapid bolts with a small burst radius."},
+    "energy_blade": {"unavailableReason": null, "description": "Hard-light blade. Melee swing that cuts through targets in front of the Knight."},
+    "crx1_interceptor": {"unavailableReason": null, "description": "Armored pursuit car. Call it with V, enter with E. Pursuit, battle and stealth modes (B)."},
+    "crb1_batcycle": {"unavailableReason": null, "description": "Electric-turbine motorcycle. Call it with V, enter with E. Pursuit and stealth modes (B)."},
+    "cra1_specter": {"unavailableReason": null, "description": "Stealth wing with VTOL. Call it with V in open streets, enter with E. Flight, VTOL and stealth modes (B)."}
+  }
+}

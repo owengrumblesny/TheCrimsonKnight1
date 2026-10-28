@@ -45,6 +45,13 @@ func _process(dt: float) -> void:
 	global_position = _focus + right
 	arm.basis = Basis.from_euler(Vector3(-pitch, yaw, 0))
 	arm.spring_length = lerpf(distance, 2.3, _aim_blend)
+	camera.fov = lerpf(60.0, 47.0, _aim_blend) # tighter over-the-shoulder view while aiming
+
+
+## Weapon recoil: lift the aim and nudge it sideways.
+func kick(amount: float) -> void:
+	pitch = clampf(pitch - amount, -0.5, 1.2)
+	yaw += randf_range(-amount, amount) * 0.35
 
 
 ## Snap behind the target (after teleports).

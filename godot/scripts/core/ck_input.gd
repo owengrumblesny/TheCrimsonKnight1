@@ -12,7 +12,9 @@ const ACTIONS := [
 	["sprint", "Sprint", "Movement", false], ["jump", "Jump / glide (hold in air)", "Movement", false],
 	["crouch", "Crouch", "Movement", false], ["walkToggle", "Walk / run toggle", "Movement", false],
 	["primaryAction", "Use selected item", "Actions", false], ["grapple", "Aim", "Actions", false],
-	["interact", "Interact", "Actions", false], ["summonMenu", "Call vehicle", "Actions", false],
+	["interact", "Interact / enter vehicle", "Actions", false], ["summonMenu", "Call vehicle / driving camera", "Actions", false],
+	["secondaryAction", "Aim weapon (hold)", "Actions", false], ["reload", "Reload weapon", "Actions", false],
+	["vehicleMode", "Vehicle mode", "Vehicle", false], ["vehicleExit", "Exit vehicle", "Vehicle", false],
 	["slotPrev", "Previous hotbar slot", "Hotbar", false], ["slotNext", "Next hotbar slot", "Hotbar", false],
 	["slot1", "Hotbar slot 1", "Hotbar", false], ["slot2", "Hotbar slot 2", "Hotbar", false],
 	["slot3", "Hotbar slot 3", "Hotbar", false], ["slot4", "Hotbar slot 4", "Hotbar", false],
@@ -20,7 +22,7 @@ const ACTIONS := [
 	["slot7", "Hotbar slot 7", "Hotbar", false], ["slot8", "Hotbar slot 8", "Hotbar", false],
 	["inventory", "Inventory", "Menus", false], ["map", "Map", "Menus", false],
 	["pause", "Pause / back", "Menus", true], ["sandboxMenu", "Animation debug", "Menus", false],
-	["perfOverlay", "Performance overlay", "Menus", false], ["secondaryAction", "Secondary (unused)", "Actions", false],
+	["perfOverlay", "Performance overlay", "Menus", false],
 ]
 
 const MOUSE_SENS_X := 0.0025
@@ -40,7 +42,8 @@ func _ready() -> void:
 	var c: Dictionary = CKData.json("controls")
 	for a in ACTIONS:
 		defaults[a[0]] = c.get(a[0], "")
-	defaults.merge({"slotPrev": "KeyQ", "slotNext": "KeyR", "inventory": "Tab", "map": "KeyM", "perfOverlay": "F3"}, true)
+	defaults.merge({"slotPrev": "KeyQ", "slotNext": "KeyR", "inventory": "Tab", "map": "KeyM", "perfOverlay": "F3",
+		"reload": "KeyT", "vehicleMode": "KeyB"}, true)
 	for i in 8:
 		defaults["slot%d" % (i + 1)] = "Digit%d" % (i + 1)
 	apply()
@@ -81,14 +84,15 @@ func _add_pad() -> void:
 	# the web build's standard-gamepad layout (see the Controls note in the settings screen)
 	var pad := {"jump": JOY_BUTTON_A, "crouch": JOY_BUTTON_B, "interact": JOY_BUTTON_X, "inventory": JOY_BUTTON_Y,
 		"sprint": JOY_BUTTON_LEFT_STICK, "pause": JOY_BUTTON_START, "map": JOY_BUTTON_BACK,
-		"slotPrev": JOY_BUTTON_LEFT_SHOULDER, "slotNext": JOY_BUTTON_RIGHT_SHOULDER, "summonMenu": JOY_BUTTON_DPAD_UP}
+		"slotPrev": JOY_BUTTON_LEFT_SHOULDER, "slotNext": JOY_BUTTON_RIGHT_SHOULDER, "summonMenu": JOY_BUTTON_DPAD_UP,
+		"reload": JOY_BUTTON_DPAD_LEFT, "vehicleMode": JOY_BUTTON_DPAD_RIGHT, "vehicleExit": JOY_BUTTON_DPAD_DOWN}
 	for a in pad:
 		var e := InputEventJoypadButton.new()
 		e.button_index = pad[a]
 		InputMap.action_add_event(a, e)
 	for pair in [["moveLeft", JOY_AXIS_LEFT_X, -1.0], ["moveRight", JOY_AXIS_LEFT_X, 1.0],
 			["moveForward", JOY_AXIS_LEFT_Y, -1.0], ["moveBack", JOY_AXIS_LEFT_Y, 1.0],
-			["grapple", JOY_AXIS_TRIGGER_LEFT, 1.0], ["primaryAction", JOY_AXIS_TRIGGER_RIGHT, 1.0]]:
+			["secondaryAction", JOY_AXIS_TRIGGER_LEFT, 1.0], ["primaryAction", JOY_AXIS_TRIGGER_RIGHT, 1.0]]:
 		var m := InputEventJoypadMotion.new()
 		m.axis = pair[1]
 		m.axis_value = pair[2]

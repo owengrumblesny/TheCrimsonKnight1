@@ -66,6 +66,8 @@ func handle_input() -> void:
 		crouched = false
 		_jump_timer = JUMP_DELAY
 		hero.play("CK_JumpStart", 0.08, 2.0, true)
+	elif Input.is_action_just_pressed("interact"):
+		_one_shot("CK_Interact")
 
 
 ## Equip animation when the hotbar selection changes (selection never uses the item).

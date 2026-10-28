@@ -14,6 +14,15 @@ static func json(name: String) -> Variant:
 	return _json[name]
 
 
+## Parsed godot/data/<name>.json (UI data exported from the web build, see godot/tools/export_web_data.sh).
+static func data(name: String) -> Variant:
+	var key := "data/" + name
+	if not _json.has(key):
+		var f := FileAccess.open("res://godot/data/%s.json" % name, FileAccess.READ)
+		_json[key] = JSON.parse_string(f.get_as_text()) if f else null
+	return _json[key]
+
+
 static func _index() -> void:
 	if not _by_id.is_empty():
 		return

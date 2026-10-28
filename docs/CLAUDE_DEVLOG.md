@@ -120,3 +120,8 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 - `citadel.gd` adds room visibility, the light pool fed by Light_* glTF extras, sliding doors and parked vehicles with a far LOD. `main.gd` handles the portal and exit-elevator transitions and the underground lighting switch.
 - Found and fixed two Citadel collision bugs that the web build shares: hub ring-wall colliders across both tunnel mouths, and elevator shaft walls with no colliders. The fixes are applied at runtime in Godot, and the Blender builder is patched (not rebuilt).
 - Scripted walks: elevator → corridor → Training room; tunnel → hub; exit → portal. Grade: **PROTOTYPE.**
+
+## 2026-10-28: Godot port M3 (NPCs, inventory, gear, gadgets)
+- Ported the NPC crowd (same layout, distance throttling and shadow rules), inventory and hotbar, vitals, equipment (all 15 working items), landing and gadget effects, prop shoving and the keycard gate. The item catalog is exported from the web TS to `godot/data/items.json`.
+- Scripted checks: batarang, scanner, shield and drone all used, and the drone cooldown refused. The grapnel attaches exactly at `Socket_Hand_R`.
+- Not ported: audio. Grade: **PROTOTYPE.**

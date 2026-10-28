@@ -37,6 +37,14 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 | LOW/MEDIUM/HIGH/ULTRA presets, auto-LOW on integrated GPUs | `godot/scripts/render/quality.gd` + `stage.apply_quality()` | Done (M1); settings menu is M4 |
 | Red Citadel: *_COL physics, room visibility (30 m), Light_* pool from glTF extras, sliding doors, parked vehicles with far LOD | `godot/scripts/world/citadel.gd` | **Done (M2).** Walked elevator → corridor → Training door, and tunnel → hub |
 | District ↔ Citadel transitions (portal E → Anchor_Arrival; Anchor_Exit E → portal), underground lighting, city hidden underground | `main.gd` `_interact()`, `stage.set_underground()` | Done (M2). The keycard check arrives with the inventory (M3) |
+| NPC crowd: 34 NPCs + patrol drone, idle-family loops (no AI), hidden > 90 m, anim off > 60 m, ~10 Hz > 18 m, shadows < 30 m | `godot/scripts/world/npcs.gd` (same mulberry32 layout as the web) | **Done (M3)** |
+| Inventory / hotbar state, restock, cooldowns, save snapshot | `godot/scripts/systems/inventory.gd`, catalog in `godot/data/items.json` | Done (M3) |
+| Hotbar selection: 1-8, Q/R, wheel; equip clip and gear on the socket | `main.gd` `select_slot()`, `hero.hold()` | Done (M3). Grapnel verified at `Socket_Hand_R` |
+| Gadgets: batarang, grapnel, scanner, drone, smoke, shield, cloak, beacon, EMP, sonic, helmet lamp, power cell, med kit, repair, photo mode | `godot/scripts/systems/equipment.gd` | Done (M3). Scripted use of batarang, scanner (16 props found), shield and drone, plus the cooldown refusal |
+| Vitals (health/armour/energy, impact damage, regen, critical recall) | `godot/scripts/systems/vitals.gd` | Done (M3) |
+| Landing / gadget effects from the board sprites | `godot/scripts/render/effects.gd` (CPUParticles3D) | Done (M3); the radial tile-border mask isn't ported |
+| Shove props (E), keycard check on the Citadel portal, vehicle call message | `main.gd` `_interact()`, `_gameplay_input()` | Done (M3) |
+| Audio (synth placeholders) | not ported | Equipment emits `sound(id)` signals. A player for them is still to do |
 
 ## Decisions
 - **Godot's name-suffix import hints are off** (`nodes/use_name_suffixes=false`), because Godot would otherwise turn `*_COL` into visible trimesh colliders. The post-import script makes box colliders instead, matching the web build.
@@ -55,5 +63,8 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 - The district ground collider is a 400 × 400 m slab. A WorldBoundaryShape3D is a half-space and pushed the Citadel (y −120) back up to street level.
 - The Citadel light pool uses Blender light watts ÷ 8 as Godot energy, and underground uses a flat warm ambient. Both were tuned by eye.
 
+- The item catalog is exported from `game/src/ui/inventoryData.ts` to `godot/data/items.json` with the web build's own esbuild (`godot/tools/export_web_data.sh`), so both builds share the same values. `icon_manifest.json`, `hotbar_layout.json` and `menu_spec.json` are copied the same way.
+- **Unexplained drift, seen twice:** in two windowed test runs the player started running at about 6 m/s around frame 150 with no scripted input. Repeated runs with identical arguments did not show it, and a later diagnostic run printed no movement input and no joypads. It may have been stray real input to the test window, but that is not confirmed. `--log` now prints the move vector and connected joypads whenever movement input is non-zero, to catch it next time.
+
 ## Proof screenshots
-`docs/godot_shots/`: `m1_high.png` (HIGH, LOD0 hero by the Night Owl Diner billboard) and `m1_low_run.png` (LOW, running north on the avenue), `m2_citadel_hub.png` (Citadel hub with the armour statue) and `m2_training_door.png` (corridor door into the Training room).
+`docs/godot_shots/`: `m1_high.png` (HIGH, LOD0 hero by the Night Owl Diner billboard) and `m1_low_run.png` (LOW, running north on the avenue), `m2_citadel_hub.png` (Citadel hub with the armour statue) `m2_training_door.png` (corridor door into the Training room), `m3_npcs_intersection.png` (police officer and civilians, vertex-coloured NPCs) and `m3_grapnel_front.png` (grapnel selected).

@@ -1,6 +1,7 @@
 extends SceneTree
 ## Headless logic tests: godot --headless --path . --script res://godot/tools/test_logic.gd
-## Inventory (select/cycle/assign/consume/restock/save round trip), Vitals, key rebinding and the item data.
+## Inventory (select/cycle/assign/consume/restock/save round trip), Vitals, key rebinding, synthesized
+## audio and the item data links.
 
 var fails := 0
 var passes := 0
@@ -55,6 +56,19 @@ func _init() -> void:
 	ck.reset_bindings()
 	check(ck.code("jump") == "Space", "reset bindings")
 	ck.free()
+
+	var au := CKAudio.new()
+	au._ready()
+	for ev in ["ui.click", "ui.select", "ui.open", "ui.close", "ui.deny", "armor.step", "armor.jump", "armor.land",
+			"armor.activate", "gadget.deploy", "gadget.throw", "gadget.pulse", "vehicle.summon"]:
+		var w: AudioStreamWAV = au._streams[ev][0]
+		var peak := 0
+		for i in range(0, w.data.size(), 2):
+			peak = maxi(peak, absi(w.data.decode_s16(i)))
+		check(peak > 1000 and peak <= 32767 and w.get_length() > 0.04 and w.get_length() < 1.0,
+			"sound %s: peak %d, %.2f s" % [ev, peak, w.get_length()])
+	check(AudioServer.get_bus_index("SFX") > 0 and AudioServer.get_bus_index("UI") > 0, "audio buses")
+	au.free()
 
 	for id in inv.order:
 		var d := inv.def(id)

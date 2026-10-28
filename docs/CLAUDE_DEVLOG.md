@@ -135,3 +135,7 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 - Added a wet-street shader for the ground and road tiles: puddle mask, mirror-like puddles, and world-space ripple normals (the placeholder roads have no tangents). SSR, volumetric fog and glow are on HIGH; SDFGI, SSIL and TAA are added on ULTRA. LOW is unchanged apart from the puddle mask, with ripples off.
 - Found the cause of the "phantom" movement in earlier tests: the test windows take keyboard focus while someone is using the PC. Scripted runs now ignore real input, and test windows open off-screen.
 - M5 (benchmark harness and Forward+ vs Mobile) is skipped at Owen's request. Grade for the graphics: **PROTOTYPE.** The streets now read as wet and lit, but the building windows are flat white emissive quads and the kit buildings are still low-detail.
+
+## 2026-10-28: Godot port, audio
+- Ported `systems/audio.ts`. The same synthesized recipes (oscillator sweeps and biquad-filtered noise) are pre-rendered to AudioStreamWAV at startup and played on Music, Ambience, SFX, Vehicles and UI buses. Also added: rain ambience ducked under menus, footsteps, and the jump, land, gadget and UI sounds. No downloaded audio.
+- `test_logic.gd` checks every sound is non-silent with a sane length (99/99 pass). Nobody has listened to it yet.

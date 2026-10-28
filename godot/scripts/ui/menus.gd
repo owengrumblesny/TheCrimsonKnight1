@@ -59,6 +59,8 @@ func toggle(screen: String) -> void:
 
 
 func _pop(silent := false) -> void:
+	if not silent and _stack.size() > 1:
+		game.audio.play("ui.close")
 	var s: Dictionary = _stack.pop_back()
 	s["root"].queue_free()
 	if _stack:
@@ -73,6 +75,7 @@ func show_screen(screen: String) -> void:
 		open_changed.emit(true)
 	else:
 		_stack[-1]["root"].visible = false
+		game.audio.play("ui.open")
 	var root: Control
 	if screen == "main":
 		root = _main_menu()
@@ -583,7 +586,7 @@ func _screen_settings(body: VBoxContainer) -> void:
 			s["volumes"][k] = x
 			pct.text = "%d%%" % roundi(x * 100)
 			game.apply_settings())
-	v.add_child(_muted("Audio isn't ported to Godot yet. These levels are saved and will apply once it is."))
+	v.add_child(_muted("Synthesized placeholder sounds. There is no music or vehicle audio yet; those sliders take effect when it is added."))
 
 	v.add_child(CKUI.section("Interface"))
 	var sc := HSlider.new()

@@ -33,6 +33,9 @@ var perf: Label
 var started := false
 var _forced_quality := ""
 var _autosave := 0.0
+var audio: CKAudio
+var _step_dist := 0.0
+var _last_pos := Vector3.ZERO
 var spawn := Vector3.ZERO
 ## interact prompt for the HUD: [action, text] or []
 var prompt: Array = []
@@ -64,6 +67,8 @@ func _ready() -> void:
 	# --quality forces a preset for this run only; never saved
 	if args.has("quality") and args["quality"] in Quality.ORDER:
 		_forced_quality = args["quality"]
+	audio = CKAudio.new()
+	add_child(audio)
 	stage = Stage.new()
 	add_child(stage)
 	district = District.new()
@@ -107,6 +112,7 @@ func _ready() -> void:
 	equipment.inventory = inventory
 	equipment.vitals = vitals
 	equipment.notify.connect(notify)
+	equipment.sound.connect(audio.play)
 	add_child(equipment)
 	equipment.photo_mode_changed.connect(func(_on): _apply_hud_visibility())
 	_build_ui()
@@ -122,7 +128,7 @@ func _ready() -> void:
 		started = args["menu"] != "main"
 		menus.show_screen(args["menu"])
 	elif args.has("frames"):
-		started = true # scripted runs start in-game
+		play() # scripted runs start in-game
 	else:
 		menus.show_screen("main")
 		_on_menus_open(true)
@@ -154,6 +160,8 @@ func _build_ui() -> void:
 
 ## Menus pause the simulation; the mouse is freed while one is open.
 func _on_menus_open(open: bool) -> void:
+	audio.play("ui.open" if open else "ui.close")
+	audio.set_paused(open)
 	if args.has("log"):
 		print("[ck] f%d menus %s %s" % [frame, "open" if open else "closed", menus.top()])
 	get_tree().paused = open
@@ -173,6 +181,7 @@ func apply_settings() -> void:
 		district.set_light_pool(stage.preset["dynamic_lights"], stage.preset["light_shadows"])
 		citadel.set_light_pool(maxi(4, stage.preset["dynamic_lights"]))
 	get_tree().root.content_scale_factor = settings["uiScale"]
+	audio.apply_settings(settings)
 	_apply_hud_visibility()
 	saves.write_settings(settings, CKInput.overrides)
 
@@ -194,6 +203,7 @@ func save_now() -> void:
 
 func play() -> void:
 	started = true
+	audio.start_ambience()
 
 
 func continue_save() -> void:
@@ -208,7 +218,7 @@ func continue_save() -> void:
 		player.heading = s["player"]["heading"]
 		cam.snap()
 	_equip_selected()
-	started = true
+	play()
 	notify("Save loaded", "load")
 
 
@@ -218,7 +228,7 @@ func new_sandbox() -> void:
 	vitals.reset()
 	player.respawn(spawn + Vector3(0, 1, 0))
 	_equip_selected()
-	started = true
+	play()
 	notify("New sandbox started. Explore freely", "sandbox")
 
 
@@ -236,7 +246,9 @@ func select_slot(i: int) -> void:
 		hud.flash(i)
 	if err != "":
 		notify(err, "inventory", "warn")
+		audio.play("ui.deny")
 		return
+	audio.play("ui.select")
 	_equip_selected()
 
 
@@ -248,6 +260,7 @@ func _equip_selected() -> void:
 
 func _on_land(vy: float, hard: bool, feet: Vector3) -> void:
 	effects.landing(feet, hard)
+	audio.play("armor.land", minf(1.0, -vy / 20.0))
 	var dmg := vitals.impact(vy, Time.get_ticks_msec(), CKData.json("physics")["player"]["hardLandingSpeed"])
 	if dmg > 0:
 		notify("Impact damage -%d health" % roundi(dmg), "health", "warn")
@@ -292,6 +305,8 @@ func _process(dt: float) -> void:
 		_finish_check()
 		return
 	_gameplay_input(now)
+	if Input.is_action_just_pressed("jump") and player.mode == "ground":
+		audio.play("armor.jump")
 	player.handle_input()
 	player.cam_yaw = cam.yaw
 	player.glide_held = Input.is_action_pressed("jump")
@@ -347,6 +362,14 @@ func _process(dt: float) -> void:
 			RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME),
 			RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME) / 1000,
 			stage.quality.to_upper(), "Red Citadel (%d rooms)" % citadel.visible_rooms if underground else "Downtown"]
+	# distance-based footsteps while grounded and moving
+	var moved := player.global_position.distance_to(_last_pos)
+	_last_pos = player.global_position
+	if player.mode == "ground" and player.is_on_floor() and moved < 1:
+		_step_dist += moved
+		if _step_dist > (1.6 if player.speed > 6 else 1.25 if player.speed > 3 else 0.8):
+			_step_dist = 0
+			audio.play("armor.step")
 	_autosave += dt
 	if started and _autosave > 30:
 		_autosave = 0
@@ -379,6 +402,7 @@ func _gameplay_input(now: int) -> void:
 	if Input.is_action_just_pressed("summonMenu"):
 		var v := inventory.def("crx1_interceptor")
 		player.act("CK_Summon")
+		audio.play("vehicle.summon")
 		notify("%s: %s" % [v["displayName"], v.get("unavailableReason", "on the way")], v["iconId"], "warn")
 
 
@@ -408,6 +432,7 @@ func _interact() -> void:
 		var dir := (prop.global_position - p)
 		dir.y = 0.4
 		prop.apply_central_impulse(dir.normalized() * 5 * prop.mass)
+		audio.play("armor.step")
 	elif near_portal:
 		if not inventory.has("citadel_keycard"):
 			notify("Access denied: Red Citadel keycard required", "keycard", "warn")
@@ -416,10 +441,12 @@ func _interact() -> void:
 		player.heading = PI # face north (-Z), toward the hub tunnel
 		cam.yaw = 0.0
 		cam.snap()
+		audio.play("armor.activate")
 		notify("Welcome to the Red Citadel", "citadel")
 	elif near_exit:
 		player.teleport(portal + Vector3(0, 0.5, 8))
 		cam.snap()
+		audio.play("armor.activate")
 		notify("Returned to New Gotham", "home")
 
 

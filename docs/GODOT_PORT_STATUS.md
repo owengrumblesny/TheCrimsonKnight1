@@ -54,7 +54,7 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 | Animation debug panel (`) | not ported | |
 | Desktop graphics (M6): wet streets with puddles (near-mirror roughness) and animated ripples; SSR, volumetric fog (lamp halos), glow on HIGH/ULTRA; SDFGI + SSIL + TAA on ULTRA | `godot/shaders/wet_asphalt.gdshader`, `quality.gd`, `stage.gd` | **Done (M6).** LOW keeps the puddle mask with ripples off and no SSAO/SSR/SDFGI/volumetric fog/MSAA |
 | Benchmark harness (6 scenes × 4 presets), Forward+ vs Mobile | not ported | **Deferred by Owen.** No performance claims |
-| Audio (synth placeholders) | not ported | Equipment emits `sound(id)` signals. A player for them is still to do |
+| Audio: the 13 synthesized placeholder sounds, rain ambience loop ducked under menus, per-category buses following the volume settings, footsteps | `godot/scripts/systems/audio.gd` (pre-rendered AudioStreamWAV, same recipes as the web) | Done. Checked headlessly (every event non-silent, buses exist); not listened to |
 
 ## Decisions
 - **Godot's name-suffix import hints are off** (`nodes/use_name_suffixes=false`), because Godot would otherwise turn `*_COL` into visible trimesh colliders. The post-import script makes box colliders instead, matching the web build.
@@ -78,7 +78,7 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 
 - The UI is built in code from Control nodes with one shared Theme (`CKUI.theme()`) whose colours come from `game/src/ui/ui.css`. Icons load from `CRIMSON_KNIGHT_UI_PACK/`, which is identical to the web build's `public/ui`.
 - Godot 4 gotcha: `set_anchors_preset()` keeps a zero-size control at zero size. UI code uses `CKUI.place()` (explicit anchors and offsets) or `set_anchors_and_offsets_preset()`.
-- Logic tests: `godot --headless --path . --script res://godot/tools/test_logic.gd` covers inventory, vitals, rebinding and the item → icon/model/art links (85 checks pass).
+- Logic tests: `godot --headless --path . --script res://godot/tools/test_logic.gd` covers inventory, vitals, rebinding and the item → icon/model/art links (99 checks pass, including the synthesized sounds).
 - Scripted `--press` now sends real InputEventActions, so menu hotkeys can be tested too. They take effect on the next frame.
 
 ## Proof screenshots

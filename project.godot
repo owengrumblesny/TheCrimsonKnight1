@@ -11,6 +11,8 @@ config/description="Open-world superhero sandbox (Owen Enterprises). Godot 4 por
 run/main_scene="res://godot/scenes/main.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
+[autoload]
+
 CKInput="*res://godot/scripts/core/ck_input.gd"
 
 [display]

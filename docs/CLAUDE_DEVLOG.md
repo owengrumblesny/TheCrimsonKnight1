@@ -110,3 +110,8 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 - `godot/import/ck_post_import.gd` is the project-wide GLB post-import. It turns Z-up placeholders Y-up, makes `*_COL` into box StaticBody3Ds, re-skins placeholder vertex colours in the material PNGs, turns on vertex colour for NPCs, sets clip loop modes and keeps the gear `attach` extra.
 - Headless import of all 326 GLBs: 0 errors. `godot/tools/verify_import.gd` loads all 327 manifest entries with 0 failures (164 colliders, 144 clips, hero with 68 bones and all 6 sockets).
 - Benchmarking is deferred at Owen's request. Status and parity: `docs/GODOT_PORT_STATUS.md`.
+
+## 2026-10-28: Godot port M1 (CR-X9 in the district)
+- Ported the player controller (`player.gd`, CharacterBody3D at 60 Hz with physics interpolation), the hero clip machine and LOD (`hero.gd`), the SpringArm3D follow camera, `CKInput` (the web binding table, so web saves stay compatible), the district (chunked MultiMeshInstance3D, *_COL statics, lamp light pool, billboards, portal), and the stage (night sky, moon shadows, fog, rain, presets).
+- Scripted checks (`--hold`, `--press`, `--log`): runs at 6.7 m/s, jumps and lands, stops at a facade, and steps the curb. Screenshots are in `docs/godot_shots/`.
+- Grade: **PROTOTYPE.** The lighting is tuned by eye. The citadel, NPCs, gadgets and UI are not wired yet.

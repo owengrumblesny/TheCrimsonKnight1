@@ -980,6 +980,18 @@ def export_variant(vid, mode, root, baseline):
     return entry
 
 
+def render_still():
+    """Render + save; retry once (OneDrive sometimes holds the previous PNG open)."""
+    import time
+    for attempt in range(3):
+        try:
+            bpy.ops.render.render(write_still=True)
+            return
+        except RuntimeError as e:
+            print("[modes] render retry:", e)
+            time.sleep(2)
+
+
 def render_variant(vid, mode, root):
     sc = bpy.context.scene
     for eng in ("BLENDER_EEVEE", "BLENDER_EEVEE_NEXT"):
@@ -1063,7 +1075,7 @@ def render_variant(vid, mode, root):
         cam.location = center + Vector(d).normalized() * radius * 2.9
         cam.rotation_euler = (center - cam.location).to_track_quat("-Z", "Y").to_euler()
         sc.render.filepath = os.path.join(RENDERS, f"{base}_{tag}.png")
-        bpy.ops.render.render(write_still=True)
+        render_still()
         shots.append(sc.render.filepath)
     if vid == "crx1":  # bike launch: petals open, sled run out with the CR-B1 riding it
         pose_eject(-3.3)
@@ -1082,7 +1094,7 @@ def render_variant(vid, mode, root):
         cam.location = Vector((3.2, -9.0, 2.3))
         cam.rotation_euler = (Vector((0, -2.8, 0.6)) - cam.location).to_track_quat("-Z", "Y").to_euler()
         sc.render.filepath = os.path.join(RENDERS, f"{base}_eject.png")
-        bpy.ops.render.render(write_still=True)
+        render_still()
         for o in set(bpy.data.objects) - before:
             o.hide_render = True
         pose_eject(-2.4)
@@ -1094,7 +1106,7 @@ def render_variant(vid, mode, root):
         cam.location = cc.matrix_world.to_translation()
         cam.rotation_euler = deg(90 + VEHICLES[vid]["pitch"], 0, 180)
         sc.render.filepath = os.path.join(RENDERS, f"{base}_cockpit.png")
-        bpy.ops.render.render(write_still=True)
+        render_still()
         shots.append(sc.render.filepath)
     return shots
 

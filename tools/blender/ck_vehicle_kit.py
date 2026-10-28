@@ -34,7 +34,7 @@ DETAIL_MATS = ("Alloy", "Iron", "Accent", "Carbon", "Leather")
 # palette rows: linear base r g b, roughness, metallic, edge-wear, scratch, coat
 PALETTES = {
     "standard": {
-        "Paint": (0.20, 0.006, 0.012, 0.32, 0.35, 0.55, 0.35, 1.0),     # deep candy crimson, metallic, clear-coated
+        "Paint": (0.24, 0.008, 0.014, 0.3, 0.3, 0.55, 0.35, 1.0),     # deep candy crimson, metallic, clear-coated
         "Armor": (0.030, 0.031, 0.034, 0.48, 0.70, 0.90, 0.50, 0.0),    # gunmetal ceramic-composite armour
         "Rubber": (0.016, 0.016, 0.017, 0.86, 0.00, 0.00, 0.10, 0.0),
         "Alloy": (0.50, 0.50, 0.52, 0.28, 1.00, 0.10, 0.30, 0.0),       # machined aluminium / titanium
@@ -619,22 +619,23 @@ def combine(mask, noise, palette):
     grime, scr, var = noise[..., 0], noise[..., 1], noise[..., 2]
     Q = P[pid]
     base = Q[..., :3] * (0.88 + 0.24 * var[..., None])
-    convex = np.clip((ao - 0.7) / 0.2, 0, 1)
-    breakup = np.clip((grime - 0.4) * 3.0, 0, 1)
-    wear = np.clip(edge * 1.5 * ew, 0, 1) * convex * breakup * Q[..., 5]
-    s = scr * Q[..., 6]
-    bare = np.array([0.30, 0.29, 0.28], np.float32)
-    primer = np.array([0.05, 0.05, 0.055], np.float32)
+    convex = np.clip((ao - 0.75) / 0.2, 0, 1)
+    breakup = np.clip((grime - 0.55) * 4.0, 0, 1)  # chips come in patches, not along every edge
+    wear = np.clip(edge ** 2 * 1.2 * ew, 0, 1) * convex * breakup * Q[..., 5]
+    s = scr * Q[..., 6] * 0.6
+    bare = np.array([0.16, 0.155, 0.15], np.float32)
+    primer = np.array([0.03, 0.03, 0.033], np.float32)
     # chipped paint shows dark primer first, bare metal at the very edge
-    base = base * (1 - wear[..., None]) + (primer * 0.6 + bare * 0.4) * wear[..., None]
-    base = base * (1 - 0.5 * s[..., None]) + bare * 0.5 * s[..., None]
-    cavity = 0.4 + 0.6 * ao
-    dirt = np.clip((grime - 0.5) * 2.0 * dm, 0, 0.85) * (0.35 + 0.65 * (1 - ao))
-    dust = np.array([0.075, 0.064, 0.052], np.float32)
+    base = base * (1 - wear[..., None]) + (primer * 0.7 + bare * 0.3) * wear[..., None]
+    base = base * (1 - 0.4 * s[..., None]) + bare * 0.4 * s[..., None]
+    cavity = 0.35 + 0.65 * ao
+    # dirt settles in cavities and low down; open panels stay clean
+    dirt = np.clip((grime - 0.62) * 2.0 * dm, 0, 0.7) * np.clip((1 - ao) * 1.6, 0, 1)
+    dust = np.array([0.03, 0.026, 0.021], np.float32)
     base = base * cavity[..., None]
     base = base * (1 - dirt[..., None]) + dust * dirt[..., None]
-    rough = np.clip(Q[..., 3] + (1 - ao) * 0.15 + dirt * 0.45 - wear * 0.1 + s * 0.15, 0.06, 1)
-    metal = np.clip(Q[..., 4] * (1 - dirt) + wear * 0.6, 0, 1)
+    rough = np.clip(Q[..., 3] + (1 - ao) * 0.12 + dirt * 0.4 - wear * 0.05 + s * 0.12, 0.06, 1)
+    metal = np.clip(Q[..., 4] * (1 - dirt) + wear * 0.5, 0, 1)
     srgb = np.where(base <= 0.0031308, base * 12.92, 1.055 * np.power(np.clip(base, 0, None), 1 / 2.4) - 0.055)
     mr = np.stack([np.ones_like(rough), rough, metal], -1)
     coat = Q[..., 7] * (1 - dirt)
@@ -717,9 +718,27 @@ def bake_vehicle(root, name, palette, size=2048, log=print, save_dir=None):
     t0 = time.time()
     atlas_uv(objs)
     log(f"atlas UV on {len(objs)} objects in {time.time() - t0:.0f}s")
-    mask = bake_pass(objs, "mask", 12, size, log)
-    noise = bake_pass(objs, "noise", 1, size, log)
-    nrm = bake_pass(objs, "normal", 6, size, log)
+    # bake one merged world-space copy (Cycles bakes per object, so hundreds of parts are very slow);
+    # the copy shares the atlas UVs, so the maps apply straight back to the parts
+    dg = bpy.context.evaluated_depsgraph_get()
+    copies = []
+    for o in objs:
+        me = bpy.data.meshes.new_from_object(o.evaluated_get(dg))
+        me.transform(o.matrix_world)
+        c = bpy.data.objects.new(o.name + "_bk", me)
+        bpy.context.scene.collection.objects.link(c)
+        copies.append(c)
+    with bpy.context.temp_override(active_object=copies[0], selected_editable_objects=copies, object=copies[0]):
+        bpy.ops.object.join()
+    merged = copies[0]
+    for o in objs:
+        o.hide_render = True
+    mask = bake_pass([merged], "mask", 12, size, log)
+    noise = bake_pass([merged], "noise", 1, size, log)
+    nrm = bake_pass([merged], "normal", 6, size, log)
+    for o in objs:
+        o.hide_render = False
+    bpy.data.objects.remove(merged, do_unlink=True)
     base, mr, coat = combine(mask, noise, palette)
     imgs = (to_image(f"{name}_basecolor", base, False, save_dir), to_image(f"{name}_mr", mr, True, save_dir),
             to_image(f"{name}_normal", nrm, True, save_dir))

@@ -5243,7 +5243,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 34670,
+      "triangles": 32238,
       "vehicle": "crx1_interceptor",
       "mode": "pursuit"
     },
@@ -5261,7 +5261,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 7978,
+      "triangles": 7328,
       "vehicle": "crx1_interceptor",
       "mode": "pursuit"
     },
@@ -5279,7 +5279,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 36254,
+      "triangles": 33822,
       "vehicle": "crx1_interceptor",
       "mode": "battle"
     },
@@ -5297,7 +5297,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 8350,
+      "triangles": 7701,
       "vehicle": "crx1_interceptor",
       "mode": "battle"
     },
@@ -5315,7 +5315,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 32922,
+      "triangles": 30490,
       "vehicle": "crx1_interceptor",
       "mode": "stealth"
     },
@@ -5333,7 +5333,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 7527,
+      "triangles": 6879,
       "vehicle": "crx1_interceptor",
       "mode": "stealth"
     },

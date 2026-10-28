@@ -41,32 +41,21 @@
       "pursuit": {
         "file": "assets/models/vehicles/CRX1_interceptor_pursuit.glb",
         "lod1": "assets/models/vehicles/CRX1_interceptor_pursuit_lod1.glb",
-        "triangles_lod0": 34670,
-        "triangles_lod1": 7978,
+        "triangles_lod0": 32238,
+        "triangles_lod1": 7328,
         "triangles_interior": 2456,
         "materials": [
-          "Accent",
-          "Alloy",
-          "Black",
+          "CRX1_interceptor_pursuit",
           "CanopyGlass",
-          "Carbon",
           "Chrome",
           "Cockpit_Gauge",
           "Cockpit_HUD",
           "Cockpit_Screen",
-          "Cockpit_Seat",
-          "Cockpit_Trim",
-          "Cockpit_Tub",
-          "Crimson",
-          "CrimsonDark",
           "EmissiveRed",
           "EmissiveWhite",
-          "Gunmetal",
-          "Iron",
           "LampWhite",
           "LensClear",
-          "LensRed",
-          "Rubber"
+          "LensRed"
         ],
         "notes": "baseline look, polished: splitter/diffuser or antenna, strobes; cockpit",
         "added_pivots": [
@@ -94,38 +83,28 @@
           "anchor": "bike_launch_anchor (child of BikeSled): parent the CR-B1 root here, same forward axis",
           "exit": "bike_launch_exit (on the root, on the road ahead of the nose)",
           "timeline": "0-18 nose petals open; 18-34 sled runs forward; 34-46 sled drops to the road, then release the bike"
-        }
+        },
+        "textures": "2048px baked base/MR/normal (JPEG in GLB); LOD1 1024px"
       },
       "battle": {
         "file": "assets/models/vehicles/CRX1_interceptor_battle.glb",
         "lod1": "assets/models/vehicles/CRX1_interceptor_battle_lod1.glb",
-        "triangles_lod0": 36254,
-        "triangles_lod1": 8350,
+        "triangles_lod0": 33822,
+        "triangles_lod1": 7701,
         "triangles_interior": 2456,
         "materials": [
-          "Accent",
-          "Alloy",
           "Battle_Glow",
-          "Black",
+          "CRX1_interceptor_battle",
           "CanopyGlass",
-          "Carbon",
           "Chrome",
           "Cockpit_Gauge",
           "Cockpit_HUD",
           "Cockpit_Screen",
-          "Cockpit_Seat",
-          "Cockpit_Trim",
-          "Cockpit_Tub",
-          "Crimson",
-          "CrimsonDark",
           "EmissiveRed",
           "EmissiveWhite",
-          "Gunmetal",
-          "Iron",
           "LampWhite",
           "LensClear",
-          "LensRed",
-          "Rubber"
+          "LensRed"
         ],
         "notes": "armour plates, weapon pods; battle pivots posed deployed at rest; clip names unchanged",
         "rest_pose": {
@@ -158,32 +137,22 @@
           "anchor": "bike_launch_anchor (child of BikeSled): parent the CR-B1 root here, same forward axis",
           "exit": "bike_launch_exit (on the root, on the road ahead of the nose)",
           "timeline": "0-18 nose petals open; 18-34 sled runs forward; 34-46 sled drops to the road, then release the bike"
-        }
+        },
+        "textures": "2048px baked base/MR/normal (JPEG in GLB); LOD1 1024px"
       },
       "stealth": {
         "file": "assets/models/vehicles/CRX1_interceptor_stealth.glb",
         "lod1": "assets/models/vehicles/CRX1_interceptor_stealth_lod1.glb",
-        "triangles_lod0": 32922,
-        "triangles_lod1": 7527,
+        "triangles_lod0": 30490,
+        "triangles_lod1": 6879,
         "triangles_interior": 2456,
         "materials": [
-          "Accent",
-          "Alloy",
-          "Black",
-          "Carbon",
+          "CRX1_interceptor_stealth",
           "Cockpit_Gauge",
           "Cockpit_HUD",
           "Cockpit_ScreenDim",
-          "Cockpit_Seat",
-          "Cockpit_Trim",
-          "Cockpit_Tub",
-          "Iron",
-          "Rubber",
-          "Stealth_Facet",
           "Stealth_Glass",
-          "Stealth_Glow",
-          "Stealth_Gunmetal",
-          "Stealth_Skin"
+          "Stealth_Glow"
         ],
         "notes": "matte radar-absorbent materials (Stealth_*), emissives faint red, faceted panels, tucked aero, lights/antennas retracted",
         "added_pivots": [
@@ -211,7 +180,8 @@
           "anchor": "bike_launch_anchor (child of BikeSled): parent the CR-B1 root here, same forward axis",
           "exit": "bike_launch_exit (on the root, on the road ahead of the nose)",
           "timeline": "0-18 nose petals open; 18-34 sled runs forward; 34-46 sled drops to the road, then release the bike"
-        }
+        },
+        "textures": "2048px baked base/MR/normal (JPEG in GLB); LOD1 1024px"
       }
     }
   },
@@ -250,32 +220,23 @@
         "triangles_lod1": 3890,
         "triangles_interior": 1432,
         "materials": [
-          "Accent",
-          "Alloy",
-          "Black",
+          "CRB1_batcycle_pursuit",
           "CanopyGlass",
-          "Carbon",
           "Chrome",
           "Cockpit_Gauge",
           "Cockpit_Screen",
-          "Cockpit_Seat",
-          "Cockpit_Trim",
-          "Crimson",
-          "CrimsonDark",
           "EmissiveRed",
           "EmissiveWhite",
           "Glass",
-          "Gunmetal",
-          "Iron",
           "LampWhite",
           "LensClear",
-          "LensRed",
-          "Rubber"
+          "LensRed"
         ],
         "notes": "baseline look, polished: splitter/diffuser or antenna, strobes; cockpit",
         "added_pivots": [
           "camera_cockpit"
-        ]
+        ],
+        "textures": "2048px baked base/MR/normal (JPEG in GLB); LOD1 1024px"
       },
       "battle": {
         "file": "assets/models/vehicles/CRB1_batcycle_battle.glb",
@@ -284,33 +245,24 @@
         "triangles_lod1": 4129,
         "triangles_interior": 1432,
         "materials": [
-          "Accent",
-          "Alloy",
           "Battle_Glow",
-          "Black",
+          "CRB1_batcycle_battle",
           "CanopyGlass",
-          "Carbon",
           "Chrome",
           "Cockpit_Gauge",
           "Cockpit_Screen",
-          "Cockpit_Seat",
-          "Cockpit_Trim",
-          "Crimson",
-          "CrimsonDark",
           "EmissiveRed",
           "EmissiveWhite",
           "Glass",
-          "Gunmetal",
-          "Iron",
           "LampWhite",
           "LensClear",
-          "LensRed",
-          "Rubber"
+          "LensRed"
         ],
         "notes": "armour plates, weapon pods; battle pivots posed deployed at rest; clip names unchanged",
         "added_pivots": [
           "camera_cockpit"
-        ]
+        ],
+        "textures": "2048px baked base/MR/normal (JPEG in GLB); LOD1 1024px"
       },
       "stealth": {
         "file": "assets/models/vehicles/CRB1_batcycle_stealth.glb",
@@ -319,26 +271,17 @@
         "triangles_lod1": 3842,
         "triangles_interior": 1432,
         "materials": [
-          "Accent",
-          "Alloy",
-          "Black",
-          "Carbon",
+          "CRB1_batcycle_stealth",
           "Cockpit_Gauge",
           "Cockpit_ScreenDim",
-          "Cockpit_Seat",
-          "Cockpit_Trim",
-          "Iron",
-          "Rubber",
-          "Stealth_Facet",
           "Stealth_Glass",
-          "Stealth_Glow",
-          "Stealth_Gunmetal",
-          "Stealth_Skin"
+          "Stealth_Glow"
         ],
         "notes": "matte radar-absorbent materials (Stealth_*), emissives faint red, faceted panels, tucked aero, lights/antennas retracted",
         "added_pivots": [
           "camera_cockpit"
-        ]
+        ],
+        "textures": "2048px baked base/MR/normal (JPEG in GLB); LOD1 1024px"
       }
     }
   },
@@ -381,28 +324,20 @@
         "triangles_lod1": 3037,
         "triangles_interior": 2712,
         "materials": [
-          "Alloy",
+          "CRA1_specter_flight",
           "CanopyGlass",
-          "Carbon",
           "Chrome",
           "Cockpit_Gauge",
           "Cockpit_HUD",
           "Cockpit_Screen",
           "Cockpit_ScreenDim",
-          "Cockpit_Seat",
-          "Cockpit_Trim",
-          "Cockpit_Tub",
-          "Crimson",
-          "CrimsonDark",
           "EmissiveRed",
           "EmissiveWhite",
-          "Gunmetal",
-          "Iron",
           "LampWhite",
-          "LensClear",
-          "Rubber"
+          "LensClear"
         ],
-        "notes": "baseline look, polished: pitot, antenna blade, formation lights; cockpit"
+        "notes": "baseline look, polished: pitot, antenna blade, formation lights; cockpit",
+        "textures": "2048px baked base/MR/normal (JPEG in GLB); LOD1 1024px"
       },
       "vtol": {
         "file": "assets/models/vehicles/CRA1_specter_vtol.glb",
@@ -411,33 +346,25 @@
         "triangles_lod1": 3215,
         "triangles_interior": 2712,
         "materials": [
-          "Alloy",
           "Battle_Glow",
+          "CRA1_specter_vtol",
           "CanopyGlass",
-          "Carbon",
           "Chrome",
           "Cockpit_Gauge",
           "Cockpit_HUD",
           "Cockpit_Screen",
           "Cockpit_ScreenDim",
-          "Cockpit_Seat",
-          "Cockpit_Trim",
-          "Cockpit_Tub",
-          "Crimson",
-          "CrimsonDark",
           "EmissiveRed",
           "EmissiveWhite",
-          "Gunmetal",
-          "Iron",
           "LampWhite",
-          "LensClear",
-          "Rubber"
+          "LensClear"
         ],
         "notes": "VTOL_L/R posed rotated down at rest (-90 deg X), intake doors open, fan rings lit",
         "rest_pose": {
           "VTOL_L": "rotation_euler (-90,0,0) deg",
           "VTOL_R": "rotation_euler (-90,0,0) deg"
-        }
+        },
+        "textures": "2048px baked base/MR/normal (JPEG in GLB); LOD1 1024px"
       },
       "stealth": {
         "file": "assets/models/vehicles/CRA1_specter_stealth.glb",
@@ -446,22 +373,15 @@
         "triangles_lod1": 2571,
         "triangles_interior": 2712,
         "materials": [
-          "Alloy",
-          "Carbon",
+          "CRA1_specter_stealth",
           "Cockpit_Gauge",
           "Cockpit_HUD",
           "Cockpit_ScreenDim",
-          "Cockpit_Seat",
-          "Cockpit_Trim",
-          "Cockpit_Tub",
-          "Rubber",
-          "Stealth_Facet",
           "Stealth_Glass",
-          "Stealth_Glow",
-          "Stealth_Gunmetal",
-          "Stealth_Skin"
+          "Stealth_Glow"
         ],
-        "notes": "matte radar-absorbent materials (Stealth_*), emissives faint red, faceted panels, tucked aero, lights/antennas retracted"
+        "notes": "matte radar-absorbent materials (Stealth_*), emissives faint red, faceted panels, tucked aero, lights/antennas retracted",
+        "textures": "2048px baked base/MR/normal (JPEG in GLB); LOD1 1024px"
       }
     }
   }

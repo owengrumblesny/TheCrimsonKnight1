@@ -104,3 +104,9 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 - Owen asked for Arkham Knight-style realistic assets, starting with the hero, realism first with a laptop LOD. `tools/blender/ck_build_crx9_v3.py`: anatomy built from about 70 muscle volumes (voxel union plus a morphological closing), armour plates cut from that surface with real thickness, relaxed outlines and bevelled rims, a sculpted cowl with carved eye sockets and raked blade fins (kept clear of bat ears) and a crest, and a projected chest emblem. Cycles bakes AO, edge, grime, scratch and normal passes, combined in numpy into 2K base/MR/normal maps. Same skeleton and clips. Build time is about 6 minutes.
 - Game: `heroMinLod` preset field; LOW pins the hero to LOD1.
 - Owen wants the game remade in Godot 4 for native performance. The handoff prompt is in `docs/GODOT_PORT_HANDOFF.md`.
+
+## 2026-10-28: Godot port M0 (project skeleton and import pipeline)
+- Godot 4.7.2 stable installed with winget, with Owen's OK. `project.godot` is at the repo root; `.gdignore` added to `game/`, `tools/`, `references/`, `docs/`, `legacy_v03/` and `assets/source/` (the .blend files).
+- `godot/import/ck_post_import.gd` is the project-wide GLB post-import. It turns Z-up placeholders Y-up, makes `*_COL` into box StaticBody3Ds, re-skins placeholder vertex colours in the material PNGs, turns on vertex colour for NPCs, sets clip loop modes and keeps the gear `attach` extra.
+- Headless import of all 326 GLBs: 0 errors. `godot/tools/verify_import.gd` loads all 327 manifest entries with 0 failures (164 colliders, 144 clips, hero with 68 bones and all 6 sockets).
+- Benchmarking is deferred at Owen's request. Status and parity: `docs/GODOT_PORT_STATUS.md`.

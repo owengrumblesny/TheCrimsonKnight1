@@ -1,0 +1,51 @@
+; Crimson Knight: Earth-RED, Godot 4 port.
+; project.godot sits at the repo root so res://assets/... and res://config/... resolve in place.
+; Godot code lives in godot/; the web reference build in game/ is ignored (game/.gdignore).
+
+config_version=5
+
+[application]
+
+config/name="Crimson Knight: Earth-RED"
+config/description="Open-world superhero sandbox (Owen Enterprises). Godot 4 port of the Three.js build."
+run/main_scene="res://godot/scenes/main.tscn"
+config/features=PackedStringArray("4.7", "Forward Plus")
+
+CKInput="*res://godot/scripts/core/ck_input.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/aspect="expand"
+
+[editor]
+
+import/use_multiple_threads=true
+
+[filesystem]
+
+import/blender/enabled=false
+import/fbx2gltf/enabled=false
+
+[importer_defaults]
+
+scene={
+"import_script/path": "res://godot/import/ck_post_import.gd",
+"nodes/use_name_suffixes": false
+}
+
+[physics]
+
+common/physics_ticks_per_second=60
+3d/physics_engine="Jolt Physics"
+common/physics_interpolation=true
+
+[rendering]
+
+renderer/rendering_method="forward_plus"
+anti_aliasing/quality/msaa_3d=0
+lights_and_shadows/directional_shadow/size=2048
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality=1
+textures/default_filters/anisotropic_filtering_level=2
+environment/defaults/default_clear_color=Color(0.043, 0.051, 0.086, 1)

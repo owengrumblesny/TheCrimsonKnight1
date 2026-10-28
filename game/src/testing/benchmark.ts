@@ -1,5 +1,9 @@
 import * as THREE from 'three';
 import { FrameStats } from '../ui/PerfOverlay';
+import { CITADEL_OFFSET as O } from '../world/citadel';
+
+/** Blender (x, y, z) inside the Citadel file -> game world coordinates. */
+const cit = (x: number, y: number, z: number): [number, number, number] => [O.x + x, O.y + z, O.z - y];
 
 export interface BenchScene {
   name: string;
@@ -13,8 +17,8 @@ export interface BenchScene {
 /** The six benchmark scenes from the asset directive. Citadel scenes activate once the Citadel exists. */
 export const BENCH_SCENES: BenchScene[] = [
   { name: 'CR-X9 character close-up', unavailable: null, hero: [4, 0, 4], camera: [5.6, 1.7, 6.3], target: [4, 1.2, 4] },
-  { name: 'Red Citadel command center', unavailable: 'Red Citadel not built yet', camera: [0, 0, 0], target: [0, 0, 1] },
-  { name: 'Red Citadel vehicle hangar', unavailable: 'Red Citadel not built yet', camera: [0, 0, 0], target: [0, 0, 1] },
+  { name: 'Red Citadel command center', unavailable: null, hero: cit(32, 0, 5.1), camera: cit(26, -6, 9), target: cit(36, 6, 7) },
+  { name: 'Red Citadel vehicle hangar', unavailable: null, hero: cit(-12, 56, 0.2), camera: cit(-6, 50, 4), target: cit(-18, 62, 1.5) },
   { name: 'New Gotham street', unavailable: null, hero: [30, 0, 1.5], camera: [33, 1.9, 3.5], target: [-20, 3, 0] },
   { name: 'New Gotham rooftop', unavailable: null, hero: [0, 0, 0], camera: [22, 34, 22], target: [-10, 8, -10] },
   { name: 'Dense city intersection', unavailable: null, hero: [0, 0, 0], camera: [9, 5, 9], target: [0, 1.5, 0] },

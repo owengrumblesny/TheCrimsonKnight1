@@ -217,7 +217,7 @@ export class Player {
       }
     }
     this.pos.set(t.x + m.x, t.y + m.y, t.z + m.z);
-    if (this.pos.y < -50) this.respawn();
+    if (this.pos.y < -260) this.respawn(); // below the Red Citadel (y -120) = out of the world
 
     if (this.mode === 'action') {
       this.lockTime -= dt;

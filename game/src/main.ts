@@ -22,6 +22,7 @@ import { LoadingScreen } from './ui/loading';
 import { MenuManager } from './ui/MenuManager';
 import { InventoryService, SaveService } from './ui/uiState';
 import './ui/ui.css';
+import { Citadel } from './world/citadel';
 import { District } from './world/district';
 
 /** ?nolock: automated tests — no automatic pointer lock and no pause-on-lock-loss. */
@@ -51,10 +52,12 @@ async function startGame(): Promise<void> {
   const physics = await loading.track('Rapier physics', Physics.create());
   const district = new District(stage.scene, physics);
   const effects = new Effects(stage.scene);
+  const citadel = new Citadel(stage.scene, physics);
   const [hero] = await Promise.all([
     loading.track('CR-X9 Crimson Knight', Hero.load()),
     loading.track('New Gotham district', district.build()),
     loading.track('effect sprites', effects.load()),
+    loading.track('Red Citadel', citadel.build()),
   ]);
   stage.scene.add(hero.root);
   if (worldConfig.weather === 'rain') stage.enableRain();
@@ -94,7 +97,10 @@ async function startGame(): Promise<void> {
     document.body.classList.toggle('ck-reduce-motion', settings.reduceMotion);
     document.body.classList.toggle('ck-hud-off', !settings.hudVisible || equipment.photoMode);
     stage.applyQuality(settings.quality);
-    if (lightPool !== stage.preset.dynamicLights) district.setLightPool((lightPool = stage.preset.dynamicLights));
+    if (lightPool !== stage.preset.dynamicLights) {
+      district.setLightPool((lightPool = stage.preset.dynamicLights));
+      citadel.setLightPool(Math.max(4, lightPool));
+    }
     audio.applySettings(settings);
     saves.writeSettings(forcedQuality ? { ...settings, quality: savedQuality } : settings, bindings.overrides());
   };
@@ -122,7 +128,8 @@ async function startGame(): Promise<void> {
   };
 
   const perf = new PerfOverlay(stage.renderer, stage.scene, () => ({
-    quality: settings.quality, gpu: detected.gpu, sectors: `1 district (${district.lamps.length} lamps, ${district.dynamic.length} physics props)`,
+    quality: settings.quality, gpu: detected.gpu,
+    sectors: underground ? `Red Citadel (${citadel.visibleRooms} rooms visible)` : `Downtown (${district.lamps.length} lamps, ${district.dynamic.length} props)`,
   }));
   const bench = new Benchmark(stage.camera, stage.renderer, {
     placeHero: (p) => {
@@ -219,6 +226,7 @@ async function startGame(): Promise<void> {
   };
 
   const clock = new THREE.Clock();
+  let underground = false;
   let acc = 0;
   let stepDist = 0;
   let autosave = 0;
@@ -256,20 +264,31 @@ async function startGame(): Promise<void> {
         notify(`${v.displayName}: ${v.unavailableReason ?? 'on the way'}`, v.iconId, 'warn');
       }
       const prop = nearestProp();
-      const nearPortal = player.position.distanceTo(portal) < 9;
+      const nearPortal = !underground && player.position.distanceTo(portal) < 9;
+      const nearExit = underground && player.position.distanceTo(citadel.anchor('Anchor_Exit')) < 4;
       if (input.hit('interact')) {
         if (prop) {
           const dir = prop.obj.position.clone().sub(player.position).setY(0.4).normalize();
           prop.body.applyImpulse(dir.multiplyScalar(5 * prop.body.mass()), true);
           audio.play('armor.step');
         } else if (nearPortal) {
-          notify(inventory.has('citadel_keycard') ? 'Keycard accepted — the Red Citadel interior is still under construction' : 'Access denied', 'citadel');
+          if (inventory.has('citadel_keycard')) {
+            player.teleport(citadel.anchor('Anchor_Arrival'));
+            player.heading = Math.PI; // face north (-Z), toward the hub tunnel
+            cam.yaw = 0; // camera behind the Knight, looking north
+            audio.play('armor.activate');
+            notify('Welcome to the Red Citadel', 'citadel');
+          } else notify('Access denied — Red Citadel keycard required', 'keycard', 'warn');
+        } else if (nearExit) {
+          player.teleport(portal.clone().add(new THREE.Vector3(0, 0.5, 8)));
+          audio.play('armor.activate');
+          notify('Returned to New Gotham', 'home');
         }
       }
       if (input.hit('jump') && player.state.mode === 'ground') audio.play('armor.jump');
       player.handleInput(input);
-      hud.setPrompt(prop ? bindings.get('interact') : nearPortal ? bindings.get('interact') : null,
-        prop ? 'Shove' : 'Red Citadel entrance');
+      hud.setPrompt(prop || nearPortal || nearExit ? bindings.get('interact') : null,
+        prop ? 'Shove' : nearPortal ? 'Enter the Red Citadel' : 'Elevator to New Gotham');
     } else hud.setPrompt(null);
 
     if (live) {
@@ -309,7 +328,11 @@ async function startGame(): Promise<void> {
       }
     }
     animDebug.update(dt);
-    district.updateLights(bench.active ? stage.camera.position : player.position, now, dt);
+    const focus = bench.active ? stage.camera.position : player.position;
+    underground = citadel.update(focus, dt);
+    stage.setUnderground(underground);
+    district.group.visible = !underground; // sector streaming: the city does not render underground
+    if (!underground) district.updateLights(focus, now, dt);
     if (!bench.active) cam.update(dt, input, player.position, input.held('grapple'));
     hero.updateLod(stage.camera.position.distanceTo(player.position), stage.preset.lodScale);
     stage.follow(player.position);
@@ -336,7 +359,7 @@ async function startGame(): Promise<void> {
   // test/debug handle: __CK__.advance(seconds) steps the game synchronously at 60 fps
   Object.assign(window, {
     __CK__: {
-      player, hero, inventory, bindings, menus, equipment, vitals, settings, audio, cam, stage, perf, bench, applySettings,
+      player, hero, inventory, bindings, menus, equipment, vitals, settings, audio, cam, stage, perf, bench, applySettings, citadel,
       selectSlot,
       start: () => menus.closeAll(),
       teleport: (x: number, y: number, z: number) => player.teleport(new THREE.Vector3(x, y, z)),

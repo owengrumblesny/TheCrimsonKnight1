@@ -1,0 +1,101 @@
+{
+  "crx1_interceptor": {
+    "triangles_lod0": 15864,
+    "triangles_lod1": 3936,
+    "pivots": [
+      "BattlePanel_L",
+      "BattlePanel_R",
+      "Body",
+      "CRX1_Interceptor",
+      "Canopy",
+      "Cockpit",
+      "Door_L",
+      "Door_R",
+      "Steer_FL",
+      "Steer_FR",
+      "Susp_FL",
+      "Susp_FR",
+      "Susp_RL",
+      "Susp_RR",
+      "Turret",
+      "Wheel_FL",
+      "Wheel_FR",
+      "Wheel_RL",
+      "Wheel_RR",
+      "camera_chase",
+      "camera_cockpit",
+      "entry_anchor_L",
+      "exit_anchor_L",
+      "seat_attach",
+      "sound_engine",
+      "summon_anchor"
+    ],
+    "clips": [
+      "CRX1_BattleMode",
+      "CRX1_CanopyOpen",
+      "CRX1_DoorsOpen",
+      "CRX1_SteerLeft",
+      "CRX1_WheelSpin"
+    ]
+  },
+  "crb1_batcycle": {
+    "triangles_lod0": 7984,
+    "triangles_lod1": 1982,
+    "pivots": [
+      "Body",
+      "CRB1_Batcycle",
+      "FrontWheel_mount",
+      "Kickstand",
+      "Steer",
+      "Swingarm",
+      "Wheel_F",
+      "Wheel_R",
+      "camera_chase",
+      "entry_anchor_L",
+      "exit_anchor_L",
+      "grip_L",
+      "grip_R",
+      "seat_attach",
+      "sound_engine",
+      "summon_anchor"
+    ],
+    "clips": [
+      "CRB1_StandDeploy",
+      "CRB1_SteerLeft",
+      "CRB1_SuspensionBob",
+      "CRB1_WheelSpin"
+    ]
+  },
+  "cra1_specter": {
+    "triangles_lod0": 3638,
+    "triangles_lod1": 894,
+    "pivots": [
+      "Body",
+      "CRA1_Specter",
+      "Canopy",
+      "Elevon_L",
+      "Elevon_R",
+      "Gear_L",
+      "Gear_Nose",
+      "Gear_R",
+      "Rudder_L",
+      "Rudder_R",
+      "VTOL_L",
+      "VTOL_R",
+      "camera_chase",
+      "camera_cockpit",
+      "entry_anchor_L",
+      "exit_anchor_L",
+      "seat_attach",
+      "sound_engine",
+      "summon_anchor"
+    ],
+    "clips": [
+      "CRA1_CanopyOpen",
+      "CRA1_ElevonsUp",
+      "CRA1_GearRetract",
+      "CRA1_RudderLeft",
+      "CRA1_VTOLTransition"
+    ]
+  }
+}

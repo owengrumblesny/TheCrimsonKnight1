@@ -19,6 +19,8 @@ export class Stage {
   private composer: EffectComposer | null = null;
   private bloom: UnrealBloomPass | null = null;
   private fog: THREE.FogExp2;
+  private hemi: THREE.HemisphereLight;
+  underground = false;
 
   constructor(antialias: boolean) {
     this.renderer = new THREE.WebGLRenderer({ antialias, powerPreference: 'high-performance' });
@@ -39,7 +41,8 @@ export class Stage {
     const pmrem = new THREE.PMREMGenerator(this.renderer);
     this.scene.environment = pmrem.fromScene(nightEnvironment(), 0.04).texture;
     pmrem.dispose();
-    this.scene.add(new THREE.HemisphereLight(0x8090c0, 0x20141a, 0.7));
+    this.hemi = new THREE.HemisphereLight(0x8090c0, 0x20141a, 0.7);
+    this.scene.add(this.hemi);
     this.moon = new THREE.DirectionalLight(0xb8c4ff, 1.6);
     this.moon.position.set(-30, 50, 20);
     this.moon.castShadow = true;
@@ -105,6 +108,22 @@ export class Stage {
     a.needsUpdate = true;
   }
 
+  /** Switch between the rainy night city and the underground Red Citadel lighting. */
+  setUnderground(on: boolean): void {
+    if (on === this.underground) return;
+    this.underground = on;
+    const bg = new THREE.Color(on ? '#070405' : '#0b0d16');
+    this.scene.background = bg;
+    this.fog.color.copy(bg);
+    this.fog.density = on ? 0.006 : this.preset.fogDensity;
+    this.moon.intensity = on ? 0 : 1.6;
+    this.moon.castShadow = !on && this.preset.shadows;
+    this.hemi.color.set(on ? 0x6a5a62 : 0x8090c0);
+    this.hemi.groundColor.set(on ? 0x140a0c : 0x20141a);
+    this.hemi.intensity = on ? 0.5 : 0.7;
+    if (this.rain) this.rain.visible = !on;
+  }
+
   /** Apply a graphics preset (see quality.ts). Shader-affecting changes trigger one recompile here, never mid-play. */
   applyQuality(q: Quality): void {
     this.quality = q;
@@ -124,7 +143,7 @@ export class Stage {
     }
     this.camera.far = p.drawDistance;
     this.camera.updateProjectionMatrix();
-    this.fog.density = p.fogDensity;
+    this.fog.density = this.underground ? 0.006 : p.fogDensity;
     this.applyRain();
     this.scene.traverse((o) => {
       const mats = (o as THREE.Mesh).material;

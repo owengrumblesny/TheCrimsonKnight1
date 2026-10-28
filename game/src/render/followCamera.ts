@@ -26,7 +26,7 @@ export class FollowCamera {
     // shoulder offset to the camera's right while aiming
     const right = new THREE.Vector3(Math.cos(this.yaw), 0, -Math.sin(this.yaw)).multiplyScalar(0.55 * this.aimBlend);
     this.camera.position.copy(this.focus).add(offset).add(right);
-    this.camera.position.y = Math.max(this.camera.position.y, 0.3);
+    this.camera.position.y = Math.max(this.camera.position.y, target.y + 0.3); // relative to the feet (the Citadel is at y -120)
     this.camera.lookAt(this.focus.clone().add(right));
   }
 }

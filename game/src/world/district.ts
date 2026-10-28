@@ -29,6 +29,8 @@ function rng(seed: number): () => number {
  */
 export class District {
   readonly dynamic: { body: RAPIER.RigidBody; obj: THREE.Object3D }[] = [];
+  /** everything the city sector renders (hidden while the player is underground) */
+  readonly group = new THREE.Group();
   /** every street-lamp head; offUntil > now = knocked out (EMP) */
   readonly lamps: { pos: THREE.Vector3; offUntil: number }[] = [];
   /** fixed-size pool of real point lights moved to the nearest working lamps (size per graphics preset) */
@@ -38,7 +40,10 @@ export class District {
   readonly mapFeatures: { kind: 'building' | 'road' | 'portal' | 'billboard'; minX: number; minZ: number; maxX: number; maxZ: number }[] = [];
   private rand = rng(worldConfig.seed);
 
-  constructor(private scene: THREE.Scene, private physics: Physics) {}
+  constructor(scene: THREE.Scene, private physics: Physics) {
+    this.group.name = 'Sector_Downtown';
+    scene.add(this.group);
+  }
 
   async build(): Promise<void> {
     const asphalt = registry.texture('wet_asphalt').clone();
@@ -49,7 +54,7 @@ export class District {
     );
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
-    this.scene.add(ground);
+    this.group.add(ground);
     this.physics.addGround(400);
 
     const roadTiles: Placement[] = [];
@@ -157,7 +162,7 @@ export class District {
       post.position.set(0, 3.5, -0.2);
       for (const m of [back, post]) m.castShadow = true;
       board.add(face, back, trim, post);
-      this.scene.add(board);
+      this.group.add(board);
       board.updateMatrixWorld(true);
       this.physics.addStaticBox(new THREE.Box3().setFromObject(post));
     }));
@@ -172,10 +177,10 @@ export class District {
       new THREE.MeshStandardMaterial({ color: '#330000', emissive: '#ff2020', emissiveIntensity: 3 }),
     );
     ring.position.set(x, 4.5, z);
-    this.scene.add(ring);
+    this.group.add(ring);
     const glow = new THREE.PointLight(0xff2020, 40, 30, 1.5);
     glow.position.set(x, 4, z);
-    this.scene.add(glow);
+    this.group.add(glow);
     // holo panels flanking the portal: Red Citadel images from the boards
     const panels: [string, number][] = [['world/c_citadel_entrance_wide', -1], ['world/c_citadel_command_center_wide', 1]];
     for (const [id, side] of panels) {
@@ -188,7 +193,7 @@ export class District {
       );
       panel.position.set(x + side * 7.5, 3 + h / 2, z + 1);
       panel.rotation.y = -side * 0.35;
-      this.scene.add(panel);
+      this.group.add(panel);
     }
   }
 
@@ -212,7 +217,7 @@ export class District {
       inst.castShadow = opts.shadow ?? true;
       inst.receiveShadow = true;
       inst.computeBoundingSphere();
-      this.scene.add(inst);
+      this.group.add(inst);
     }
     for (const p of list) {
       const box = localBox.clone().applyMatrix4(this.matrixFor(p));
@@ -234,16 +239,16 @@ export class District {
     });
     const placed = box.clone().applyMatrix4(this.matrixFor({ ...p, rotY: 0 })); // body starts axis-aligned with its visual
     const body = this.physics.addDynamicBox(placed, id.startsWith('traffic_cone') ? 3 : 25);
-    this.scene.add(pivot);
+    this.group.add(pivot);
     this.dynamic.push({ body, obj: pivot });
   }
 
   /** Resize the street-light pool (called when the graphics preset changes; causes one shader recompile). */
   setLightPool(n: number): void {
-    for (const l of this.lightPool) this.scene.remove(l);
+    for (const l of this.lightPool) l.removeFromParent();
     this.lightPool = Array.from({ length: n }, () => {
       const l = new THREE.PointLight(0xffb070, 18, 22, 1.6);
-      this.scene.add(l);
+      this.group.add(l);
       return l;
     });
     this.poolTimer = 0;

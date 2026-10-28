@@ -5135,7 +5135,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 6460,
+      "triangles": 15108,
       "vehicle": "cra1_specter",
       "mode": "flight"
     },
@@ -5153,7 +5153,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 922,
+      "triangles": 3037,
       "vehicle": "cra1_specter",
       "mode": "flight"
     },
@@ -5171,7 +5171,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 7316,
+      "triangles": 15964,
       "vehicle": "cra1_specter",
       "mode": "vtol"
     },
@@ -5189,7 +5189,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 1108,
+      "triangles": 3215,
       "vehicle": "cra1_specter",
       "mode": "vtol"
     },
@@ -5207,7 +5207,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 7092,
+      "triangles": 13272,
       "vehicle": "cra1_specter",
       "mode": "stealth"
     },
@@ -5225,7 +5225,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 1039,
+      "triangles": 2571,
       "vehicle": "cra1_specter",
       "mode": "stealth"
     },
@@ -5243,7 +5243,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 17990,
+      "triangles": 34670,
       "vehicle": "crx1_interceptor",
       "mode": "pursuit"
     },
@@ -5261,7 +5261,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 3839,
+      "triangles": 7978,
       "vehicle": "crx1_interceptor",
       "mode": "pursuit"
     },
@@ -5279,7 +5279,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 19538,
+      "triangles": 36254,
       "vehicle": "crx1_interceptor",
       "mode": "battle"
     },
@@ -5297,7 +5297,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 4224,
+      "triangles": 8350,
       "vehicle": "crx1_interceptor",
       "mode": "battle"
     },
@@ -5315,7 +5315,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 18258,
+      "triangles": 32922,
       "vehicle": "crx1_interceptor",
       "mode": "stealth"
     },
@@ -5333,7 +5333,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 3909,
+      "triangles": 7527,
       "vehicle": "crx1_interceptor",
       "mode": "stealth"
     },
@@ -5351,7 +5351,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 9488,
+      "triangles": 17068,
       "vehicle": "crb1_batcycle",
       "mode": "pursuit"
     },
@@ -5369,7 +5369,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 1999,
+      "triangles": 3890,
       "vehicle": "crb1_batcycle",
       "mode": "pursuit"
     },
@@ -5387,7 +5387,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 10472,
+      "triangles": 18052,
       "vehicle": "crb1_batcycle",
       "mode": "battle"
     },
@@ -5405,7 +5405,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 2237,
+      "triangles": 4129,
       "vehicle": "crb1_batcycle",
       "mode": "battle"
     },
@@ -5423,7 +5423,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 9884,
+      "triangles": 16904,
       "vehicle": "crb1_batcycle",
       "mode": "stealth"
     },
@@ -5441,7 +5441,7 @@
       "up_axis": "Y",
       "forward": "+Z",
       "source": "tools/blender/ck_build_vehicle_modes.py",
-      "triangles": 2100,
+      "triangles": 3842,
       "vehicle": "crb1_batcycle",
       "mode": "stealth"
     }

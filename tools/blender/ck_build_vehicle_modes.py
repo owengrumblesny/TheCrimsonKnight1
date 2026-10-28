@@ -30,18 +30,24 @@ import sys
 
 import bmesh
 import bpy
+import numpy as np
 from mathutils import Euler, Matrix, Vector
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ck_lib as L  # noqa: E402
 import ck_build_vehicles as V  # noqa: E402
+import ck_vehicle_kit as K  # noqa: E402
+from ck_vehicle_kit import adopt  # noqa: E402
 
 OUT = os.path.join(L.ROOT, "assets", "models", "vehicles")
 RENDERS = os.path.join(L.ROOT, "docs", "renders", "vehicle_modes")
 CFG = os.path.join(L.ROOT, "config", "vehicle_assets.json")
 ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 RENDER = "--no-render" not in ARGS
+BAKE = "--no-bake" not in ARGS
+TEX = int(ARGS[ARGS.index("--tex") + 1]) if "--tex" in ARGS else 2048
 deg = L.deg
+SKY_STRENGTH = float(ARGS[ARGS.index("--sky") + 1]) if "--sky" in ARGS else 0.3
 
 
 # ======================================================================================
@@ -69,7 +75,8 @@ MODE_MATS = {
 STEALTH_SWAP = {"Crimson": "Stealth_Skin", "CrimsonDark": "Stealth_Facet", "Gunmetal": "Stealth_Gunmetal",
                 "EmissiveRed": "Stealth_Glow", "EmissiveWhite": "Stealth_Glow", "Battle_Glow": "Stealth_Glow",
                 "Glass": "Stealth_Glass", "CanopyGlass": "Stealth_Glass", "Cockpit_Screen": "Cockpit_ScreenDim",
-                "Screen": "Cockpit_ScreenDim"}
+                "Screen": "Cockpit_ScreenDim", "LampWhite": "Stealth_Glow", "LensRed": "Stealth_Glow", "HotCore": "Stealth_Glow",
+                "LensClear": "Stealth_Glass", "Chrome": "Stealth_Gunmetal"}
 
 
 def make_mat(name, spec):
@@ -119,6 +126,9 @@ def ensure_mats():
     for name, spec in MODE_MATS.items():
         if name not in L._MATS:
             make_mat(name, spec)
+    K.register_materials()
+    for n in ("Cockpit_Screen", "Cockpit_ScreenDim"):
+        K.ui_texture(L._MATS[n])
 
 
 def base_mat(m):
@@ -139,13 +149,6 @@ def swap_materials(objs, table):
 # ======================================================================================
 def ob(name):
     return bpy.data.objects[name]
-
-
-def adopt(o, parent):
-    if parent is not None:
-        o.parent = parent
-        o.matrix_parent_inverse = parent.matrix_world.inverted()
-    return o
 
 
 def box(name, dims, loc, mat, parent, **kw):
@@ -584,15 +587,311 @@ def cra1_stealth():
     swap_materials(L.descendants(ob("CRA1_Specter")), STEALTH_SWAP)
 
 
+# ======================================================================================
+# realism pass: additive mechanical detail on the existing models (ck_vehicle_kit)
+# ======================================================================================
+def wheel_detail(n, x, w, r):
+    """Lug nuts, centre cap, sidewall ribs and a valve on an existing wheel (spins with Wheel_<n>)."""
+    wp = ob(f"Wheel_{n}")
+    c = wp.matrix_world.to_translation()
+    side = 1 if x > 0 else -1
+    face = side * w * 0.54
+    K.lathe(f"{n}_cap", [(0, side * 0.03), (r * 0.1, side * 0.026), (r * 0.15, side * 0.01), (r * 0.15, 0)], "Accent", wp, c + Vector((face, 0, 0)), segs=20, axis="X")
+    for i in range(6):
+        a = 2 * math.pi * i / 6
+        p = c + Vector((face, math.cos(a) * r * 0.25, math.sin(a) * r * 0.25))
+        K.lathe(f"{n}_lug{i}", [(0, side * 0.025), (0.016, side * 0.025), (0.019, side * 0.012), (0.019, 0)], "Iron", wp, p, segs=6, axis="X", smooth_angle=20)
+    tyre_ribs(n, wp, c, r, w)
+    K.lathe(f"{n}_valve", [(0, side * 0.03), (0.006, side * 0.03), (0.008, 0)], "Alloy", wp, c + Vector((side * w * 0.5, 0, r * 0.7)), segs=6, axis="X")
+
+
+def tyre_ribs(n, wp, c, r, w):
+    for s in (1, -1):
+        K.lathe(f"{n}_rib{s}", [(r * 0.84, s * w * 0.5), (r * 0.86, s * (w * 0.5 + 0.006)), (r * 0.9, s * (w * 0.5 + 0.006)), (r * 0.92, s * w * 0.5)],
+                "Rubber", wp, c, segs=40, axis="X")
+
+
+def detail_crx1(mode):
+    body = ob("Body")
+    for n, x, r, w in (("FL", 1.5, 0.6, 0.56), ("FR", -1.5, 0.6, 0.56), ("RL", 1.6, 0.76, 0.76), ("RR", -1.6, 0.76, 0.76)):
+        wheel_detail(n, x, w, r)
+    for k in (1, -1):
+        if mode != "stealth":  # projector headlamps in a recessed housing (stealth shutters them)
+            K.rbox(f"X1_lamp_housing{k}", (0.5, 0.05, 0.15), (k * 0.6, -2.985, 0.49), "Carbon", body, r=0.02)
+            for j, dx in enumerate((0.45, 0.6, 0.75)):
+                K.lamp_projector(f"X1_proj{k}{j}", body, (k * dx, -3.0, 0.48), 0.042)
+        K.rbox(f"X1_tail_housing{k}", (0.56, 0.04, 0.1), (k * 0.6, 3.0, 0.82), "Carbon", body, r=0.015)
+        K.rbox(f"X1_tail_lens{k}", (0.54, 0.02, 0.08), (k * 0.6, 3.035, 0.82), "LensRed", body, r=0.01)
+        # thruster: nozzle petals, liner and flame-holder
+        c = Vector((k * 0.45, 3.05, 0.55))
+        for i in range(12):
+            a = 2 * math.pi * (i + 0.5) / 12
+            K.strut(f"X1_petal{k}{i}", c + Vector((math.cos(a) * 0.178, 0.16, math.sin(a) * 0.178)),
+                    c + Vector((math.cos(a) * 0.158, 0.31, math.sin(a) * 0.158)), 0.085, 0.01, "Iron", body)
+        K.lathe(f"X1_liner{k}", [(0.168, 0.15), (0.168, 0.2), (0.13, 0.205)], "Iron", body, c, segs=24, axis="Y")
+        K.tube(f"X1_flameholder{k}", [c + Vector((math.cos(a) * 0.08, 0.205, math.sin(a) * 0.08)) for a in np.linspace(0, 2 * math.pi, 17)], 0.008, "Iron", body, segs=5, cap=False)
+        for i in range(6):
+            a = 2 * math.pi * i / 6
+            K.strut(f"X1_holder_spoke{k}{i}", c + Vector((0, 0.205, 0)), c + Vector((math.cos(a) * 0.15, 0.205, math.sin(a) * 0.15)), 0.012, 0.01, "Iron", body)
+        # bolts round the wheel-arch armour (outer faces)
+        for j, (yy, zz) in enumerate(((-2.5, 1.05), (-2.25, 1.18), (-1.95, 1.23), (-1.6, 1.18), (-1.3, 1.1))):
+            K.bolts(f"X1_archbolt_F{k}{j}", [(k * 1.815, yy, zz)], deg(0, k * 90, 0), 0.018, "Alloy", body)
+        for j, (yy, zz) in enumerate(((1.0, 1.2), (1.4, 1.42), (1.85, 1.49), (2.3, 1.44), (2.7, 1.3))):
+            K.bolts(f"X1_archbolt_R{k}{j}", [(k * 2.005, yy, zz)], deg(0, k * 90, 0), 0.02, "Alloy", body)
+        K.rbox(f"X1_rail{k}", (0.1, 3.4, 0.08), (k * 0.65, 0.0, 0.15), "Carbon", body, r=0.015)
+        K.lathe(f"X1_towhook{k}", [(0.03, -0.012), (0.042, -0.012), (0.042, 0.012), (0.03, 0.012)], "Accent", body, (k * 0.35, -3.06, 0.32), (0, 0, 0), segs=16, axis="X")
+        d = ob(f"Door_{'L' if k > 0 else 'R'}")
+        M = d.matrix_world @ Matrix.Translation((k * 0.66, 0, -0.38)) @ Euler(deg(0, -k * 18, 0)).to_matrix().to_4x4()
+        K.rbox(f"X1_door_handle{k}", (0.02, 0.2, 0.04), M @ Vector((k * 0.045, -0.35, 0.12)), "Carbon", d, r=0.008, rot=deg(0, -k * 18, 0))
+    # armour plate fasteners
+    for i, (yy, wd, zz, tilt) in enumerate(((-1.5, 1.7, 0.98, -10), (-0.6, 1.9, 1.08, 4), (0.5, 2.0, 1.12, -4), (1.4, 2.1, 1.14, 6), (2.3, 1.8, 1.1, -8))):
+        M = Matrix.Translation((0, yy, zz)) @ Euler(deg(tilt, 0, 0)).to_matrix().to_4x4()
+        pts = [M @ Vector((sx * (wd / 2 - 0.07), sy * 0.3, 0.036)) for sx in (1, -1) for sy in (1, -1)]
+        K.bolts(f"X1_platebolt{i}", pts, deg(tilt, 0, 0), 0.016, "Alloy", body, h=0.01)
+    # hood vent louvres
+    M = Matrix.Translation((0, -2.0, 0.88)) @ Euler(deg(-14, 0, 0)).to_matrix().to_4x4()
+    for i in range(7):
+        K.rbox(f"X1_louvre{i}", (0.46, 0.022, 0.03), M @ Vector((0, -0.26 + i * 0.087, 0.02)), "Carbon", body, r=0.004, segs=1, rot=deg(-14 + 35, 0, 0))
+    L.text_mesh("X1_badge", "CR-X1", 0.06, (0, 3.04, 0.95), "Alloy", body, deg(90, 0, 180), extrude=0.004)
+
+
+def detail_crb1(mode):
+    body, steer, swing, mount = ob("Body"), ob("Steer"), ob("Swingarm"), ob("FrontWheel_mount")
+    bpy.context.view_layer.update()
+    wf, wr = ob("Wheel_F"), ob("Wheel_R")
+    cf, cr = wf.matrix_world.to_translation(), wr.matrix_world.to_translation()
+    tyre_ribs("B1_F", wf, cf, 0.43, 0.32)
+    tyre_ribs("B1_R", wr, cr, 0.46, 0.44)
+    # brakes: twin front discs between hub and fork legs, radial calipers on the legs; single rear disc
+    for s in (1, -1):
+        dc = cf + Vector((s * 0.175, 0, 0))
+        K.lathe(f"B1_disc_F{s}", [(0.11, -0.004), (0.2, -0.004), (0.2, 0.004), (0.11, 0.004)], "Iron", wf, dc, segs=36, axis="X")
+        K.lathe(f"B1_carrier_F{s}", [(0.05, -0.006), (0.11, -0.003), (0.11, 0.003), (0.05, 0.006)], "Alloy", wf, dc, segs=12, axis="X")
+        cp = cf + Vector((s * 0.19, 0.13, 0.1))
+        K.rbox(f"B1_caliper_F{s}", (0.05, 0.08, 0.14), cp, "Accent", mount, r=0.015, rot=deg(-40, 0, 0))
+        M = steer.matrix_world
+        K.tube(f"B1_hose_F{s}", K.bent(M @ Vector((s * 0.12, 0.05, 0.12)), M @ Vector((s * 0.25, -0.1, -0.2)), cp + Vector((0, 0.02, 0.07)), 10),
+               0.006, "Carbon", steer, segs=5)
+        # fork: lower legs, dust seals, top caps (in the steer frame)
+        K.tube(f"B1_fork_lower{s}", [M @ Vector((s * 0.2, 0, -0.45)), M @ Vector((s * 0.2, 0, -0.8))], 0.052, "Carbon", steer, segs=12)
+        K.tube(f"B1_fork_seal{s}", [M @ Vector((s * 0.2, 0, -0.43)), M @ Vector((s * 0.2, 0, -0.46))], 0.056, "Rubber", steer, segs=12)
+        K.tube(f"B1_fork_cap{s}", [M @ Vector((s * 0.2, 0, 0.0)), M @ Vector((s * 0.2, 0, 0.03))], 0.045, "Alloy", steer, segs=10)
+    dr = cr + Vector((-0.235, 0, 0))
+    K.lathe("B1_disc_R", [(0.1, -0.004), (0.17, -0.004), (0.17, 0.004), (0.1, 0.004)], "Iron", wr, dr, segs=32, axis="X")
+    K.rbox("B1_caliper_R", (0.05, 0.13, 0.07), dr + Vector((-0.02, 0.05, -0.15)), "Accent", swing, r=0.015)
+    # belt final drive (left side) and pulleys
+    pf = Vector((0.2, 0.12, 0.42))
+    pr = cr + Vector((0.245, 0, 0))
+    K.lathe("B1_pulley_F", [(0, -0.02), (0.065, -0.02), (0.065, 0.02), (0, 0.02)], "Alloy", body, pf, segs=20, axis="X")
+    K.lathe("B1_pulley_R", [(0.06, -0.018), (0.15, -0.018), (0.15, 0.018), (0.06, 0.018)], "Alloy", wr, pr, segs=32, axis="X")
+    K.strut("B1_belt_top", pf + Vector((0.005, 0, 0.065)), pr + Vector((0, 0, 0.15)), 0.035, 0.012, "Carbon", swing)
+    K.strut("B1_belt_bot", pf + Vector((0.005, 0, -0.065)), pr + Vector((0, 0, -0.15)), 0.035, 0.012, "Carbon", swing)
+    # rear mono-shock (coil-over) under the seat
+    a, b = Vector((0, 0.62, 0.52)), Vector((0, 0.38, 0.84))
+    K.helix("B1_spring", a + (b - a) * 0.12, a + (b - a) * 0.8, 0.045, 0.009, 7, "Accent", body)
+    K.tube("B1_damper", [a, b], 0.022, "Alloy", body, segs=10)
+    K.tube("B1_reservoir", [b + Vector((0.06, 0.02, -0.02)), b + Vector((0.06, 0.12, -0.12))], 0.02, "Alloy", body, segs=10)
+    # exhausts (one each side) ending under the tail
+    for s in (1, -1):
+        pts = K.bent((s * 0.12, -0.12, 0.3), (s * 0.24, 0.45, 0.34), (s * 0.17, 0.96, 0.74), 12)
+        K.tube(f"B1_header{s}", pts, 0.032, "Iron", body, segs=10, cap=False)
+        K.lathe(f"B1_tip{s}", [(0.025, 0.0), (0.045, 0.0), (0.05, 0.1), (0.04, 0.1)], "Alloy", body, pts[-1], deg(-35, 0, 0), segs=16, axis="Y")
+        # rider pegs + levers
+        K.strut(f"B1_peg{s}", (s * 0.2, 0.3, 0.46), (s * 0.31, 0.3, 0.46), 0.03, 0.03, "Alloy", body)
+        K.rbox(f"B1_peg_pad{s}", (0.08, 0.04, 0.02), (s * 0.29, 0.3, 0.485), "Rubber", body, r=0.006)
+        K.strut(f"B1_lever{s}", (s * 0.27, 0.32, 0.47), (s * 0.27, 0.08, 0.5), 0.012, 0.02, "Alloy", body)
+        K.bolts(f"B1_fairbolt{s}", [(s * 0.278, yy, 0.9) for yy in (-0.7, -0.3, 0.1)], deg(0, s * 90, 0), 0.012, "Alloy", body, h=0.008)
+    # radiator behind the front wheel
+    K.rbox("B1_radiator", (0.28, 0.05, 0.24), (0, -0.48, 0.58), "Carbon", body, r=0.01)
+    for i in range(8):
+        K.rbox(f"B1_rad_fin{i}", (0.26, 0.012, 0.006), (0, -0.508, 0.48 + i * 0.028), "Alloy", body, r=0.0, segs=1)
+    K.rbox("B1_tail_lens", (0.16, 0.02, 0.04), (0, 1.12, 0.98), "LensRed", body, r=0.008)
+    if mode != "stealth":
+        M = steer.matrix_world
+        face = (M.to_3x3() @ Vector((0, -1, 0))).normalized()
+        for s in (1, -1):
+            K.lamp_projector(f"B1_proj{s}", steer, M @ Vector((s * 0.055, -0.16, -0.06)), 0.032, tuple(face))
+    # rear hugger over the tyre (moves with the swingarm)
+    K.lathe("B1_hugger", [(0.52, -0.11), (0.52, 0.11), (0.535, 0.11), (0.535, -0.11)], "Carbon", swing, cr, segs=16, axis="X",
+            arc=(math.radians(95), math.radians(165)))
+
+
+def detail_cra1(mode):
+    body = ob("Body")
+    gear_h = 1.3
+    for name, r in (("Gear_Nose", 0.3), ("Gear_L", 0.42), ("Gear_R", 0.42)):
+        g = ob(name)
+        p = g.matrix_world.to_translation()
+        axle = p + Vector((0, 0, -(gear_h - r) - 0.1))
+        K.tube(f"{name}_oleo", [axle + Vector((0, 0, 0.05)), axle + Vector((0, 0, 0.55))], 0.055, "Chrome", g, segs=12)
+        K.tube(f"{name}_collar", [axle + Vector((0, 0, 0.55)), axle + Vector((0, 0, 0.62))], 0.09, "Alloy", g, segs=12)
+        K.strut(f"{name}_torque_a", axle + Vector((0, -0.05, 0.08)), axle + Vector((0, -0.2, 0.32)), 0.04, 0.03, "Alloy", g)
+        K.strut(f"{name}_torque_b", axle + Vector((0, -0.2, 0.32)), axle + Vector((0, -0.05, 0.6)), 0.04, 0.03, "Alloy", g)
+        for s in (1, -1):
+            K.lathe(f"{name}_hub{s}", [(0, s * 0.17), (r * 0.35, s * 0.165), (r * 0.6, s * 0.15), (r * 0.62, s * 0.13)], "Alloy", g, axle, segs=20, axis="X")
+            # gear-well doors hang open beside the bay (retract with the leg)
+            K.rbox(f"{name}_door{s}", (0.02, 0.9 if name != "Gear_Nose" else 0.6, 0.45), p + Vector((s * 0.32, 0, -0.25)), "Crimson", g, r=0.008)
+        K.rbox(f"{name}_well", (0.5, 1.0 if name != "Gear_Nose" else 0.7, 0.03), p, "Carbon", body, r=0.01)
+        if mode != "stealth" and name == "Gear_Nose":
+            K.lamp_projector("A1_taxi_lamp", g, axle + Vector((0, -0.12, 0.7)), 0.05)
+    for k, side in ((1, "L"), (-1, "R")):
+        if mode != "stealth":  # nozzle petals + flame-holder (stealth shrouds the nozzles)
+            c = Vector((k * 1.35, 7.6, gear_h + 0.95))
+            for i in range(16):
+                a = 2 * math.pi * (i + 0.5) / 16
+                K.strut(f"A1_petal_{side}{i}", c + Vector((math.cos(a) * 0.56, 1.7, math.sin(a) * 0.56)),
+                        c + Vector((math.cos(a) * 0.5, 2.25, math.sin(a) * 0.5)), 0.22, 0.02, "Iron", body)
+            K.lathe(f"A1_liner_{side}", [(0.54, 1.7), (0.54, 1.85), (0.42, 1.86)], "Iron", body, c, segs=28, axis="Y")
+            K.tube(f"A1_holder_{side}", [c + Vector((math.cos(a) * 0.25, 1.85, math.sin(a) * 0.25)) for a in np.linspace(0, 2 * math.pi, 19)], 0.02, "Iron", body, segs=5, cap=False)
+            K.lathe(f"A1_nav_dome_{side}", [(0.0, 0.1), (0.07, 0.07), (0.1, 0.0)], "LensClear", body, (k * 14.35, 7.6, gear_h + 0.8), deg(0, 0, -90 * k), segs=12, axis="Y")
+        # access panels, fuel caps and vortex generators on the wing top (aligned with the sweep)
+        sweep = math.radians(-k * 36)
+        for j, (x, y, wd, ln) in enumerate(((4.0, 2.0, 1.1, 0.7), (6.6, 3.8, 0.9, 0.6), (3.4, 0.6, 0.6, 0.5), (8.8, 5.1, 0.7, 0.4))):
+            M = Matrix.Translation((k * x, y, gear_h + 1.255)) @ Euler((0, 0, sweep)).to_matrix().to_4x4()
+            quad = [M @ Vector(v) for v in ((-wd / 2, -ln / 2, 0), (wd / 2, -ln / 2, 0), (wd / 2, ln / 2, 0), (-wd / 2, ln / 2, 0))]
+            K.slab(f"A1_access_{side}{j}", quad, 0.006, "CrimsonDark", body, r=0.003, segs=1)
+            K.bolts(f"A1_panelbolt_{side}{j}", [M @ Vector((sx * (wd / 2 - 0.05), sy * (ln / 2 - 0.05), 0.002)) for sx in (1, -1) for sy in (1, -1)], (0, 0, 0), 0.012, "Alloy", body, h=0.006)
+        K.lathe(f"A1_fuelcap_{side}", [(0, 0.012), (0.08, 0.01), (0.1, 0)], "Alloy", body, (k * 5.3, 1.5, gear_h + 1.252), segs=16, axis="Z")
+        for j in range(6):
+            x = 3.0 + j * 1.25
+            y = -1.6 + (x - 2.0) * (7.2 / 9.5) + 0.35
+            K.slab(f"A1_vg_{side}{j}", [(k * x, y, gear_h + 1.25), (k * x, y + 0.22, gear_h + 1.25), (k * x, y + 0.22, gear_h + 1.32)], 0.01, "Alloy", body, r=0.002, segs=1)
+        # hinge-actuator fairings under the trailing edge
+        for j, x in enumerate((3.5, 6.5, 9.5)):
+            K.rbox(f"A1_canoe_{side}{j}", (0.22, 1.2, 0.16), (k * x, 6.4 - (x - 3.5) * 0.03, gear_h + 0.42), "CrimsonDark", body, r=0.06, taper=(0.7, 1.0))
+    # weapons-bay doors and blade antennas under the fuselage
+    for s in (1, -1):
+        quad = [(0.0, -1.0, gear_h + 0.14), (s * 0.75, -1.0, gear_h + 0.16), (s * 0.75, 3.0, gear_h + 0.14), (0.0, 3.0, gear_h + 0.13)]
+        K.slab(f"A1_bay_door{s}", quad[::s], 0.012, "CrimsonDark", body, r=0.004, segs=1)
+    for j, y in enumerate((-3.5, 4.0)):
+        K.slab(f"A1_blade_ant{j}", [(0, y, gear_h + 0.2), (0, y + 0.35, gear_h + 0.2), (0, y + 0.3, gear_h - 0.05), (0, y + 0.18, gear_h - 0.05)], 0.02, "Gunmetal", body, r=0.004, segs=1)
+
+
+# ======================================================================================
+# CR-X1 bike launch bay: the nose splits into two clamshell petals (cut from the existing nose
+# pieces), a lit open-top bay with a launch sled, and the CRX1_BikeEject clip. The game parents the
+# CR-B1 to bike_launch_anchor (on the sled) during the clip and releases it at bike_launch_exit.
+# ======================================================================================
+BAY_LO, BAY_HI = Vector((-0.9, -3.45, 0.22)), Vector((0.9, -1.66, 1.25))
+EJECT_CLIP = "CRX1_BikeEject"
+
+
+def _to_world_mesh(o):
+    o.data.transform(o.matrix_world)
+    o.parent = None
+    o.matrix_world = Matrix.Identity(4)
+
+
+def _bisect(o, keep_positive):
+    bm = bmesh.new()
+    bm.from_mesh(o.data)
+    geom = bm.verts[:] + bm.edges[:] + bm.faces[:]
+    bmesh.ops.bisect_plane(bm, geom=geom, plane_co=(0, 0, 0), plane_no=(1, 0, 0), clear_inner=keep_positive, clear_outer=not keep_positive)
+    boundary = [e for e in bm.edges if e.is_boundary]
+    if boundary:
+        bmesh.ops.holes_fill(bm, edges=boundary, sides=0)
+    bm.to_mesh(o.data)
+    bm.free()
+
+
+def _bool(o, cutter, op):
+    m = o.modifiers.new("bay", "BOOLEAN")
+    m.operation, m.object = op, cutter
+    for attr, val in (("solver", "EXACT"), ("material_mode", "TRANSFER")):
+        try:
+            setattr(m, attr, val)
+        except (TypeError, AttributeError):
+            pass
+    K.apply_mods(o)
+
+
+def bike_bay_crx1(mode):
+    root, body = ob("CRX1_Interceptor"), ob("Body")
+    doors = {1: L.empty("BayDoor_L", (0.9, -2.55, 1.0), body), -1: L.empty("BayDoor_R", (-0.9, -2.55, 1.0), body)}
+    bpy.context.view_layer.update()
+    skip = set()
+    for n in ("Canopy", "Door_L", "Door_R", "Cockpit", "BattlePanel_L", "BattlePanel_R", "Turret", "BayDoor_L", "BayDoor_R"):
+        skip |= subtree(n)
+    dims = BAY_HI - BAY_LO
+    cutter = L.box("_bay_cutter", tuple(dims), tuple((BAY_LO + BAY_HI) / 2), "Black", None, bevel=0)
+    bpy.context.view_layer.update()
+    eps = 0.002
+    for o in list(L.descendants(body)):
+        if o.type != "MESH" or o in skip or o.name.startswith("IN_") or o.name.endswith("_COL") or o is cutter:
+            continue
+        pts = [o.matrix_world @ Vector(c) for c in o.bound_box]
+        lo, hi = Vector(map(min, *pts)), Vector(map(max, *pts))
+        if any(hi[i] < BAY_LO[i] or lo[i] > BAY_HI[i] for i in range(3)):
+            continue
+        inside = all(lo[i] >= BAY_LO[i] - eps and hi[i] <= BAY_HI[i] + eps for i in range(3))
+        if inside:
+            part = o
+        else:
+            part = o.copy()
+            part.data = o.data.copy()
+            part.name = o.name + "_bay"
+            bpy.context.scene.collection.objects.link(part)
+            _bool(part, cutter, "INTERSECT")
+            _bool(o, cutter, "DIFFERENCE")
+            if not part.data.polygons:
+                bpy.data.objects.remove(part, do_unlink=True)
+                continue
+        _to_world_mesh(part)
+        xs = [v.co.x for v in part.data.vertices]
+        if min(xs) >= -0.005:
+            adopt(part, doors[1])
+        elif max(xs) <= 0.005:
+            adopt(part, doors[-1])
+        else:
+            other = part.copy()
+            other.data = part.data.copy()
+            other.name = part.name + "_R"
+            bpy.context.scene.collection.objects.link(other)
+            _bisect(part, True)
+            _bisect(other, False)
+            adopt(part, doors[1])
+            adopt(other, doors[-1])
+    bpy.data.objects.remove(cutter, do_unlink=True)
+    # bay furniture: rails, guide lights, catapult block, launch sled + anchors
+    for s in (1, -1):
+        K.rbox(f"X1_bay_rail{s}", (0.05, 1.2, 0.035), (s * 0.2, -2.35, 0.24), "Alloy", body, r=0.008)
+        K.rbox(f"X1_bay_light{s}", (0.015, 1.2, 0.012), (s * 0.84, -2.35, 0.235), "EmissiveRed", body, r=0.0, segs=1)
+        K.tube(f"X1_bay_ram{s}", [(s * 0.14, -1.7, 0.45), (s * 0.14, -2.05, 0.45)], 0.03, "Alloy", body, segs=10)
+    K.rbox("X1_bay_catapult", (0.42, 0.12, 0.34), (0, -1.73, 0.42), "Gunmetal", body, r=0.02)
+    sled = L.empty("BikeSled", (0, -2.4, 0.24), body)
+    bpy.context.view_layer.update()
+    K.rbox("X1_sled_deck", (0.34, 1.25, 0.04), (0, -2.35, 0.275), "Gunmetal", sled, r=0.01)
+    K.rbox("X1_sled_chock", (0.2, 0.12, 0.12), (0, -2.9, 0.33), "Alloy", sled, r=0.02, rot=deg(-30, 0, 0))
+    for s in (1, -1):
+        K.strut(f"X1_sled_clamp{s}", (s * 0.15, -1.6, 0.3), (s * 0.08, -1.55, 0.6), 0.03, 0.03, "Alloy", sled)
+        K.rbox(f"X1_sled_glow{s}", (0.012, 1.2, 0.01), (s * 0.165, -2.35, 0.297), "EmissiveRed", sled, r=0.0, segs=1)
+    L.empty("bike_launch_anchor", (0, -2.4, 0.3), sled)
+    L.empty("bike_launch_exit", (0, -5.4, 0.0), root)
+    # clip: petals open (0-18), sled holds, then runs out and drops onto the road (18-46)
+    for k, d in doors.items():
+        L.clip(d, EJECT_CLIP, [(0, (0, 0, 0)), (18, deg(0, k * 125, 0)), (46, deg(0, k * 125, 0))])
+    L.clip(sled, EJECT_CLIP, [(0, (0, -2.4, 0.24)), (18, (0, -2.4, 0.24)), (34, (0, -3.7, 0.24)), (46, (0, -4.9, 0.0))], path="location")
+    if mode == "stealth":
+        swap_materials(L.descendants(root), STEALTH_SWAP)
+
+
+def pose_eject(sled_y=-2.4):
+    """Render-only pose: petals open, sled at sled_y."""
+    for k, n in ((1, "BayDoor_L"), (-1, "BayDoor_R")):
+        ob(n).rotation_euler = deg(0, k * 125, 0)
+    ob("BikeSled").location = (0, sled_y, 0.24)
+
+
 VEHICLES = {
-    "crx1": dict(key="crx1_interceptor", file="CRX1_interceptor", build=V.build_crx1, cockpit=cockpit_crx1, root="CRX1_Interceptor",
+    "crx1": dict(key="crx1_interceptor", file="CRX1_interceptor", build=V.build_crx1, cockpit=cockpit_crx1, detail=detail_crx1, extra=bike_bay_crx1, root="CRX1_Interceptor",
                  modes={"pursuit": crx1_pursuit, "battle": crx1_battle, "stealth": crx1_stealth}, pitch=-5),
-    "crb1": dict(key="crb1_batcycle", file="CRB1_batcycle", build=V.build_crb1, cockpit=cockpit_crb1, root="CRB1_Batcycle",
+    "crb1": dict(key="crb1_batcycle", file="CRB1_batcycle", build=V.build_crb1, cockpit=cockpit_crb1, detail=detail_crb1, extra=None, root="CRB1_Batcycle",
                  modes={"pursuit": crb1_pursuit, "battle": crb1_battle, "stealth": crb1_stealth}, pitch=-20),
-    "cra1": dict(key="cra1_specter", file="CRA1_specter", build=V.build_cra1, cockpit=cockpit_cra1, root="CRA1_Specter",
+    "cra1": dict(key="cra1_specter", file="CRA1_specter", build=V.build_cra1, cockpit=cockpit_cra1, detail=detail_cra1, extra=None, root="CRA1_Specter",
                  modes={"flight": cra1_flight, "vtol": cra1_vtol, "stealth": cra1_stealth}, pitch=-14),
 }
 
+PALETTE = {"battle": "battle", "stealth": "stealth"}  # every other mode: standard
 MODE_NOTES = {
     "pursuit": "baseline look, polished: splitter/diffuser or antenna, strobes; cockpit",
     "battle": "armour plates, weapon pods; battle pivots posed deployed at rest; clip names unchanged",
@@ -617,10 +916,20 @@ def build_variant(vid, mode):
     bpy.context.view_layer.update()
     v["cockpit"]()
     bpy.context.view_layer.update()
+    v["detail"](mode)
+    bpy.context.view_layer.update()
     v["modes"][mode]()
+    bpy.context.view_layer.update()
+    if v["extra"]:
+        v["extra"](mode)
+    for o in L.descendants(root):
+        if o.type == "MESH" and o.data.materials and base_mat(o.data.materials[0]).startswith("Cockpit_Screen"):
+            K.fit_uv(o)
     root["ck_vehicle"] = v["key"]
     root["ck_mode"] = mode
     bpy.context.view_layer.update()
+    if BAKE:
+        K.bake_vehicle(root, f"{v['file']}_{mode}", PALETTE.get(mode, "standard"), TEX, log=lambda *a: print("[modes]", *a, flush=True))
     return root
 
 
@@ -631,11 +940,14 @@ def export_variant(vid, mode, root, baseline):
     clips = sorted({t.name for o in objs if o.animation_data for t in o.animation_data.nla_tracks})
     missing = [p for p in baseline["pivots"] if p not in pivots]
     assert not missing, f"{vid}/{mode} lost pivots {missing}"
-    assert clips == baseline["clips"], f"{vid}/{mode} clips changed {clips}"
+    assert set(baseline["clips"]) <= set(clips), f"{vid}/{mode} lost clips {set(baseline['clips']) - set(clips)}"
     base = f"{v['file']}_{mode}"
-    L.export(os.path.join(OUT, base + ".glb"), True, objs)
+    K.export(os.path.join(OUT, base + ".glb"), objs, True)
     lod = L.static_lod([o for o in objs if not o.name.startswith("IN_")], 0.25, base + "_LOD1")
-    L.export(os.path.join(OUT, base + "_lod1.glb"), False, [lod])
+    for i, m in enumerate(lod.data.materials):
+        if m and m.name.startswith(base):
+            lod.data.materials[i] = K.downscaled(m, TEX // 2, "_lod1")
+    K.export(os.path.join(OUT, base + "_lod1.glb"), [lod], False)
     entry = {
         "file": f"assets/models/vehicles/{base}.glb",
         "lod1": f"assets/models/vehicles/{base}_lod1.glb",
@@ -650,6 +962,19 @@ def export_variant(vid, mode, root, baseline):
     extra = [p for p in pivots if p not in baseline["pivots"]]
     if extra:
         entry["added_pivots"] = extra
+    extra_clips = [c for c in clips if c not in baseline["clips"]]
+    if extra_clips:
+        entry["added_clips"] = extra_clips
+    if vid == "crx1":
+        entry["bike_eject"] = {
+            "clip": EJECT_CLIP, "frames": [0, 46], "fps": 30,
+            "pivots": ["BayDoor_L", "BayDoor_R", "BikeSled"],
+            "anchor": "bike_launch_anchor (child of BikeSled): parent the CR-B1 root here, same forward axis",
+            "exit": "bike_launch_exit (on the root, on the road ahead of the nose)",
+            "timeline": "0-18 nose petals open; 18-34 sled runs forward; 34-46 sled drops to the road, then release the bike",
+        }
+    if BAKE:
+        entry["textures"] = f"{TEX}px baked base/MR/normal (JPEG in GLB); LOD1 {TEX // 2}px"
     bpy.data.objects.remove(lod)
     print(f"[modes] {base}: {entry['triangles_lod0']} tris (interior {entry['triangles_interior']}), LOD1 {entry['triangles_lod1']}")
     return entry
@@ -664,7 +989,9 @@ def render_variant(vid, mode, root):
         except TypeError:
             pass
     if hasattr(sc, "eevee"):
-        sc.eevee.taa_render_samples = 32
+        sc.eevee.taa_render_samples = 48
+        if hasattr(sc.eevee, "use_raytracing"):
+            sc.eevee.use_raytracing = True
     w = bpy.data.worlds.new("w")
     if hasattr(w, "use_nodes"):
         w.use_nodes = True
@@ -672,6 +999,20 @@ def render_variant(vid, mode, root):
     bg = w.node_tree.nodes["Background"]
     bg.inputs[0].default_value = (0.42, 0.46, 0.55, 1)
     bg.inputs[1].default_value = 0.7
+    try:  # physical sky for believable outdoor light
+        sky = w.node_tree.nodes.new("ShaderNodeTexSky")
+        for t in ("MULTIPLE_SCATTERING", "NISHITA", "HOSEK_WILKIE"):
+            try:
+                sky.sky_type = t
+                break
+            except TypeError:
+                pass
+        if hasattr(sky, "sun_elevation"):
+            sky.sun_elevation, sky.sun_rotation = math.radians(28), math.radians(140)
+        w.node_tree.links.new(sky.outputs["Color"], bg.inputs[0])
+        bg.inputs[1].default_value = SKY_STRENGTH
+    except Exception as e:
+        print("[modes] sky failed", e)
     objs = L.descendants(root)
     for o in objs:
         if o.name.endswith("_COL"):
@@ -685,10 +1026,15 @@ def render_variant(vid, mode, root):
     center, radius = (lo + hi) / 2, max(hi - lo) / 2
     gm = bpy.data.materials.new("ground")
     gb = gm.node_tree.nodes["Principled BSDF"]
-    gb.inputs["Base Color"].default_value = (0.06, 0.06, 0.065, 1)
-    gb.inputs["Roughness"].default_value = 0.45
+    gt = gm.node_tree.nodes.new("ShaderNodeTexImage")
+    gt.image = L._img(os.path.join(L.PNG, "wet_asphalt.png"))
+    gm.node_tree.links.new(gt.outputs["Color"], gb.inputs["Base Color"])
+    gb.inputs["Roughness"].default_value = 0.4
     me = bpy.data.meshes.new("ground")
     me.from_pydata([(-500, -500, 0), (500, -500, 0), (500, 500, 0), (-500, 500, 0)], [], [(0, 1, 2, 3)])
+    me.uv_layers.new(name="UVMap")
+    for i, uv in enumerate(((-150, -150), (150, -150), (150, 150), (-150, 150))):
+        me.uv_layers[0].data[i].uv = uv
     me.materials.append(gm)
     g = bpy.data.objects.new("ground", me)
     sc.collection.objects.link(g)
@@ -719,6 +1065,29 @@ def render_variant(vid, mode, root):
         sc.render.filepath = os.path.join(RENDERS, f"{base}_{tag}.png")
         bpy.ops.render.render(write_still=True)
         shots.append(sc.render.filepath)
+    if vid == "crx1":  # bike launch: petals open, sled run out with the CR-B1 riding it
+        pose_eject(-3.3)
+        bike = os.path.join(OUT, f"CRB1_batcycle_{'stealth' if mode == 'stealth' else 'pursuit'}.glb")
+        before = set(bpy.data.objects)
+        if os.path.exists(bike):
+            bpy.ops.import_scene.gltf(filepath=bike)
+            bpy.context.view_layer.update()
+            anchor = ob("bike_launch_anchor").matrix_world.copy()
+            for o in set(bpy.data.objects) - before:
+                if o.name.endswith("_COL"):
+                    o.hide_render = True
+                if o.parent is None:
+                    o.matrix_world = anchor @ o.matrix_world
+        cd.lens, cd.clip_start = 35, 0.1
+        cam.location = Vector((3.2, -9.0, 2.3))
+        cam.rotation_euler = (Vector((0, -2.8, 0.6)) - cam.location).to_track_quat("-Z", "Y").to_euler()
+        sc.render.filepath = os.path.join(RENDERS, f"{base}_eject.png")
+        bpy.ops.render.render(write_still=True)
+        for o in set(bpy.data.objects) - before:
+            o.hide_render = True
+        pose_eject(-2.4)
+        ob("BayDoor_L").rotation_euler = (0, 0, 0)
+        ob("BayDoor_R").rotation_euler = (0, 0, 0)
     cc = bpy.data.objects.get("camera_cockpit")
     if cc:
         cd.lens, cd.clip_start = 16, 0.02
@@ -792,7 +1161,7 @@ def cfg_clips(v):
 def main():
     with open(CFG) as fh:
         cfg = json.load(fh)
-    pick = [a for a in ARGS if a in VEHICLES] or list(VEHICLES)
+    pick = [a for a in ARGS if a in VEHICLES] or ["crb1", "crx1", "cra1"]  # bike first: the car's eject render uses it
     for vid in pick:
         v = VEHICLES[vid]
         baseline = cfg[v["key"]]

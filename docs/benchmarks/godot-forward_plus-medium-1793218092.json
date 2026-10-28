@@ -1,0 +1,65 @@
+{
+  "engine": "Godot 4.7.2-stable (official)",
+  "gpu": "AMD Radeon(TM) Graphics",
+  "internalResolution": "1280x720",
+  "quality": "medium",
+  "renderer": "forward_plus",
+  "results": [
+    {
+      "avgFps": 29.2,
+      "avgMs": 34.24,
+      "drawCalls": 803,
+      "frames": 147,
+      "scene": "CR-X9 character close-up",
+      "trianglesK": 268,
+      "worst1pctMs": 45.03
+    },
+    {
+      "avgFps": 59.7,
+      "avgMs": 16.74,
+      "drawCalls": 228,
+      "frames": 300,
+      "scene": "Red Citadel command center",
+      "trianglesK": 26,
+      "worst1pctMs": 23.7
+    },
+    {
+      "avgFps": 64.5,
+      "avgMs": 15.51,
+      "drawCalls": 320,
+      "frames": 323,
+      "scene": "Red Citadel vehicle hangar",
+      "trianglesK": 32,
+      "worst1pctMs": 18.41
+    },
+    {
+      "avgFps": 38.2,
+      "avgMs": 26.15,
+      "drawCalls": 895,
+      "frames": 192,
+      "scene": "New Gotham street",
+      "trianglesK": 273,
+      "worst1pctMs": 36.06
+    },
+    {
+      "avgFps": 35.5,
+      "avgMs": 28.19,
+      "drawCalls": 916,
+      "frames": 178,
+      "scene": "New Gotham rooftop",
+      "trianglesK": 303,
+      "worst1pctMs": 49.1
+    },
+    {
+      "avgFps": 29.8,
+      "avgMs": 33.52,
+      "drawCalls": 785,
+      "frames": 150,
+      "scene": "Dense city intersection",
+      "trianglesK": 247,
+      "worst1pctMs": 47.63
+    }
+  ],
+  "when": "2026-10-28T20:08:12Z",
+  "window": "1280x720"
+}

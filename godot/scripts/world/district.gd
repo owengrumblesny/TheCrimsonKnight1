@@ -233,9 +233,65 @@ func proto(id: String) -> Dictionary:
 			cols.append({"size": n.shape.size, "xf": inv * n.global_transform})
 	remove_child(scene)
 	scene.queue_free()
+	# one mesh per asset with one surface per material (like mergeByMaterial in the web build): a kit
+	# building has 200+ parts, and drawing each as its own MultiMesh made the city draw-call bound
+	if meshes.size() > 1:
+		meshes = [{"mesh": _merge(meshes), "xf": Transform3D(), "skin": false}]
 	var info := {"meshes": meshes, "cols": cols, "bounds": bounds}
 	_proto_cache[id] = info
 	return info
+
+
+func _merge(parts: Array) -> Mesh:
+	var groups := {} # key -> {mat, arrays: [verts, normals, tangents, colors, uvs, indices]}
+	for part in parts:
+		var mesh: Mesh = part["mesh"]
+		var xf: Transform3D = part["xf"]
+		var nb := xf.basis.inverse().transposed()
+		for si in mesh.get_surface_count():
+			if mesh.surface_get_primitive_type(si) != Mesh.PRIMITIVE_TRIANGLES:
+				continue
+			var a := mesh.surface_get_arrays(si)
+			var mat := mesh.surface_get_material(si)
+			var has_c: bool = a[Mesh.ARRAY_COLOR] != null and a[Mesh.ARRAY_COLOR].size() > 0
+			var has_uv: bool = a[Mesh.ARRAY_TEX_UV] != null and a[Mesh.ARRAY_TEX_UV].size() > 0
+			var key := "%d|%s|%s" % [mat.get_instance_id() if mat else 0, has_c, has_uv]
+			if not groups.has(key):
+				groups[key] = {"mat": mat, "v": PackedVector3Array(), "n": PackedVector3Array(), "c": PackedColorArray(),
+					"uv": PackedVector2Array(), "i": PackedInt32Array(), "has_c": has_c, "has_uv": has_uv}
+			var g: Dictionary = groups[key]
+			var base: int = g["v"].size()
+			var verts: PackedVector3Array = a[Mesh.ARRAY_VERTEX]
+			var norms = a[Mesh.ARRAY_NORMAL]
+			for k in verts.size():
+				g["v"].append(xf * verts[k])
+				g["n"].append((nb * norms[k]).normalized() if norms and norms.size() > k else Vector3.UP)
+			if has_c:
+				g["c"].append_array(a[Mesh.ARRAY_COLOR])
+			if has_uv:
+				g["uv"].append_array(a[Mesh.ARRAY_TEX_UV])
+			var idx = a[Mesh.ARRAY_INDEX]
+			if idx and idx.size() > 0:
+				for k in idx:
+					g["i"].append(base + k)
+			else:
+				for k in verts.size():
+					g["i"].append(base + k)
+	var im := ImporterMesh.new()
+	for key in groups:
+		var g: Dictionary = groups[key]
+		var arr := []
+		arr.resize(Mesh.ARRAY_MAX)
+		arr[Mesh.ARRAY_VERTEX] = g["v"]
+		arr[Mesh.ARRAY_NORMAL] = g["n"]
+		if g["has_c"]:
+			arr[Mesh.ARRAY_COLOR] = g["c"]
+		if g["has_uv"]:
+			arr[Mesh.ARRAY_TEX_UV] = g["uv"]
+		arr[Mesh.ARRAY_INDEX] = g["i"]
+		im.add_surface(Mesh.PRIMITIVE_TRIANGLES, arr, [], {}, g["mat"])
+	im.generate_lods(25.0, 60.0, []) # automatic distance LODs, as the importer made for the parts
+	return im.get_mesh()
 
 
 ## Copy of a mesh with its png_wet_asphalt surfaces switched to the wet-street shader (others untouched).
@@ -262,7 +318,9 @@ func instanced(id: String, list: Array, opts: Dictionary) -> void:
 		push_warning("district: missing asset " + id)
 		return
 	var info := proto(id)
-	var chunk: float = opts.get("chunk", 0.0)
+	# every repeated asset is chunked (48 m by default) so off-screen groups are culled in both the main and
+	# shadow passes; a district-wide MultiMesh is never culled
+	var chunk: float = opts.get("chunk", 48.0)
 	var chunks := {}
 	for p in list:
 		var key := Vector2i(floori(p["x"] / chunk), floori(p["z"] / chunk)) if chunk > 0 else Vector2i.ZERO

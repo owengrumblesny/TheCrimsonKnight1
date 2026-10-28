@@ -134,6 +134,7 @@ func apply_quality(q: String) -> void:
 	vp.scaling_3d_scale = scale
 	vp.msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][p["msaa"]]
 	vp.use_taa = p["taa"]
+	vp.screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA if p.get("fxaa", false) else Viewport.SCREEN_SPACE_AA_DISABLED
 	vp.mesh_lod_threshold = p["mesh_lod"]
 	vp.anisotropic_filtering_level = [Viewport.ANISOTROPY_DISABLED, Viewport.ANISOTROPY_2X, Viewport.ANISOTROPY_4X,
 		Viewport.ANISOTROPY_8X, Viewport.ANISOTROPY_16X][p["anisotropy"]]

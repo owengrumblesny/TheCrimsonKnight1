@@ -4,7 +4,7 @@ The Godot port lives beside the web build. `project.godot` sits at the repo root
 
 - Engine: **Godot 4.7.2 stable** (standard build, GDScript only), installed with winget as a portable app under `%LOCALAPPDATA%\Microsoft\WinGet\Packages\GodotEngine.GodotEngine_*`.
 - Renderer: Forward+. Physics: Jolt (built in), 60 Hz, physics interpolation on.
-- **Benchmarking is deferred (Owen, 2026-10-28).** No performance numbers are claimed here; the FPS counter in test logs is not a benchmark.
+- **Performance:** measured on the target laptop in `docs/PERFORMANCE_GODOT.md`. LOW holds 41–96 fps across the six benchmark scenes (target 30); MEDIUM is about 30.
 
 ## Where it stands (2026-10-28)
 | Milestone | Status | Grade |
@@ -14,11 +14,12 @@ The Godot port lives beside the web build. `project.godot` sits at the repo root
 | M2 Red Citadel + transitions | Done (`63e9771`) | PROTOTYPE |
 | M3 NPCs, gear sockets, gadgets, hotbar | Done (`c2f1719`) | PROTOTYPE |
 | M4 UI pack | Done (`59dd70d`) | PROTOTYPE |
-| M5 benchmark harness | **Skipped** (Owen: benchmarking deferred). The presets exist; no performance numbers are claimed | |
+| M3.5 guns + drivable vehicles | Done (`87d64d7`, `9571842`) | PROTOTYPE |
+| M5 benchmark harness + laptop optimisation | Done; see `docs/PERFORMANCE_GODOT.md` | LOW meets target |
 | M6 desktop graphics | Done (`c063c08`) | PROTOTYPE |
 | Audio | Done (`904ce35`) | PROTOTYPE (not listened to) |
 
-Still to do: the benchmark harness (M5), the loading screen, the animation debug panel, the web radial mask on effect sprites, and a Citadel GLB rebuild with the fixed builder. Nobody has played the port by hand yet; every check so far was scripted (`--hold`/`--press`) or headless.
+Still to do: the loading screen, the animation debug panel, the web radial mask on effect sprites, and a Citadel GLB rebuild with the fixed builder. Nobody has played the port by hand yet; every check so far was scripted (`--hold`/`--press`) or headless.
 
 ## How to run
 ```
@@ -69,7 +70,7 @@ Test arguments (after `--`): `--quality=low|medium|high|ultra`, `--at=x,y,z`, `-
 | Desktop graphics (M6): wet streets with puddles (near-mirror roughness) and animated ripples; SSR, volumetric fog (lamp halos), glow on HIGH/ULTRA; SDFGI + SSIL + TAA on ULTRA | `godot/shaders/wet_asphalt.gdshader`, `quality.gd`, `stage.gd` | **Done (M6).** LOW keeps the puddle mask with ripples off and no SSAO/SSR/SDFGI/volumetric fog/MSAA |
 | Guns (Godot only, Owen's request): sidearm and carbine (hitscan), launcher and cannon (splash projectiles), blade (melee); muzzle flash, tracers, decals, recoil, ammo/reload (T), RMB over-the-shoulder aim, hit marker, 6 target dummies | `godot/scripts/systems/weapons.gd`, `godot/data/weapons.json`, `world/targets.gd` | **Done (M3.5a).** Each weapon tested against dummies |
 | Drivable vehicles (Godot only): CR-X1 car and CR-B1 bike (VehicleBody3D, bike auto-balance and lean), CR-A1 jet (arcade flight + VTOL); V summon, E/F enter and exit, first-person default with head-bob and FOV kick, V chase cam, B modes (car pursuit/battle/stealth, bike pursuit/stealth, jet flight/vtol/stealth: clips, top speed, emissives, engine volume), engine sound | `godot/scripts/vehicles/vehicle.gd`, `drive_controller.gd`, `godot/data/vehicles.json` | **Done (M3.5b).** Car reached its 224 km/h cap; bike stays upright turning at 120 km/h; jet takes off and climbs in VTOL. Per-mode GLB/material swaps read from config, ready for the vehicle-modes models |
-| Benchmark harness (6 scenes × 4 presets), Forward+ vs Mobile | not ported | **Deferred by Owen.** No performance claims |
+| Benchmark harness (6 scenes × 4 presets), Forward+ vs Mobile | `godot/scripts/testing/benchmark.gd` (`--bench`) | **Done (M5).** Forward+ beats Mobile on the 610M; district meshes merged by material and chunked (draws about 4× lower) |
 | Audio: the 13 synthesized placeholder sounds, rain ambience loop ducked under menus, per-category buses following the volume settings, footsteps | `godot/scripts/systems/audio.gd` (pre-rendered AudioStreamWAV, same recipes as the web) | Done. Checked headlessly (every event non-silent, buses exist); not listened to |
 
 ## Decisions

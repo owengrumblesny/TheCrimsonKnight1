@@ -1,7 +1,8 @@
 class_name Quality
 ## Graphics presets (port of render/quality.ts). LOW targets the laptop (Ryzen 5 7520U / Radeon 610M,
 ## 720p, 30 FPS goal) and keeps the crimson identity; SSAO/SSIL/SDFGI/volumetric fog/MSAA are off there.
-## Values are starting points, not measured guarantees (benchmarks are deferred).
+## MEDIUM is the "average laptop" step up from LOW (no MSAA/SSAO, FXAA). HIGH/ULTRA are desktop presets.
+## Measured on the target laptop: docs/PERFORMANCE_GODOT.md.
 
 const ORDER := ["low", "medium", "high", "ultra"]
 
@@ -13,10 +14,10 @@ const PRESETS := {
 		"ssao": false, "ssil": false, "ssr": false, "sdfgi": false, "volumetric_fog": false, "taa": false,
 	},
 	"medium": {
-		"render_height": 900, "fsr": true, "shadows": true, "shadow_map": 2048, "shadow_range": 26.0, "shadow_splits": 2,
-		"soft_shadows": 1, "draw_distance": 350.0, "fog_density": 0.013, "dynamic_lights": 6, "light_shadows": false,
-		"bloom": true, "rain": 0.6, "anisotropy": 2, "lod_scale": 0.85, "hero_min_lod": 0, "msaa": 1, "mesh_lod": 2.0,
-		"ssao": true, "ssil": false, "ssr": false, "sdfgi": false, "volumetric_fog": false, "taa": false,
+		"render_height": 810, "fsr": true, "shadows": true, "shadow_map": 2048, "shadow_range": 22.0, "shadow_splits": 2,
+		"soft_shadows": 0, "draw_distance": 300.0, "fog_density": 0.014, "dynamic_lights": 4, "light_shadows": false,
+		"bloom": true, "rain": 0.5, "anisotropy": 2, "lod_scale": 0.75, "hero_min_lod": 1, "msaa": 0, "fxaa": true, "mesh_lod": 2.5,
+		"ssao": false, "ssil": false, "ssr": false, "sdfgi": false, "volumetric_fog": false, "taa": false,
 	},
 	"high": {
 		"render_height": 0, "fsr": false, "shadows": true, "shadow_map": 4096, "shadow_range": 34.0, "shadow_splits": 4,

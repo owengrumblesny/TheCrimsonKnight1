@@ -148,3 +148,7 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 ## 2026-10-28: Godot port M3.5b (drivable vehicles)
 - `Vehicle` (VehicleBody3D) and `DriveController`: summon with V, enter and exit with E/F (enter/exit/drive clips, door and canopy clips, hero on seat_attach), first person by default (canopy glass made see-through, head-bob, FOV kick), chase cam on V, modes on B, engine loops from the synth.
 - Tested by script: the car at full throttle and in battle mode, the bike turning at speed, the jet's takeoff roll and VTOL climb.
+
+## 2026-10-28: Godot port M5 (benchmark and laptop optimisation)
+- `--bench` runs the six web benchmark scenes and writes JSON to `docs/benchmarks/godot-*.json`. The first LOW run on the 610M was draw-call bound: 1.9–3k draws and 18–30 fps in the city.
+- Kit assets are now merged by material with generated LODs, and every repeated asset is chunked. LOW now runs 41–96 fps in every scene. MEDIUM was retuned as the average-laptop preset (FXAA, LOD1 hero, no SSAO) and runs about 30 fps here. Forward+ beat Mobile in every scene. Details: `docs/PERFORMANCE_GODOT.md`.

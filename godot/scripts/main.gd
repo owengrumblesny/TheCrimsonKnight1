@@ -14,6 +14,7 @@ extends Node3D
 ##   --chase                            start driving in the chase camera
 ##   --equip=item_id                    put an item in slot 1 and select it
 ##   --aimat=x,y,z                      keep the camera centre on a world point (weapon tests)
+##   --bench                            run the 6-scene benchmark for the current preset, write JSON, quit
 ##   --notify=text                      post a HUD notification at start
 
 var stage: Stage
@@ -59,7 +60,7 @@ func _ready() -> void:
 	settings = prefs["settings"]
 	CKInput.overrides = prefs["bindings"]
 	CKInput.apply()
-	if args.has("frames"):
+	if args.has("frames") or args.has("bench"):
 		# scripted runs ignore the real keyboard, mouse and pads (someone may be typing while the test window
 		# pops up); --hold/--press drive actions directly, which needs no bound events
 		CKInput.bindings_changed.connect(func():
@@ -168,6 +169,13 @@ func _ready() -> void:
 	if args.has("menu"):
 		started = args["menu"] != "main"
 		menus.show_screen(args["menu"])
+	elif args.has("bench"):
+		play()
+		var bench := Benchmark.new()
+		bench.game = self
+		add_child(bench)
+		bench.finished.connect(func(_r): get_tree().quit())
+		bench.start.call_deferred()
 	elif args.has("frames"):
 		play() # scripted runs start in-game
 	else:
@@ -206,7 +214,7 @@ func _on_menus_open(open: bool) -> void:
 	if args.has("log"):
 		print("[ck] f%d menus %s %s" % [frame, "open" if open else "closed", menus.top()])
 	get_tree().paused = open
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if open or args.has("frames") else Input.MOUSE_MODE_CAPTURED
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if open or args.has("frames") or args.has("bench") else Input.MOUSE_MODE_CAPTURED
 	for a in ["moveForward", "moveBack", "moveLeft", "moveRight", "sprint", "jump", "grapple", "primaryAction", "secondaryAction"]:
 		if not args.get("hold", "").contains(a):
 			Input.action_release(a) # nothing stays held across a menu

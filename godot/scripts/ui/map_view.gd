@@ -21,9 +21,9 @@ func _process(dt: float) -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color("#0b0a10"))
-	# fit the district (x ±125, z -135..+125) with the Citadel entrance (z -120) on screen
-	var s := minf(size.x / 260.0, size.y / 270.0)
-	var c := Vector2(size.x / 2, size.y / 2 + 5 * s)
+	# fit the whole street grid (about ±440 m)
+	var s := minf(size.x, size.y) / 900.0
+	var c := size / 2
 	var font := get_theme_default_font()
 	for f in game.district.map_features:
 		var col := Color("#1e1d26") if f["kind"] == "road" else Color("#7a1020") if f["kind"] == "portal" else Color("#3a2a33")

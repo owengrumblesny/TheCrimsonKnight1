@@ -15,6 +15,14 @@ var _light_pool: Array = []
 var _pool_timer := 0.0
 var _rand_state := 0
 var _proto_cache := {}
+## street grid: avenues at k * SPACING (k = -GRID..GRID) along both axes
+const GRID := 3
+const SPACING := 140.0
+## kit buildings switch to their merged *_lod1 versions beyond this distance (per 40 m chunk)
+const LOD_DIST := 110.0
+## Citadel Square: open plaza around the portal (and the CR-A1 landing pad)
+const SQUARE := Vector2(0, -135)
+const SQUARE_RADIUS := 42.0
 ## Shared wet-street material: the ground and every surface that used png_wet_asphalt (road tiles).
 var wet: ShaderMaterial
 
@@ -30,104 +38,123 @@ func build() -> void:
 	_rand_state = int(CKData.json("world")["seed"])
 	_ground()
 
+	# ---- street grid: avenues at k * SPACING (k = -GRID..GRID) along both axes ----
+	var half := GRID * SPACING
 	var road_tiles := []
 	var walks := []
-	for i in range(-10, 11):
-		road_tiles.append_array([_p(i * 6, 0), _p(0, i * 6)])
-		if i != 0:
-			for o in [-6, 6]:
-				walks.append_array([_p(i * 6, o), _p(o, i * 6)])
+	for k in range(-GRID, GRID + 1):
+		var c := k * SPACING
+		for t in range(-int(half / 6), int(half / 6) + 1):
+			var a := t * 6.0
+			road_tiles.append_array([_p(a, c), _p(c, a)])
+			if _off_crossing(a):
+				for o in [-6, 6]:
+					walks.append_array([_p(a, c + o), _p(c + o, a)])
 	instanced("road_tile_v01", road_tiles, {"collide": false, "shadow": false})
 	instanced("sidewalk_tile_v01", walks, {"collide": true, "shadow": false})
+	for k in range(-GRID, GRID + 1):
+		map_features.append({"kind": "road", "min": Vector2(-half, k * SPACING - 3), "max": Vector2(half, k * SPACING + 3)})
+		map_features.append({"kind": "road", "min": Vector2(k * SPACING - 3, -half), "max": Vector2(k * SPACING + 3, half)})
 
-	# ---- building rows (footprints from config/citykit.json) ----
+	# ---- building rows: kit buildings facade-to-facade along every block face (config/citykit.json
+	# footprints), facades 11 m from the street centre; Citadel Square around the portal stays open ----
 	var foot := {"kit_gothic_tower": [16, 16], "kit_office_tower": [17, 17], "kit_apartment": [14, 13],
 		"kit_warehouse": [24, 20], "kit_shopfront": [10, 12]}
 	var kinds := ["kit_apartment", "kit_shopfront", "kit_office_tower", "kit_apartment", "kit_warehouse", "kit_shopfront", "kit_gothic_tower"]
 	var lots := {}
 	for axis in ["x", "z"]:
-		for side in [-1, 1]:
-			for dir in [-1, 1]:
-				var cursor := 12.0
-				while cursor < 116:
-					var kind: String = kinds[int(_rand() * kinds.size())]
-					var w: float = foot[kind][0]
-					var d: float = foot[kind][1]
-					if cursor + w > 120:
-						break
-					var along: float = dir * (cursor + w / 2)
-					var off: float = side * (11 + d / 2)
-					# near the intersection: full detail; further out: the merged LOD1 version
-					var id := kind if absf(along) < 64 else kind + "_lod1"
-					if axis == "x":
-						_add(lots, id, _p(along, off, PI if side > 0 else 0.0))
-					else:
-						_add(lots, id, _p(off, along, -PI / 2 if side > 0 else PI / 2))
-					cursor += w + 1.5
-	# far LOD1 lots sit outside every preset's shadow range (<= 45 m), so they don't cast
-	for id in lots:
-		instanced(id, lots[id], {"collide": true, "map_kind": "building", "chunk": 40, "shadow": not id.ends_with("_lod1")})
-	# simplified distant skyline (LOD1 only, no collision)
+		for k in range(-GRID, GRID + 1):
+			var c := k * SPACING
+			for side in [-1, 1]:
+				for blk in range(-GRID, GRID):
+					var cursor := blk * SPACING + 12.0
+					var stop := (blk + 1) * SPACING - 12.0
+					while cursor < stop:
+						var kind: String = kinds[int(_rand() * kinds.size())]
+						var w: float = foot[kind][0]
+						var d: float = foot[kind][1]
+						if cursor + w > stop:
+							break
+						var along := cursor + w / 2
+						var off: float = c + side * (11 + d / 2)
+						var at := Vector2(along, off) if axis == "x" else Vector2(off, along)
+						if at.distance_to(SQUARE) > SQUARE_RADIUS:
+							var rot: float = (PI if side > 0 else 0.0) if axis == "x" else (-PI / 2 if side > 0 else PI / 2)
+							_add(lots, kind, _p(at.x, at.y, rot))
+						cursor += w + 1.5
+	for kind in lots:
+		instanced(kind, lots[kind], {"collide": true, "map_kind": "building", "chunk": 40, "vis_end": LOD_DIST})
+		instanced(kind + "_lod1", lots[kind], {"collide": false, "shadow": false, "chunk": 40, "vis_begin": LOD_DIST})
+	# simplified distant skyline beyond the grid (LOD1 only, no collision)
 	var sky := {}
-	for i in 48:
-		var a := (i / 48.0) * TAU + _rand() * 0.05
-		var r := 150 + _rand() * 70
+	for i in 72:
+		var a := (i / 72.0) * TAU + _rand() * 0.04
+		var r := half + 140 + _rand() * 120
 		var kind: String = ["kit_office_tower", "kit_gothic_tower", "kit_apartment"][i % 3]
-		_add(sky, kind, _p(cos(a) * r, sin(a) * r, -a - PI / 2, 0.0, 1 + _rand() * 0.9))
+		_add(sky, kind, _p(cos(a) * r, sin(a) * r, -a - PI / 2, 0.0, 1.4 + _rand() * 1.2))
 	for kind in sky:
-		instanced(kind + "_lod1", sky[kind], {"collide": false, "shadow": false, "chunk": 150})
-	map_features.append({"kind": "road", "min": Vector2(-63, -3), "max": Vector2(63, 3)})
-	map_features.append({"kind": "road", "min": Vector2(-3, -63), "max": Vector2(3, 63)})
+		instanced(kind + "_lod1", sky[kind], {"collide": false, "shadow": false, "chunk": 200})
 
-	# ---- street lights (arm over the road) ----
+	# ---- per street: lamps (arm over the road), trees, manholes, drains, parked cars; per crossing: lights ----
 	var lamp_list := []
-	for i in range(-9, 10, 2):
-		if absi(i) < 2:
-			continue
-		lamp_list.append_array([_p(i * 6, -3.7, -PI / 2), _p(i * 6 + 6, 3.7, PI / 2), _p(3.7, i * 6, PI), _p(-3.7, i * 6 + 6, 0)])
+	var trees := []
+	var covers := []
+	var drains := []
+	var cars := []
+	for k in range(-GRID, GRID + 1):
+		var c := k * SPACING
+		for t in range(-int(half / 12), int(half / 12)):
+			var a := t * 12.0 + 6.0
+			if not _off_crossing(a, 14.0):
+				continue # keep crossings clear
+			if t % 2 == 0:
+				lamp_list.append_array([_p(a, c - 3.7, -PI / 2), _p(c + 3.7, a, PI)])
+			else:
+				lamp_list.append_array([_p(a, c + 3.7, PI / 2), _p(c - 3.7, a, 0)])
+			if posmod(t, 3) == 0:
+				trees.append_array([_p(a + 3, c + 8.2, t), _p(c - 8.2, a + 3, t * 2)])
+			if posmod(t, 3) == 1:
+				covers.append_array([_p(a, c + 0.9), _p(c - 0.9, a)])
+				drains.append_array([_p(a + 2, c + 2.75), _p(c + 2.75, a + 2, PI / 2)])
+			if _rand() < 0.12 and Vector2(a, c).distance_to(SQUARE) > SQUARE_RADIUS and Vector2(c, a).distance_to(SQUARE) > SQUARE_RADIUS:
+				var lane := -1.6 if _rand() < 0.5 else 1.6
+				cars.append(_p(a, c + lane) if _rand() < 0.5 else _p(c + lane, a, PI / 2))
+	var lights := []
+	var crossings := []
+	var signs := []
+	for kx in range(-GRID, GRID + 1):
+		for kz in range(-GRID, GRID + 1):
+			var x := kx * SPACING
+			var z := kz * SPACING
+			lights.append_array([_p(x + 4.4, z + 4.4, PI), _p(x - 4.4, z - 4.4, 0), _p(x - 4.4, z + 4.4, PI / 2), _p(x + 4.4, z - 4.4, -PI / 2)])
+			crossings.append_array([_p(x + 7.5, z), _p(x - 7.5, z), _p(x, z + 7.5, PI / 2), _p(x, z - 7.5, PI / 2)])
+			if posmod(kx + kz, 2) == 0:
+				signs.append_array([_p(x + 5.5, z - 5.5, 0.3), _p(x - 5.5, z + 5.5, PI + 0.3)])
 	instanced("kit_streetlight", lamp_list, {"collide": true})
 	for l in lamp_list:
 		var head := Vector3(1.75, 6.55, 0).rotated(Vector3.UP, l["rot"])
 		lamps.append({"pos": Vector3(l["x"], 0, l["z"]) + head, "off_until": 0.0})
-
-	# ---- intersection furniture ----
-	instanced("kit_traffic_light", [_p(4.4, 4.4, PI), _p(-4.4, -4.4, 0), _p(-4.4, 4.4, PI / 2), _p(4.4, -4.4, -PI / 2)], {"collide": true})
-	instanced("kit_crosswalk", [_p(7.5, 0), _p(-7.5, 0), _p(0, 7.5, PI / 2), _p(0, -7.5, PI / 2)], {"collide": false, "shadow": false})
-	instanced("kit_street_sign", [_p(5.5, -5.5, 0.3), _p(-5.5, 5.5, PI + 0.3)], {"collide": true})
-	var covers := []
-	var drains := []
-	var trees := []
-	for i in range(-8, 9):
-		if absi(i) < 2:
-			continue
-		var odd := i % 2 != 0
-		covers.append_array([_p(i * 7.3, 0.9 if odd else -0.9), _p(-0.9 if odd else 0.9, i * 7.3)])
-		drains.append_array([_p(i * 6.5 + 2, 2.75), _p(2.75, i * 6.5 + 2, PI / 2)])
-		trees.append_array([_p(i * 7 + 3, 8.2, i), _p(i * 7 + 3, -8.2, i * 2), _p(8.2, i * 7 + 3, i * 3), _p(-8.2, i * 7 + 3, i)])
+	instanced("kit_traffic_light", lights, {"collide": true})
+	instanced("kit_crosswalk", crossings, {"collide": false, "shadow": false})
+	instanced("kit_street_sign", signs, {"collide": true})
 	instanced("kit_manhole", covers, {"collide": false, "shadow": false})
 	instanced("kit_drain", drains, {"collide": false, "shadow": false})
 	instanced("kit_street_tree", trees, {"collide": true})
+	instanced("car_prop_v01", cars, {"collide": true})
 
-	# ---- sidewalk props ----
-	var props := _scatter(["kit_trash_can", "kit_hydrant", "kit_bench", "kit_mailbox", "kit_recycling_bin", "kit_vending_machine",
-		"kit_utility_cabinet", "kit_garbage_bag", "kit_bus_shelter", "kit_dumpster", "kit_bush"], 80, 60)
+	# ---- sidewalk props along every street ----
+	var props := _scatter_grid(["kit_trash_can", "kit_hydrant", "kit_bench", "kit_mailbox", "kit_recycling_bin", "kit_vending_machine",
+		"kit_utility_cabinet", "kit_garbage_bag", "kit_bus_shelter", "kit_dumpster", "kit_bush"], 5)
 	for id in props:
 		instanced(id, props[id], {"collide": id != "kit_garbage_bag" and id != "kit_bush"})
+	# dumpster alley + an industrial yard near the start (enemy hideouts)
 	instanced("kit_dumpster", [_p(-40, 9.4, PI), _p(-37.5, 9.4, PI)], {"collide": true})
 	instanced("kit_shipping_container", [_p(92, -7), _p(92, -7, 0, 2.6), _p(99, 7, 0.2)], {"collide": true})
 	instanced("kit_generator", [_p(84, 6.5)], {"collide": true})
 	instanced("kit_fence", [_p(88, 10.2), _p(94, 10.2)], {"collide": true})
 	instanced("kit_jersey_barrier", [_p(-30, -1.6), _p(-26.8, -1.6), _p(30, 1.6)], {"collide": true})
-	var cars := []
-	for i in 10:
-		var along := (_rand() - 0.5) * 100
-		if absf(along) < 12:
-			continue
-		var lane := -1.6 if _rand() < 0.5 else 1.6
-		cars.append(_p(along, lane) if i % 2 else _p(lane, along, PI / 2))
-	instanced("car_prop_v01", cars, {"collide": true})
 
-	# ---- physics playthings ----
+	# ---- physics playthings near the start ----
 	var loose := _scatter(["kit_cardboard_box", "barrel_v01", "kit_traffic_cone", "kit_pallet", "kit_toolbox"], 30, 34)
 	for id in loose:
 		for p in loose[id]:
@@ -137,9 +164,31 @@ func build() -> void:
 	_citadel_portal()
 
 
+## True when `a` (a coordinate along a street) is more than `margin` from the nearest crossing.
+func _off_crossing(a: float, margin := 6.5) -> bool:
+	return absf(a - roundf(a / SPACING) * SPACING) > margin
+
+
+## Sidewalk props along every street: `per_block` per block face, both sides.
+func _scatter_grid(ids: Array, per_block: int) -> Dictionary:
+	var out := {}
+	var n := 0
+	for axis in ["x", "z"]:
+		for k in range(-GRID, GRID + 1):
+			for blk in range(-GRID, GRID):
+				for i in per_block:
+					var along := blk * SPACING + 14 + _rand() * (SPACING - 28)
+					var off := k * SPACING + (-1.0 if _rand() < 0.5 else 1.0) * (4.9 + _rand() * 2.0)
+					var p := _p(along, off) if axis == "x" else _p(off, along)
+					p["rot"] = _rand() * TAU
+					_add(out, ids[n % ids.size()], p)
+					n += 1
+	return out
+
+
 func _ground() -> void:
 	var mesh := PlaneMesh.new()
-	mesh.size = Vector2(400, 400)
+	mesh.size = Vector2(1300, 1300)
 	mesh.material = wet
 	var mi := MeshInstance3D.new()
 	mi.name = "Ground"
@@ -150,7 +199,7 @@ func _ground() -> void:
 	var body := StaticBody3D.new()
 	body.name = "Ground_static"
 	add_child(body)
-	_box(body, Vector3(400, 2, 400), Transform3D(Basis(), Vector3(0, -1, 0)))
+	_box(body, Vector3(1300, 2, 1300), Transform3D(Basis(), Vector3(0, -1, 0)))
 
 
 func _wet_material() -> ShaderMaterial:
@@ -341,6 +390,9 @@ func instanced(id: String, list: Array, opts: Dictionary) -> void:
 			mmi.name = "%s_%d_%d" % [id, key.x, key.y]
 			mmi.multimesh = mm
 			mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if shadow else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			# distance LOD per chunk: full-detail kit up close, the merged *_lod1 version further out
+			mmi.visibility_range_begin = opts.get("vis_begin", 0.0)
+			mmi.visibility_range_end = opts.get("vis_end", 0.0)
 			add_child(mmi)
 	var body: StaticBody3D = null
 	if opts.get("collide", false):

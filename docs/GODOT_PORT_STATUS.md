@@ -6,6 +6,20 @@ The Godot port lives beside the web build. `project.godot` sits at the repo root
 - Renderer: Forward+. Physics: Jolt (built in), 60 Hz, physics interpolation on.
 - **Benchmarking is deferred (Owen, 2026-10-28).** No performance numbers are claimed here; the FPS counter in test logs is not a benchmark.
 
+## Where it stands (2026-10-28)
+| Milestone | Status | Grade |
+|---|---|---|
+| M0 project + import pipeline | Done (`cbfcf11`) | n/a (all 326 GLBs import with 0 errors) |
+| M1 CR-X9 in the district | Done (`8713445`) | PROTOTYPE |
+| M2 Red Citadel + transitions | Done (`63e9771`) | PROTOTYPE |
+| M3 NPCs, gear sockets, gadgets, hotbar | Done (`c2f1719`) | PROTOTYPE |
+| M4 UI pack | Done (`59dd70d`) | PROTOTYPE |
+| M5 benchmark harness | **Skipped** (Owen: benchmarking deferred). The presets exist; no performance numbers are claimed | |
+| M6 desktop graphics | Done (`c063c08`) | PROTOTYPE |
+| Audio | Done (`904ce35`) | PROTOTYPE (not listened to) |
+
+Still to do: the benchmark harness (M5), the loading screen, the animation debug panel, the web radial mask on effect sprites, and a Citadel GLB rebuild with the fixed builder. Nobody has played the port by hand yet; every check so far was scripted (`--hold`/`--press`) or headless.
+
 ## How to run
 ```
 godot --path .                                   # play (Esc frees the mouse)

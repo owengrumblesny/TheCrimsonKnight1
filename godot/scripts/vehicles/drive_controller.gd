@@ -191,8 +191,8 @@ func nearby() -> Vehicle:
 ## offset along the seat (m: x right, y up, z forward)]. The Cycle is ridden prone like a Batpod; the
 ## Interceptor's driver lies back in a reclined cockpit. Other vehicles sit upright (CK_Drive).
 const RIDER := {
-	"crb1_batcycle": ["CK_RideProne", 72.0, 0.55, Vector3(0, 0.05, 0.10)],
-	"crx1_interceptor": ["CK_DriveRecline", -38.0, 0.55, Vector3(0, -0.12, -0.15)],
+	"crb1_batcycle": ["CK_RideProne", 72.0, 0.55, Vector3(0, -0.3, 0.0)],
+	"crx1_interceptor": ["CK_DriveRecline", -38.0, 0.55, Vector3(0, -0.22, -0.15)],
 }
 
 

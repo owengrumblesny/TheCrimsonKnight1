@@ -196,9 +196,9 @@ func set_underground(on: bool) -> void:
 
 ## Apply a graphics preset. Viewport-wide settings live here; per-system ones (light pool, LOD) are read
 ## from `preset` by their owners.
-func apply_quality(q: String) -> void:
+func apply_quality(q: String, overrides := {}) -> void:
 	quality = q
-	preset = Quality.PRESETS[q]
+	preset = Quality.resolve(q, overrides)
 	var p := preset
 	var vp := get_viewport()
 	var h := float(DisplayServer.window_get_size().y)

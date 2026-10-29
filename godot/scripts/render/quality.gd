@@ -1,4 +1,31 @@
 class_name Quality
+## Per-setting overrides on top of a preset (Settings > Graphics). Each option: [label, [[choice label, {preset keys}], ...]].
+## Index 0 of every option is "Preset" (no override).
+const OPTIONS := {
+	"resolution": ["Resolution scale", [["Preset", {}], ["50%", {"render_height": 540, "fsr": true}], ["67%", {"render_height": 720, "fsr": true}],
+		["83%", {"render_height": 900, "fsr": true}], ["100%", {"render_height": 0, "fsr": false}]]],
+	"shadows": ["Shadow quality", [["Preset", {}], ["Off", {"shadows": false}], ["Low", {"shadows": true, "shadow_map": 1024, "shadow_range": 16.0, "shadow_splits": 1, "soft_shadows": 0}],
+		["Medium", {"shadows": true, "shadow_map": 2048, "shadow_range": 24.0, "shadow_splits": 2, "soft_shadows": 1}],
+		["High", {"shadows": true, "shadow_map": 4096, "shadow_range": 36.0, "shadow_splits": 4, "soft_shadows": 2}]]],
+	"draw": ["Draw distance", [["Preset", {}], ["Near (220 m)", {"draw_distance": 220.0, "lod_scale": 0.6}], ["Medium (320 m)", {"draw_distance": 320.0, "lod_scale": 0.8}],
+		["Far (480 m)", {"draw_distance": 480.0, "lod_scale": 1.0}], ["Max (700 m)", {"draw_distance": 700.0, "lod_scale": 1.25}]]],
+	"reflections": ["Reflections", [["Preset", {}], ["Off", {"ssr": false}], ["Screen-space", {"ssr": true}]]],
+	"post": ["Post-processing", [["Preset", {}], ["Minimal", {"bloom": false, "ssao": false, "ssil": false, "volumetric_fog": false}],
+		["Standard", {"bloom": true, "ssao": false, "ssil": false, "volumetric_fog": false}], ["Full", {"bloom": true, "ssao": true, "ssil": true, "volumetric_fog": true}]]],
+	"textures": ["Texture quality", [["Preset", {}], ["Low", {"anisotropy": 0, "mesh_lod": 4.0}], ["Medium", {"anisotropy": 2, "mesh_lod": 2.0}], ["High", {"anisotropy": 4, "mesh_lod": 1.0}]]],
+	"effects": ["Effects quality", [["Preset", {}], ["Low", {"rain": 0.25, "dynamic_lights": 3}], ["Medium", {"rain": 0.5, "dynamic_lights": 4}], ["High", {"rain": 1.0, "dynamic_lights": 6}]]],
+}
+
+
+## Preset q with the player's per-setting overrides ({option: choice index}) applied.
+static func resolve(q: String, overrides: Dictionary) -> Dictionary:
+	var p: Dictionary = PRESETS[q].duplicate()
+	for k in overrides:
+		if OPTIONS.has(k):
+			var i := int(overrides[k])
+			if i > 0 and i < OPTIONS[k][1].size():
+				p.merge(OPTIONS[k][1][i][1], true)
+	return p
 ## Graphics presets (port of render/quality.ts). LOW targets the laptop (Ryzen 5 7520U / Radeon 610M,
 ## 720p, 30 FPS goal) and keeps the crimson identity; SSAO/SSIL/SDFGI/volumetric fog/MSAA are off there.
 ## MEDIUM is the "average laptop" step up from LOW (no MSAA/SSAO, FXAA). HIGH/ULTRA are desktop presets.

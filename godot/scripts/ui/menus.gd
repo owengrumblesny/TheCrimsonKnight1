@@ -559,6 +559,18 @@ func _screen_settings(body: VBoxContainer) -> void:
 		s["quality"] = Quality.ORDER[i]
 		game.apply_settings())
 	_row(v, "Quality preset", q)
+	# individual overrides: "Preset" follows the preset above
+	for key in Quality.OPTIONS:
+		var ob := OptionButton.new()
+		for choice in Quality.OPTIONS[key][1]:
+			ob.add_item(choice[0])
+		var gfx: Dictionary = s["graphics"]
+		ob.selected = int(gfx.get(key, 0))
+		var k2: String = key
+		ob.item_selected.connect(func(i):
+			s["graphics"][k2] = i
+			game.apply_settings())
+		_row(v, Quality.OPTIONS[key][0], ob)
 	v.add_child(_muted("Detected GPU: %s (%s)" % [RenderingServer.get_video_adapter_name(), RenderingServer.get_current_rendering_method()]))
 	var fs := CheckBox.new()
 	fs.button_pressed = DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN

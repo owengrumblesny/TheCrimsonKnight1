@@ -348,8 +348,9 @@ func _on_menus_open(open: bool) -> void:
 ## Apply settings (preset, light pools, UI scale, HUD) and persist them with the bindings.
 func apply_settings() -> void:
 	var q: String = _forced_quality if _forced_quality != "" else settings["quality"]
-	var pools_changed: bool = stage.preset["dynamic_lights"] != Quality.PRESETS[q]["dynamic_lights"] or district._light_pool.is_empty()
-	stage.apply_quality(q)
+	var gfx: Dictionary = settings["graphics"]
+	var pools_changed: bool = stage.preset["dynamic_lights"] != Quality.resolve(q, gfx)["dynamic_lights"] or district._light_pool.is_empty()
+	stage.apply_quality(q, gfx)
 	district.wet.set_shader_parameter("ripples", 0.0 if q == "low" else 1.0)
 	if pools_changed:
 		district.set_light_pool(stage.preset["dynamic_lights"], stage.preset["light_shadows"])
@@ -827,6 +828,13 @@ func _interact() -> void:
 		if Input.is_action_just_pressed("interact"):
 			drive.enter(car)
 		return
+	if underground:
+		var station := _citadel_station(p)
+		if not station.is_empty():
+			prompt = ["interact", station[1]]
+			if Input.is_action_just_pressed("interact"):
+				_use_station(station[0])
+			return
 	if prop or near_portal or near_exit:
 		prompt = ["interact", "Shove" if prop else "Enter the Red Citadel" if near_portal else "Elevator to New Gotham"]
 	if not Input.is_action_just_pressed("interact"):
@@ -851,6 +859,86 @@ func _interact() -> void:
 		cam.snap()
 		audio.play("armor.activate")
 		notify("Returned to New Gotham", "home")
+
+
+## Red Citadel stations: [id, prompt] for what the Knight is standing at, or [].
+func _citadel_station(p: Vector3) -> Array:
+	if p.distance_to(citadel.anchor("Anchor_ArmorDisplay")) < 4.0:
+		return ["suit", "Inspect the CR-X9 suit (repair, recharge, restock)"]
+	for bay in [["crx1_interceptor", "Anchor_CRX1"], ["crb1_batcycle", "Anchor_CRB1"], ["cra1_specter", "Anchor_CRA1"]]:
+		if p.distance_to(citadel.anchor(bay[1])) < 6.0:
+			return ["launch:" + bay[0], "Launch the %s into New Gotham" % CKData.data("vehicles")[bay[0]]["label"]]
+	var room := citadel.room_at(p)
+	match room:
+		"Command":
+			return ["computer", "Citadel computer (missions, crimes, map)"] if p.distance_to(citadel.room_center("Command")) < 7.0 else []
+		"Armory":
+			return ["armory", "Armory: equipment loadout"]
+		"MedicalBay":
+			return ["medical", "Medical bay: full repair"]
+		"Training":
+			return ["training", "Start combat training"] if director.enemies.filter(func(e): return is_instance_valid(e) and not e.is_down() and citadel.contains(e.global_position)).is_empty() else []
+	return []
+
+
+func _use_station(id: String) -> void:
+	player.act("CK_Interact", 0.5)
+	audio.play("armor.activate")
+	match id:
+		"suit", "medical":
+			vitals.health = Vitals.MAX
+			vitals.armor = Vitals.MAX
+			vitals.energy = Vitals.MAX
+			if id == "suit":
+				for w in weapons.defs:
+					weapons._ammo[w] = int(weapons.defs[w]["mag"])
+				inventory.restock_all()
+				hud.render_hotbar()
+			red.speak("Suit at one hundred percent, magazines full, gadgets restocked. You look almost competent." if id == "suit"
+				else "Full repair. Try to keep it that way for more than five minutes.")
+		"computer":
+			var c := red.run("waypoint_crime")
+			red.speak("Citadel uplink. " + c + (" Current objective: %s." % director.objective if director.objective != "" else ""))
+			menus.show_screen("map")
+		"armory":
+			menus.show_screen("loadout")
+		"training":
+			var at := citadel.room_center("Training")
+			for e in director.squad(["npc_criminal_thug", "npc_mercenary", "npc_enforcer"], at + Vector3(0, 0.2, 0), 4, "NPC_Alert"):
+				e.alert(player.global_position)
+				e.state = "chase"
+			red.speak("Training drones online. Four sparring partners. Try the counter, the dodge and the block. Hold E.")
+		_:
+			if id.begins_with("launch:"):
+				_launch_from_citadel(id.substr(7))
+
+
+## A parked vehicle in the Citadel: the lift raises it to the street exit and the Knight drives out.
+## (The Citadel is a separate underground level; there is no road tunnel geometry yet, so this is a lift ride.)
+func _launch_from_citadel(id: String) -> void:
+	var fade := ColorRect.new()
+	fade.color = Color(0, 0, 0, 0)
+	fade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hud.add_child(fade)
+	var tw := fade.create_tween()
+	tw.tween_property(fade, "color:a", 1.0, 0.4)
+	await tw.finished
+	player.teleport(portal + Vector3(0, 0.5, 14))
+
+	drive.summon(id, false)
+	var v: Vehicle = drive.vehicles[id]
+	v.route = []
+	v.land_at = null
+	var spot := portal + Vector3(0, 0, 18)
+	spot.y = drive._ground(spot) + (0.4 if v.kind != "jet" else 0.1)
+	v.place(spot, 0.0)
+	drive.enter(v, true)
+	audio.play("vehicle.mode")
+	red.speak("Lift's up. %s is all yours. Mind the pedestrians." % drive.label(v))
+	var tw2 := fade.create_tween()
+	tw2.tween_property(fade, "color:a", 0.0, 0.6)
+	tw2.tween_callback(fade.queue_free)
 
 
 func _finish() -> void:

@@ -21,6 +21,23 @@ func anchor(n: String) -> Vector3:
 	return _anchors.get(n, OFFSET)
 
 
+## Floor centre of a room (Room_<name>), or OFFSET if there's no such room.
+func room_center(room: String) -> Vector3:
+	for r in _rooms:
+		if r["name"] == room:
+			var b: AABB = r["box"]
+			return Vector3(b.get_center().x, b.position.y, b.get_center().z)
+	return OFFSET
+
+
+## Name of the room containing p ("" if none).
+func room_at(p: Vector3) -> String:
+	for r in _rooms:
+		if r["box"].grow(0.5).has_point(p):
+			return r["name"]
+	return ""
+
+
 func contains(p: Vector3) -> bool:
 	return bounds.has_point(p)
 

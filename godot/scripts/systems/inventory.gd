@@ -138,6 +138,14 @@ func consume(id: String, n := 1) -> bool:
 
 
 ## Consumables refill slowly over time (sandbox: no shop).
+## Citadel suit station: every consumable back to a full stack.
+func restock_all() -> void:
+	for id in owned:
+		owned[id] = maxi(owned[id], int(def(id)["maxStack"]))
+	_restock_at.clear()
+	changed.emit()
+
+
 func tick(now: int) -> void:
 	var any := false
 	for id in owned:

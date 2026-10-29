@@ -102,6 +102,7 @@ func _render_all() -> void:
 	_streams["explosion"] = [_mix([_hiss(300, 0.5, 0.9, 1.0, "lowpass"), _tone("sine", 90, 30, 0.8, 0.8)])]
 	_streams["vehicle.door"] = [_mix([_hiss(700, 1.0, 0.12, 0.35), _tone("sine", 160, 90, 0.1, 0.3, 0.08)])]
 	_streams["vehicle.mode"] = [_mix([_tone("sawtooth", 200, 600, 0.35, 0.08), _tone("sine", 600, 900, 0.2, 0.15, 0.3)])]
+	_streams["red.chirp"] = [_mix([_tone("sine", 1500, 2100, 0.05, 0.12), _tone("sine", 2100, 1700, 0.06, 0.1, 0.06)])]
 	_streams["vehicle.summon"] = [_mix([_tone("sine", 880, 880, 0.12, 0.2), _tone("sine", 1320, 1320, 0.18, 0.2, 0.14)])]
 
 

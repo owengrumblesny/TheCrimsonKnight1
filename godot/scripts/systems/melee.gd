@@ -21,6 +21,8 @@ var effects: Effects
 var audio: CKAudio
 var combo := 0
 var reduce_motion := false
+## strike damage / knockback multiplier (R.E.D. overdrive sets 2 for a while)
+var power := 1.0
 var _combo_t := 0.0
 var _left := false
 var _busy_t := 0.0
@@ -162,7 +164,7 @@ func update(dt: float) -> void:
 					audio.play("weapon.impact")
 					_same_target = 0
 					return
-				var dmg := (45.0 if heavy else 20.0) * (1.0 + minf(combo, 10) * 0.1)
+				var dmg := (45.0 if heavy else 20.0) * (1.0 + minf(combo, 10) * 0.1) * power
 				_land_hit(t, dmg, heavy, dir.normalized())
 
 
@@ -170,7 +172,7 @@ func _land_hit(t: Enemy, dmg: float, heavy: bool, dir: Vector3) -> void:
 	t.hit(dmg, t.global_position + Vector3(0, 1.3, 0), dir)
 	if heavy:
 		t.stun(1.0)
-		t.velocity += dir * 5.0
+		t.velocity += dir * 5.0 * power
 	combo += 1
 	_combo_t = 2.0
 	combo_changed.emit(combo)

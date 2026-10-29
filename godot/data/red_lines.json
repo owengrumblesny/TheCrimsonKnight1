@@ -1,0 +1,183 @@
+{
+  "_note": "R.E.D. (the CR-X9 suit AI) scripted lines. One is picked at random per event; {x} placeholders are filled in by red_ai.gd. Keep them short: they are spoken.",
+  "greet": [
+    "R.E.D. online. Suit's warm, city's cold, and you're late. Hold Y to talk, or press Enter to type.",
+    "Good evening, Knight. I've already run the numbers on tonight. You're welcome. Hold Y if you need me.",
+    "Systems green. Ego green. Let's go make New Gotham slightly less terrible."
+  ],
+  "summon_crx1_interceptor": [
+    "Interceptor's on its way. Try not to scratch the paint this time.",
+    "Calling the Interceptor. It's rolling up your avenue now.",
+    "Car incoming. I'll drive it to you, since apparently I do everything around here."
+  ],
+  "summon_crb1_batcycle": [
+    "Cycle's coming. Two wheels, zero patience. Just like you.",
+    "Sending the Cycle. Helmet stays on, obviously."
+  ],
+  "summon_cra1_specter": [
+    "Specter inbound in stealth. I'll park her on the nearest rooftop so you don't have to climb far.",
+    "Spinning up the Specter. Silent approach, rooftop landing. Look up.",
+    "Specter's coming in dark. Nobody will see her. Including you, probably."
+  ],
+  "summon_fail": [
+    "No sky down here, genius. Take the elevator up first.",
+    "I can't fly a vehicle through solid rock. Go topside."
+  ],
+  "overdrive": [
+    "Overdrive engaged. Double strike power for twenty seconds. Go be dramatic.",
+    "Rerouting reactor power to your fists. Try not to punch through a wall.",
+    "Overdrive's on. Hit them like they owe you money."
+  ],
+  "armor_boost": [
+    "Armor plating hardened. You're half as squishy for twenty seconds.",
+    "Reinforcing the plating. Feel free to make bad decisions for a bit."
+  ],
+  "repair": [
+    "Nano-repair running. Hold still. Or don't, I'm not your mother.",
+    "Patching you up. That's {hp} percent and counting.",
+    "Repair cycle done. Please stop getting shot, it's embarrassing for both of us."
+  ],
+  "repair_full": [
+    "You're at full health. Hypochondria isn't a suit malfunction.",
+    "Nothing to fix. Except your attitude."
+  ],
+  "shield": [
+    "Shield up for five seconds. Make them count.",
+    "Energy barrier on. Bullets, meet disappointment."
+  ],
+  "scan": [
+    "Scan complete. {n} hostiles within forty meters, marked red.",
+    "I count {n} bad guys nearby. I've tagged them for you."
+  ],
+  "scan_none": [
+    "Scan's clean. No hostiles in range. Suspicious, honestly.",
+    "Nobody around. Enjoy the quiet while it lasts."
+  ],
+  "cool_heat": [
+    "Jamming police radio. You're down to {stars} stars. You're welcome.",
+    "I've scrambled their dispatch. Heat's dropping, try not to undo my work."
+  ],
+  "cool_heat_none": [
+    "Nobody's chasing you. Yet. Give it five minutes.",
+    "Your wanted level is zero. Shocking, I know."
+  ],
+  "waypoint_crime": [
+    "{crime}, {dist} meters {dir}. Route's on your map.",
+    "Found you some trouble: {crime}, {dir}. Waypoint set."
+  ],
+  "waypoint_crime_new": [
+    "Quiet night, so I went looking. {crime}, {dist} meters {dir}. Waypoint set."
+  ],
+  "waypoint_mission": [
+    "Objective: {objective}. Waypoint's on the map.",
+    "Mission marker set. {objective}. Chop chop."
+  ],
+  "waypoint_mission_none": [
+    "No active mission. Say start mission and I'll find you one."
+  ],
+  "waypoint_citadel": [
+    "Route home set. The Citadel misses you. I don't, but it does.",
+    "Waypoint to the Red Citadel. Don't forget to wipe your boots."
+  ],
+  "clear_waypoint": [
+    "Waypoint cleared. You're on your own. Good luck with that."
+  ],
+  "start_mission": [
+    "New mission: {title}. Try to keep up.",
+    "Mission loaded: {title}. I believe in you. Mostly."
+  ],
+  "equip": [
+    "{item} ready.",
+    "Here's your {item}. Point the dangerous end away from me.",
+    "{item}, coming up."
+  ],
+  "equip_fail": [
+    "You don't have that. I checked twice. Fine, once."
+  ],
+  "eject": [
+    "Ejecting the Cycle. Hold on to something. Like your dignity."
+  ],
+  "eject_fail": [
+    "You can only eject the Cycle from the Interceptor. Get in the car first."
+  ],
+  "vehicle_mode": [
+    "Switching modes."
+  ],
+  "vehicle_mode_fail": [
+    "You need to be driving something for that. Feet don't have modes."
+  ],
+  "status": [
+    "Health {hp}, armor {armor}, energy {energy}. Heat: {stars} stars. {buffs}",
+    "Suit report: {hp} health, {armor} armor. {stars} stars of police interest. {buffs}"
+  ],
+  "help": [
+    "I can call the car, the Cycle or the Specter, overdrive your strength, harden your armor, repair the suit, shield you, scan for enemies, find crimes, set waypoints, equip gear and jam the police. Just ask nicely. Or not."
+  ],
+  "cooldown": [
+    "{ability} is recharging. {secs} more seconds. Patience is also a superpower.",
+    "Still cooling down. {secs} seconds. I'm brilliant, not magic."
+  ],
+  "busy": [
+    "Already running. Enjoy it."
+  ],
+  "stop": [
+    "Fine. Going quiet.",
+    "Muting myself. You'll miss me."
+  ],
+  "low_health": [
+    "Health critical. Say patch me up, or keep bleeding, your call.",
+    "You're at {hp} percent. I'd prefer you alive. Ask for a repair."
+  ],
+  "heat_up": [
+    "Heat's rising: {stars} stars. Ask me to jam the police if it gets annoying.",
+    "Police are on you. {stars} stars and climbing."
+  ],
+  "heat_clear": [
+    "Police lost interest. Heat's cleared.",
+    "We're clean. No more cops. Try to keep it that way."
+  ],
+  "crime_new": [
+    "New crime: {crime}, {dir}. Want a waypoint? Ask me.",
+    "Heads up. {crime} reported {dist} meters {dir}."
+  ],
+  "mission_new": [
+    "Objective updated: {objective}."
+  ],
+  "enemies_alert": [
+    "They've spotted you. {n} hostiles. Counter when you see the red marks.",
+    "You've been made. Fight smart: counter, dodge, then hit hard.",
+    "Company. {n} of them. Want overdrive? Just say so."
+  ],
+  "buff_end": [
+    "{ability} ended. Back to regular you.",
+    "{ability} wore off. Recharging."
+  ],
+  "big_combo": [
+    "Ten-hit combo. Okay, that was actually impressive.",
+    "Look at you go. Don't let it go to your head. That's my job."
+  ],
+  "fight_won": [
+    "Area clear. Not bad. For a human.",
+    "That's the last of them. I'll log it as a team effort."
+  ],
+  "idle_tips": [
+    "Tip: hold Space in the air to glide. Diving with W trades height for speed.",
+    "Tip: press G at the gold marker to grapple, and tap Space near the top to boost over.",
+    "Tip: every gadget is on your belt. Number keys or the mouse wheel.",
+    "Tip: right mouse locks onto targets when a gun is out.",
+    "Tip: when an enemy flashes red, press E to counter.",
+    "Tip: ask me for a crime if you're bored. I always know where the trouble is.",
+    "You know you can just talk to me, right? Hold Y. I'm a great listener. Mostly."
+  ],
+  "chat_fallback": [
+    "My conversation core is offline, so I'm sticking to commands. Try summon the car, overdrive, or scan.",
+    "I'd chat, but my brain module isn't running. Ask me to do something instead."
+  ],
+  "didnt_hear": [
+    "I didn't catch that. Hold Y while you talk.",
+    "Static. Try again, louder and with feeling."
+  ],
+  "brain_ready": [
+    "Conversation core loaded. Go on, say something clever."
+  ]
+}

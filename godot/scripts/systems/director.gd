@@ -36,6 +36,8 @@ var decoy: Node3D
 var decoy_until := 0
 var evidence := 0
 var melee: Melee
+## incoming damage multiplier (R.E.D. armor boost sets 0.5 for a while)
+var armor_mult := 1.0
 ## melee attack tokens: at most MAX_ATTACKERS enemies wind up / strike at once, the rest circle
 const MAX_ATTACKERS := 2
 var _tokens: Array = []
@@ -123,7 +125,7 @@ func damage_player(amount: float, from: Vector3, _by: Node) -> void:
 	if vitals.shield_until > Time.get_ticks_msec():
 		effects.burst("electrical", player.global_position + Vector3(0, 1.2, 0), 2, 0.6, 0.6, 0.3)
 		return
-	amount *= 0.65 # CR-X9 plating: street weapons barely scratch it
+	amount *= 0.65 * armor_mult # CR-X9 plating: street weapons barely scratch it
 	var absorbed := minf(vitals.armor, amount * 0.5)
 	vitals.armor -= absorbed
 	vitals.health = maxf(0.0, vitals.health - (amount - absorbed))

@@ -11,3 +11,6 @@ assets/models/**/*.png
 assets/models/**/*.png.import
 assets/models/**/*.jpg
 assets/models/**/*.jpg.import
+
+# R.E.D. local AI runtimes and models (downloaded, large)
+/ai/

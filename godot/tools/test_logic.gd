@@ -83,5 +83,26 @@ func _init() -> void:
 			check(CKData.model_path(d["modelId"]) != "", "model for " + id)
 		if d.get("artId"):
 			check(CKData.board_image_path(d["artId"]) != "", "art for " + id)
+	# R.E.D. command parser
+	var names := RedCommands.item_names(inv)
+	var cases := [
+		["Summon the Batmobile", "summon:crx1_interceptor"], ["hey RED, bring me the bike", "summon:crb1_batcycle"],
+		["Specter!", "summon:cra1_specter"], ["I need more strength, these guys are tough", "overdrive"],
+		["patch me up", "repair"], ["the cops won't leave me alone", "cool_heat"], ["where's the action", "waypoint_crime"],
+		["take me home", "waypoint_citadel"], ["scan for enemies", "scan"], ["equip the batarang", "equip:batarang"],
+		["switch to the carbine", "equip:crimson_carbine"], ["shut up", "stop"], ["what can you do", "help"],
+		["call the car and give me overdrive", "summon:crx1_interceptor,overdrive"], ["eject", "eject"],
+		["how are you today", ""], ["tell me a joke", ""], ["don't call the car", ""], ["armor up", "armor_boost"],
+	]
+	for c in cases:
+		var got := ",".join(RedCommands.parse(c[0], names).map(func(a): return a["do"] + (":" + a["arg"] if a.get("arg", "") != "" else "")))
+		check(got == c[1], "R.E.D. parse '%s' -> '%s' (got '%s')" % [c[0], c[1], got])
+	check(RedAI.clean_reply("R.E.D.: *smirks* Fine. I'll do it. But you owe me. Big time.") == "Fine. I'll do it.", "R.E.D. reply cleanup")
+	var lines_ok: Dictionary = CKData.data("red_lines")
+	for k in ["greet", "summon_crx1_interceptor", "summon_crb1_batcycle", "summon_cra1_specter", "overdrive", "armor_boost", "repair",
+			"scan", "cool_heat", "waypoint_crime", "equip", "cooldown", "chat_fallback", "idle_tips", "low_health"]:
+		check(lines_ok.get(k) is Array and not lines_ok[k].is_empty(), "R.E.D. lines: " + k)
+	var wav := RedVoice.wav_bytes(PackedByteArray([0, 0, 255, 127]), 16000)
+	check(wav.size() == 48 and wav.decode_u32(24) == 16000, "R.E.D. mic WAV header")
 	print("test_logic: %d passed, %d failed" % [passes, fails])
 	quit(1 if fails else 0)

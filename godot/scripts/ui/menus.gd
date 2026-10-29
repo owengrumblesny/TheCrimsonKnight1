@@ -628,7 +628,9 @@ func _screen_settings(body: VBoxContainer) -> void:
 		s["invertY"] = on
 		game.apply_settings())
 	_row(v, "Invert camera Y", inv)
-	for pair in [["aimAssist", "Aim assist (RMB locks on, shots curve onto targets)"], ["controlHints", "Show control hints"]]:
+	for pair in [["aimAssist", "Aim assist (RMB locks on, shots curve onto targets)"], ["controlHints", "Show control hints"],
+			["redVoice", "R.E.D. speaks (local voice)"], ["redListen", "R.E.D. voice commands (hold Y)"],
+			["redBrain", "R.E.D. conversation (local LLM, ~1.2 GB RAM)"], ["redChatter", "R.E.D. callouts and tips"]]:
 		var cbx := CheckBox.new()
 		var key: String = pair[0]
 		cbx.button_pressed = s.get(key, true)

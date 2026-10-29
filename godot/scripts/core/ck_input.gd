@@ -25,6 +25,7 @@ const ACTIONS := [
 	["inventory", "Inventory", "Menus", false], ["map", "Map", "Menus", false],
 	["pause", "Pause / back", "Menus", true], ["sandboxMenu", "Animation debug", "Menus", false],
 	["perfOverlay", "Performance overlay", "Menus", false],
+	["talkToRed", "Talk to R.E.D. (hold, voice)", "R.E.D.", false], ["chatRed", "Type to R.E.D.", "R.E.D.", false],
 ]
 
 const MOUSE_SENS_X := 0.0025
@@ -47,7 +48,7 @@ func _ready() -> void:
 	for a in ACTIONS:
 		defaults[a[0]] = c.get(a[0], "")
 	defaults.merge({"slotPrev": "KeyQ", "slotNext": "KeyR", "inventory": "Tab", "map": "KeyM", "perfOverlay": "F3",
-		"reload": "KeyT", "vehicleMode": "KeyB", "eject": "KeyX"}, true)
+		"reload": "KeyT", "vehicleMode": "KeyB", "eject": "KeyX", "talkToRed": "KeyY", "chatRed": "Enter"}, true)
 	for i in 10:
 		defaults["slot%d" % (i + 1)] = "Digit%d" % ((i + 1) % 10)
 	apply()

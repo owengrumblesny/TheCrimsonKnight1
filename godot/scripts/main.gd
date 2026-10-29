@@ -49,6 +49,8 @@ var audio: CKAudio
 var weapons: Weapons
 var drive: DriveController
 var anim_debug: AnimDebug
+var red: RedAI
+var red_panel: RedPanel
 var director: Director
 var street: StreetLife
 var melee: Melee
@@ -197,6 +199,19 @@ func _ready() -> void:
 		audio.play("weapon.impact"))
 	hud.director = director
 	hud.weapons = weapons
+	red = RedAI.new()
+	red.game = self
+	add_child(red)
+	red_panel = RedPanel.new()
+	CKUI.place(red_panel, Vector4(0, 0, 0, 0), Vector4(18, 124, 418, 330))
+	hud.widgets.add_child(red_panel)
+	red.line.connect(red_panel.add_line)
+	if args.has("log"):
+		red.line.connect(func(who, t): print("[red] f%d %s: %s" % [frame, who, t]))
+	red.status_changed.connect(red_panel.set_status)
+	red.voice.speaking_changed.connect(func(on): red_panel.speaking = on)
+	red_panel.submitted.connect(red.hear)
+	red_panel.chat_open_changed.connect(_on_red_chat)
 	melee.combo_changed.connect(hud.show_combo)
 	hud.minimap.game = self
 	if args.has("log"):
@@ -274,6 +289,15 @@ func _build_ui() -> void:
 	layer.add_child(menus)
 
 
+## Typing to R.E.D. pauses the action (a comms moment) and frees the mouse for the text field.
+func _on_red_chat(open: bool) -> void:
+	get_tree().paused = open
+	audio.set_paused(open)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if open or args.has("frames") or args.has("bench") else Input.MOUSE_MODE_CAPTURED
+	for a in ["moveForward", "moveBack", "moveLeft", "moveRight", "sprint", "jump", "primaryAction", "secondaryAction"]:
+		Input.action_release(a)
+
+
 ## Menus pause the simulation; the mouse is freed while one is open.
 func _on_menus_open(open: bool) -> void:
 	audio.play("ui.open" if open else "ui.close")
@@ -303,6 +327,10 @@ func apply_settings() -> void:
 	CKInput.invert_y = settings["invertY"]
 	weapons.aim_assist = settings.get("aimAssist", true)
 	hud.hints_enabled = settings.get("controlHints", true)
+	red.chatter_enabled = settings["redChatter"]
+	if red.ai_dir != "" and [red.voice.tts_enabled, red.voice.stt_enabled, red.brain_enabled] != [settings["redVoice"], settings["redListen"], settings["redBrain"]]:
+		red.stop_engines()
+		red.start_engines(settings["redVoice"], settings["redListen"], settings["redBrain"])
 	melee.reduce_motion = settings["reduceMotion"]
 	FollowCamera.reduce_motion = settings["reduceMotion"]
 	_apply_hud_visibility()
@@ -330,6 +358,9 @@ func play() -> void:
 		director.start_mission(director.mission_index)
 	started = true
 	audio.start_ambience()
+	# R.E.D.'s local engines (voice, ears, LLM) start with play; scripted runs skip them unless --red
+	if red.ai_dir == "" and (not (args.has("frames") or args.has("bench")) or args.has("red")):
+		red.start_engines(settings["redVoice"], settings["redListen"], settings["redBrain"])
 
 
 func continue_save() -> void:
@@ -413,6 +444,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		menus.show_screen("inventory")
 	elif e.is_action_pressed("map"):
 		menus.show_screen("map")
+	elif e.is_action_pressed("chatRed") and not red_panel.is_chat_open():
+		red_panel.open_chat()
 	elif e.is_action_pressed("perfOverlay"):
 		perf.visible = not perf.visible
 	elif e.is_action_pressed("sandboxMenu") and not drive.driving:
@@ -439,6 +472,10 @@ func _process(dt: float) -> void:
 			ev.action = at[0]
 			ev.pressed = int(at[1]) == frame
 			Input.parse_input_event(ev)
+	for say in String(args.get("redsay", "")).split("|", false):
+		var at := say.rsplit("@", true, 1)
+		if at.size() == 2 and int(at[1]) == frame:
+			red.hear(at[0])
 	hud.visible = menus.top() != "main"
 	if get_tree().paused:
 		_finish_check()
@@ -605,6 +642,8 @@ func _control_hints() -> Array:
 	if not player.grapple_target.is_empty():
 		out.append(["grapple", "Grapple"])
 	out.append(["summonMenu", "Call vehicle"])
+	if out.size() < 5:
+		out.append(["talkToRed", "Hold: talk to R.E.D."])
 	if prompt:
 		out.push_front([prompt[0], prompt[1]])
 	return out

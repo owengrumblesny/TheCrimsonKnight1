@@ -31,6 +31,10 @@ var boost := false
 var vtol_up := 0.0
 var look := Vector2.ZERO # jet: mouse pitch/yaw input this frame; car/bike: FPV free-look
 var top_speed := 50.0
+## summon autopilot: drive along these road waypoints to the Knight, then park (car / bike)
+var route: Array = []
+signal arrived
+var _stuck_t := 0.0
 var _wheels: Array = [] # {wheel, susp, steer, spin_node, radius, spin}
 var _engine: AudioStreamPlayer3D
 var _engine_volume := 1.0
@@ -302,6 +306,8 @@ func speed() -> float:
 func _physics_process(dt: float) -> void:
 	if kind == "jet":
 		return
+	if not route.is_empty() and not driver_in:
+		_autopilot(dt)
 	var fwd_speed := linear_velocity.dot(global_basis.z)
 	var steer_max: float = cfg["steer"] * lerpf(1.0, 0.35, clampf(absf(fwd_speed) / top_speed, 0.0, 1.0))
 	steering = move_toward(steering, steer_in * steer_max, dt * 2.5)
@@ -332,6 +338,33 @@ func _physics_process(dt: float) -> void:
 	var pitch_err := global_basis.z.y
 	if kind == "bike":
 		apply_torque(global_basis.x * pitch_err * mass * 2.0)
+
+
+## Drive the summon route: steer at the next waypoint, slow for corners, brake to a stop at the last one.
+func _autopilot(dt: float) -> void:
+	var wp: Vector3 = route[0]
+	var to := wp - global_position
+	to.y = 0
+	var last := route.size() == 1
+	if to.length() < (8.0 if last else 7.0):
+		route.pop_front()
+		if route.is_empty():
+			throttle = 0
+			steer_in = 0
+			arrived.emit()
+		return
+	var local := global_basis.inverse() * to
+	var ang := atan2(local.x, local.z) # + = target to the left (VehicleBody3D steering sign)
+	steer_in = clampf(ang * 1.6, -1.0, 1.0)
+	var spd := speed()
+	var want := 22.0 if not last else clampf(to.length() * 0.9, 3.0, 22.0)
+	if absf(ang) > 0.5:
+		want = minf(want, 8.0) # corner
+	throttle = clampf((want - spd) * 0.25, -1.0, 1.0)
+	_stuck_t = _stuck_t + dt if absf(spd) < 1.0 else 0.0
+	if _stuck_t > 4.0:
+		_stuck_t = 0.0
+		throttle = -1.0 # back off whatever blocks it
 
 
 ## Arcade flight: taxi on the ground, fly above takeoff speed, hover in VTOL.

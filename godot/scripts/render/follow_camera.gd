@@ -14,6 +14,11 @@ var arm := SpringArm3D.new()
 var camera := Camera3D.new()
 var _focus := Vector3.ZERO
 var _aim_blend := 0.0
+## activity-driven framing: current distance / FOV ease toward what the Knight is doing
+var _dist := 4.2
+var _fov := 60.0
+## set by the game while a hand-to-hand fight is on (wider framing to show the crowd)
+var combat := false
 
 
 func _ready() -> void:
@@ -44,8 +49,34 @@ func _process(dt: float) -> void:
 	var right := Vector3(cos(yaw), 0, -sin(yaw)) * 0.55 * _aim_blend
 	global_position = _focus + right
 	arm.basis = Basis.from_euler(Vector3(-pitch, yaw, 0))
-	arm.spring_length = lerpf(distance, 2.3, _aim_blend)
-	camera.fov = lerpf(60.0, 47.0, _aim_blend) # tighter over-the-shoulder view while aiming
+	# framing by activity: close when walking (armour detail), pulled back for sprint / air, far for gliding
+	var want_d := distance
+	var want_fov := 60.0
+	if target is Player:
+		var pl: Player = target
+		match pl.mode:
+			"glide":
+				want_d = distance + 2.8
+				want_fov = 70.0
+			"grapple":
+				want_d = distance + 1.6
+				want_fov = 66.0
+			"air", "vault":
+				want_d = distance + 0.5
+			"ledge", "climb":
+				want_d = distance - 0.4
+			_:
+				if pl.speed > 7.6:
+					want_d = distance + 0.9
+					want_fov = 66.0
+				elif pl.speed < 2.8:
+					want_d = distance - 0.7
+		if combat:
+			want_d = maxf(want_d, distance + 0.5)
+	_dist = lerpf(_dist, want_d, minf(1.0, dt * 2.5))
+	_fov = lerpf(_fov, want_fov, minf(1.0, dt * 3.0))
+	arm.spring_length = lerpf(_dist, 2.3, _aim_blend)
+	camera.fov = lerpf(_fov, 47.0, _aim_blend) # tighter over-the-shoulder view while aiming
 
 
 ## Weapon recoil: lift the aim and nudge it sideways.

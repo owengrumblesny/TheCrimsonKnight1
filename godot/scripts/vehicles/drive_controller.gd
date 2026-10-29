@@ -44,17 +44,54 @@ func summon(id: String, underground: bool) -> void:
 		get_parent().add_child(v)
 		v.set_engine_stream(audio.engine_loop(v.cfg["engine_hz"], v.cfg["engine_noise"]))
 		vehicles[id] = v
-	var fwd := Vector3(sin(player.heading), 0, cos(player.heading))
-	var at := player.global_position + fwd * 7.0
-	var heading := player.heading + PI / 2 # side-on, so the left door faces the Knight
-	if v.kind == "jet":
-		at = JET_PAD
-		heading = PI
-	at.y = _ground(at) + 0.3
-	v.place(at, heading)
 	player.act("CK_Summon")
 	sound.emit("vehicle.summon")
-	notify.emit("%s %s" % [label(v), "landing on the north plaza" if v.kind == "jet" else "arrived"], "interceptor", "info")
+	if v.kind == "jet":
+		# the Specter flies in: it starts high above Citadel Square and settles onto the pad in VTOL
+		v.place(JET_PAD + Vector3(0, 70, 0), PI)
+		if v.mode != "vtol":
+			v.set_mode("vtol", true)
+		v.vtol_up = -1.0
+		notify.emit("%s inbound: landing on Citadel Square (north plaza)" % label(v), "specter", "info")
+		_land_jet(v)
+		return
+	# car / bike: start out of sight two blocks back along the Knight's own avenue and drive up the lane to him
+	# (no teleporting next to him, no tight turns)
+	var p := player.global_position
+	var S := District.SPACING
+	var lane: float = District.LANES[0]
+	var ax := roundf(p.x / S) * S
+	var az := roundf(p.z / S) * S
+	var on_ns := absf(p.x - ax) < absf(p.z - az) # standing on a north-south avenue
+	var lim := District.GRID * S - 10.0
+	var sgn := 1.0 if randf() < 0.5 else -1.0
+	var along := (p.z if on_ns else p.x) + sgn * 2.0 * S
+	if absf(along) > lim:
+		sgn = -sgn
+		along = (p.z if on_ns else p.x) + sgn * 2.0 * S
+	var dir := Vector3(0, 0, -sgn) if on_ns else Vector3(-sgn, 0, 0) # toward the Knight
+	var right := dir.cross(Vector3.UP) * -1.0
+	var start := (Vector3(ax, 0, along) if on_ns else Vector3(along, 0, az)) + right * lane
+	start.y = _ground(start) + 0.4
+	v.place(start, atan2(dir.x, dir.z))
+	var stop := (Vector3(ax, 0, p.z) if on_ns else Vector3(p.x, 0, az)) + right * lane
+	v.route = [stop]
+	if not v.arrived.is_connected(_on_arrived):
+		v.arrived.connect(_on_arrived.bind(v))
+	notify.emit("%s on its way (%d m)" % [label(v), roundi(start.distance_to(p))], "interceptor", "info")
+
+
+func _on_arrived(v: Vehicle) -> void:
+	notify.emit("%s has arrived" % label(v), "interceptor", "info")
+	sound.emit("vehicle.summon")
+
+
+func _land_jet(v: Vehicle) -> void:
+	while is_instance_valid(v) and v.global_position.y > JET_PAD.y + 0.6 and not v.driver_in:
+		await get_tree().physics_frame
+	if is_instance_valid(v):
+		v.vtol_up = 0.0
+		notify.emit("%s has landed" % label(v), "specter", "info")
 
 
 func _ground(at: Vector3) -> float:

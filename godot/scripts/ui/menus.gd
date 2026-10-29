@@ -612,6 +612,22 @@ func _screen_settings(body: VBoxContainer) -> void:
 	_row(v, "Subtitles", sub, "Coming later (no dialogue yet)")
 
 	v.add_child(CKUI.section("Controls"))
+	var ms := HSlider.new()
+	ms.min_value = 0.3
+	ms.max_value = 2.5
+	ms.step = 0.05
+	ms.value = s["mouseSensitivity"]
+	var ms_pct := _row(v, "Mouse sensitivity", ms, "%d%%" % roundi(ms.value * 100))
+	ms.value_changed.connect(func(x):
+		s["mouseSensitivity"] = x
+		ms_pct.text = "%d%%" % roundi(x * 100)
+		game.apply_settings())
+	var inv := CheckBox.new()
+	inv.button_pressed = s["invertY"]
+	inv.toggled.connect(func(on):
+		s["invertY"] = on
+		game.apply_settings())
+	_row(v, "Invert camera Y", inv)
 	v.add_child(_muted("Click a key, then press the new key. If it is already used, the two actions swap. Esc cancels."))
 	var keys := GridContainer.new()
 	keys.columns = 2

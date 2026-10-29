@@ -297,6 +297,8 @@ func apply_settings() -> void:
 	get_tree().root.content_scale_factor = settings["uiScale"]
 	audio.apply_settings(settings)
 	Vehicle.reduce_motion = settings["reduceMotion"]
+	CKInput.mouse_sensitivity = settings["mouseSensitivity"]
+	CKInput.invert_y = settings["invertY"]
 	melee.reduce_motion = settings["reduceMotion"]
 	FollowCamera.reduce_motion = settings["reduceMotion"]
 	_apply_hud_visibility()
@@ -502,6 +504,9 @@ func _process(dt: float) -> void:
 			var e0: Enemy = director.enemies[0]
 			if is_instance_valid(e0):
 				print("    e0 ", e0.id, " at ", e0.global_position.snapped(Vector3.ONE * 0.1), " ", e0.state, " sees=", e0._sees_player())
+		for v in drive.vehicles.values():
+			if not v.driver_in:
+				print("    vehicle %s at %s dist=%.0f route=%d speed=%.1f" % [v.id, v.global_position.snapped(Vector3.ONE), v.global_position.distance_to(player.global_position), v.route.size(), v.speed()])
 		if drive.driving:
 			print("    drive ", drive.hud_text(), " up=", drive.driving.global_basis.y.snapped(Vector3.ONE * 0.01))
 			var c := get_viewport().get_camera_3d()
@@ -588,6 +593,7 @@ func _gameplay_input(now: int) -> void:
 	var ranged: bool = weapons.is_weapon(sel_id) and weapons.defs[sel_id]["kind"] != "melee"
 	var fists := melee.engaged(ranged) and not weapons.is_weapon(sel_id)
 	player.melee_engaged = fists
+	cam.combat = fists
 	if fists:
 		if Input.is_action_just_pressed("primaryAction"):
 			melee.strike(false)

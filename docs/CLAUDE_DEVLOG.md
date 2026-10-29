@@ -189,3 +189,12 @@ Limits: board cut-outs are small (gadgets ~60 px, key-pose frames ~25×60 px, en
 - Triangles roughly double: CR-X1 ~32–34k (LOD1 7–8k), CR-B1 ~17–18k (LOD1 ~4k), CR-A1 ~13–16k (LOD1 2.5–3.2k). That's within the hero budget; the laptop uses LOD1.
 - Review renders now use a physical sky and an asphalt ground.
 - Grade: **PROTOTYPE+**. Materials and mechanical detail now read as real hardware, but the base silhouettes are still the original kit-bash shapes (boxy plates, tractor-tread tyres). The next step toward HERO would be reshaping those.
+
+## 2026-10-28: Godot port, Owen's experience spec, first pass
+- `docs/EXPERIENCE_SPEC_GAPS.md` grades the port against Owen's spec section by section, honestly.
+- Traversal: camera-aimed grapple targeting with a HUD marker, momentum reel, boost and climb-up; a glide flight model; ledge grab, hang, shimmy and climb; running vaults.
+- Ten new CR-X9 clips authored in the Blender builder and rebuilt into the GLB: Guard, PunchR, PunchL, HeavyStrike, Counter, Dodge, Vault, LedgeHang, LedgeClimb, Slide.
+- Free-flow melee with attack tokens and counterable telegraphs.
+- Dynamic camera, plus mouse-sensitivity and invert-Y settings.
+- Summoned vehicles now drive in. The world gained wider 4-lane roads, a minimap and waypoints, and the last four items are functional.
+- Still missing: the Citadel drive-out, a player block, adaptive enemy tactics, ragdolls, IK, weather and a day/night cycle, surface footsteps, bridges and tunnels.

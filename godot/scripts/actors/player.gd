@@ -20,6 +20,14 @@ var cam_yaw := PI
 var glide_held := false
 var status := ""
 var crouched := false
+## world point the head turns toward (set by the game: nearby threat, grapple point), or null = look ahead
+var look_point = null
+var _prev_hvel := Vector2.ZERO
+var _lean := Vector2.ZERO # x = forward pitch, y = roll
+var _cape := 0.0
+var _cape_v := 0.0
+var _cape_side := 0.0
+var _prev_heading := 0.0
 ## sprint + C: a knee slide that carries momentum under low obstacles (the capsule shrinks while sliding)
 var _slide_t := 0.0
 var _shape: CapsuleShape3D
@@ -609,9 +617,31 @@ func _process(dt: float) -> void:
 	elif mode == "ledge":
 		hero.play("CK_LedgeHang", 0.15)
 	hero.rotation.y = heading
+	# weight: lean into acceleration and speed, settle back when stopping, roll into turns (on the ground only)
+	var hv := Vector2(vel.x, vel.z)
+	var fwd2 := Vector2(sin(heading), cos(heading))
+	var accel := (hv - _prev_hvel).dot(fwd2) / maxf(dt, 0.001)
+	_prev_hvel = hv
+	var turn := wrapf(heading - _prev_heading, -PI, PI) / maxf(dt, 0.001)
+	_prev_heading = heading
+	var want_lean := Vector2.ZERO
+	if mode == "ground":
+		want_lean.x = clampf(accel * 0.006 + speed / maxf(P["sprintSpeed"], 1.0) * 0.07, -0.07, 0.13)
+		want_lean.y = clampf(-turn * speed * 0.004, -0.12, 0.12)
+	_lean = _lean.lerp(want_lean, minf(1.0, dt * 6.0))
 	# glide: pitch the whole body toward horizontal flight
-	var pitch := (0.9 - _glide_pitch * 0.8) if mode == "glide" else 0.0
+	var pitch := (0.9 - _glide_pitch * 0.8) if mode == "glide" else _lean.x
 	hero.rotation.x += (pitch - hero.rotation.x) * minf(1.0, 5.0 * dt)
+	hero.rotation.z = _lean.y
+	# cape: a damped spring lifted by speed and falling, swung by turning
+	var cape_want := clampf(speed * 0.035 + maxf(0.0, -vel.y) * 0.04, 0.0, 0.9) if mode in ["ground", "air", "slide", "vault"] else 0.0
+	_cape_v += ((cape_want - _cape) * 40.0 - _cape_v * 7.0) * dt
+	_cape += _cape_v * dt
+	_cape_side = lerpf(_cape_side, clampf(-turn * 0.08, -0.35, 0.35) if mode == "ground" else 0.0, minf(1.0, dt * 4.0))
+	if hero.motion:
+		hero.motion.cape_back = _cape
+		hero.motion.cape_side = _cape_side
+		hero.motion.look_target = look_point if look_point != null else (camera.global_position + -camera.global_basis.z * 30.0 if camera else null)
 	status = "%s%s%s%s | %s | %.1f m/s" % [mode, " crouch" if crouched else "", " aim" if aiming else "",
 		" walk" if walk_mode else "", hero.current, speed]
 

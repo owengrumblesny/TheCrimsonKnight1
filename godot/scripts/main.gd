@@ -742,6 +742,16 @@ func _on_foot(now: int) -> void:
 	player.handle_input()
 	player.cam_yaw = cam.yaw
 	player.glide_held = Input.is_action_pressed("jump")
+	# head look-at: the nearest alerted enemy within 12 m, else the grapple point, else where the camera looks
+	var lp = null
+	var ld := 12.0
+	for e in director.enemies:
+		if is_instance_valid(e) and not e.is_down() and e.state != "idle" and e.global_position.distance_to(player.global_position) < ld:
+			ld = e.global_position.distance_to(player.global_position)
+			lp = e.global_position + Vector3(0, 1.6, 0)
+	if lp == null and not player.grapple_target.is_empty():
+		lp = player.grapple_target["point"]
+	player.look_point = lp
 	cam.aiming = player.aiming
 	_interact()
 

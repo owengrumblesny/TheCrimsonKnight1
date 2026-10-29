@@ -15,6 +15,8 @@ var lod_level := -1
 var _lods: Array = [[], [], []]
 var _held: Node3D
 var _socket_align := {}
+## procedural head look-at and cape motion on top of the clips
+var motion: HeroMotion
 
 
 func _ready() -> void:
@@ -26,6 +28,9 @@ func _ready() -> void:
 	for n in model.find_children("*_LOD?", "MeshInstance3D", true, false):
 		_lods[int(String(n.name).right(1))].append(n)
 	anim.animation_finished.connect(func(n: StringName): clip_finished.emit(String(n)))
+	if skeleton:
+		motion = HeroMotion.new()
+		skeleton.add_child(motion)
 	set_lod(0)
 	play("CK_Idle", 0.0)
 

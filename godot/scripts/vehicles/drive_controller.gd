@@ -167,22 +167,38 @@ func _bike_grapple(v: Vehicle) -> void:
 	var fwd := v.global_basis.z
 	fwd.y = 0
 	fwd = fwd.normalized()
+	# first wall ahead that has a roof at least 3 m up (skips bus shelters, cabinets and other street props)
 	var from := v.global_position + Vector3(0, 1.0, 0)
-	var q := PhysicsRayQueryParameters3D.create(from, from + fwd * 45.0)
-	q.collision_mask = 1
-	q.exclude = [v.get_rid(), player.get_rid()]
-	var hit := space.intersect_ray(q)
-	if hit.is_empty() or absf(hit["normal"].y) > 0.3:
-		notify.emit("No wall to grapple: face a building", "grapple", "warn")
+	var end := from + fwd * 45.0
+	var wall := Vector3.INF
+	var n := Vector3.ZERO
+	var top := -INF
+	for attempt in 5:
+		var q := PhysicsRayQueryParameters3D.create(from, end)
+		q.collision_mask = 1
+		q.exclude = [v.get_rid(), player.get_rid()]
+		var hit := space.intersect_ray(q)
+		if hit.is_empty():
+			break
+		var hn: Vector3 = hit["normal"]
+		hn.y = 0
+		if hn.length() < 0.5:
+			from = hit["position"] + fwd * 0.3
+			continue
+		hn = hn.normalized()
+		var t := _roof_height(space, hit["position"] - hn * 2.5)
+		if t != -INF and t - v.global_position.y >= 3.0:
+			wall = hit["position"]
+			n = hn
+			top = t
+			break
+		from = hit["position"] + fwd * 0.6
+	if wall == Vector3.INF:
+		notify.emit("No building to climb ahead: face a wall within 45 m", "grapple", "warn")
 		sound.emit("ui.deny")
 		return
-	var n: Vector3 = hit["normal"]
-	n.y = 0
-	n = n.normalized()
-	var wall: Vector3 = hit["position"]
-	var top := _roof_height(space, wall - n * 2.5)
-	if top == -INF or top - v.global_position.y < 3.0 or top - v.global_position.y > 60.0:
-		notify.emit("Nothing to climb onto there", "grapple", "warn")
+	if top - v.global_position.y > 150.0:
+		notify.emit("Too tall to winch up", "grapple", "warn")
 		sound.emit("ui.deny")
 		return
 	var base := Vector3(wall.x, v.global_position.y, wall.z) + n * 1.6

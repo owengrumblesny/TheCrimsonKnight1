@@ -649,6 +649,9 @@ func _smash_ahead() -> void:
 
 ## A sudden change in velocity is a crash: damage, sparks, a camera jolt (chase views) and a signal for sound.
 func _crash_check(dt: float) -> void:
+	if freeze or winching():
+		_prev_vel = linear_velocity
+		return
 	var dv := (linear_velocity - _prev_vel).length()
 	_prev_vel = linear_velocity
 	if dv > 9.0 and dt > 0.0:
@@ -698,11 +701,11 @@ func winch(base: Vector3, lip: Vector3, roof: Vector3, heading: float) -> void:
 	_winch_tw = create_tween()
 	_winch_tw.tween_property(self, "global_transform", Transform3D(flat, base), clampf(d0 / 18.0, 0.25, 2.0))
 	_winch_tw.tween_property(self, "global_transform", Transform3D(up_basis, base + Vector3(0, 1.2, 0) - flat.z * 0.4), 0.35).set_trans(Tween.TRANS_SINE)
-	_winch_tw.tween_property(self, "global_transform", Transform3D(up_basis, Vector3(base.x, lip.y - 0.6, base.z) - flat.z * 0.4), maxf(0.8, climb / 9.0))
+	_winch_tw.tween_property(self, "global_transform", Transform3D(up_basis, Vector3(base.x, lip.y - 0.6, base.z) - flat.z * 0.4), clampf(climb / 12.0, 0.8, 7.0))
 	_winch_tw.tween_property(self, "global_transform", Transform3D(flat, roof + Vector3(0, 0.45, 0)), 0.55).set_trans(Tween.TRANS_SINE)
 	_winch_tw.tween_callback(func():
 		freeze = false
-		linear_velocity = flat.z * 8.0
+		linear_velocity = flat.z * 1.5
 		if is_instance_valid(_cable):
 			_cable.queue_free()
 		reset_physics_interpolation())

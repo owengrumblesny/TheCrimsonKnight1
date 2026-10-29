@@ -1,5 +1,5 @@
 class_name CKUI
-## Shared UI helpers: the Crimson Knight theme (colours from game/src/ui/ui.css), icon and keycap lookup
+## Shared UI helpers: the Crimson Knight theme (colours from the original web build), icon and keycap lookup
 ## from the UI pack (CRIMSON_KNIGHT_UI_PACK, same files as the web build's public/ui), and widget builders.
 
 const BG := Color("#0c0b12")

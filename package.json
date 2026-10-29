@@ -1,7 +1,7 @@
 {
   "name": "crimson-knight",
   "private": true,
-  "description": "Crimson Knight: Earth-RED (Godot 4.7.2). Build commands; see docs/BUILD.md. The old web build's own scripts are in game/package.json.",
+  "description": "Crimson Knight: Earth-RED (Godot 4.7.2). Build commands; see docs/BUILD.md.",
   "scripts": {
     "build": "powershell -NoProfile -ExecutionPolicy Bypass -File build/build_windows.ps1",
     "build:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File build/build_windows.ps1",

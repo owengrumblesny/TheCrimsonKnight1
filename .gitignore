@@ -14,3 +14,13 @@ assets/models/**/*.jpg.import
 
 # R.E.D. local AI runtimes and models (downloaded, large)
 /ai/
+
+# Claude Code worktrees and local settings
+.claude/worktrees/
+.claude/settings.local.json
+
+# Godot exports / builds / installers
+/build/
+/export/
+/dist/
+*.pck

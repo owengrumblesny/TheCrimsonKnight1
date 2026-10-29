@@ -35,6 +35,10 @@ var waypoint = null
 var decoy: Node3D
 var decoy_until := 0
 var evidence := 0
+var melee: Melee
+## melee attack tokens: at most MAX_ATTACKERS enemies wind up / strike at once, the rest circle
+const MAX_ATTACKERS := 2
+var _tokens: Array = []
 var _crime_t := 25.0
 var _reinforce_t := 0.0
 var _cool_t := 0.0
@@ -63,6 +67,23 @@ func stars() -> int:
 
 
 # ---------------- services used by Enemy ----------------
+func take_token(e: Node) -> bool:
+	_tokens = _tokens.filter(func(x): return is_instance_valid(x) and not x.is_down())
+	if e in _tokens:
+		return true
+	if _tokens.size() < MAX_ATTACKERS:
+		_tokens.append(e)
+		return true
+	return false
+
+
+func has_token(e: Node) -> bool:
+	_tokens = _tokens.filter(func(x): return is_instance_valid(x) and not x.is_down())
+	return e in _tokens or _tokens.size() < MAX_ATTACKERS
+
+
+func release_token(e: Node) -> void:
+	_tokens.erase(e)
 ## What an enemy goes after: the decoy hologram when one is up nearby, else the Knight.
 func target_for(e: Node3D) -> Node3D:
 	if decoy and is_instance_valid(decoy) and Time.get_ticks_msec() < decoy_until and e.global_position.distance_to(decoy.global_position) < 30.0:
@@ -95,6 +116,10 @@ func add_smoke(at: Vector3) -> void:
 
 
 func damage_player(amount: float, from: Vector3, _by: Node) -> void:
+	if melee and melee.invulnerable():
+		return # dodged
+	if melee:
+		melee.got_hit()
 	if vitals.shield_until > Time.get_ticks_msec():
 		effects.burst("electrical", player.global_position + Vector3(0, 1.2, 0), 2, 0.6, 0.6, 0.3)
 		return

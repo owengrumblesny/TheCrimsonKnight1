@@ -36,6 +36,7 @@ var _compass_marks: Control
 var grapple_point = null
 var camera: Camera3D
 var _grapple_mark: Control
+var _combo: Label
 var minimap: MiniMap
 
 
@@ -56,6 +57,10 @@ func _ready() -> void:
 	_grapple_mark.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_grapple_mark.draw.connect(_draw_grapple_mark)
 	widgets.add_child(_grapple_mark)
+	_combo = CKUI.label("", 30, CKUI.BRIGHT, true)
+	_combo.add_theme_color_override("font_shadow_color", Color.BLACK)
+	CKUI.place(_combo, Vector4(.5, .5, .5, .5), Vector4(70, -60, 260, -20))
+	widgets.add_child(_combo)
 	minimap = MiniMap.new()
 	CKUI.place(minimap, Vector4(0, 1, 0, 1), Vector4(18, -18 - MiniMap.SIZE, 18 + MiniMap.SIZE, -18))
 	widgets.add_child(minimap)
@@ -317,6 +322,14 @@ func _draw_grapple_mark() -> void:
 	_grapple_mark.draw_polyline(PackedVector2Array([p + Vector2(0, -r), p + Vector2(r, 0), p + Vector2(0, r), p + Vector2(-r, 0), p + Vector2(0, -r)]), col, 2.5, true)
 	_grapple_mark.draw_circle(p, 2.5, col)
 	_grapple_mark.draw_string(get_theme_default_font(), p + Vector2(14, 5), CKUI.key_label(CKInput.code("grapple")), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
+
+
+func show_combo(n: int) -> void:
+	_combo.text = "x%d" % n if n >= 2 else ""
+	if n >= 2:
+		_combo.scale = Vector2.ONE * 1.25
+		_combo.pivot_offset = Vector2(0, 20)
+		create_tween().tween_property(_combo, "scale", Vector2.ONE, 0.15)
 
 
 ## Red vignette when the Knight takes a hit.

@@ -13,6 +13,7 @@ extends Node3D
 ##   --vehicle=id                       summon a vehicle and get in (crx1_interceptor / crb1_batcycle / cra1_specter)
 ##   --chase                            start driving in the chase camera
 ##   --equip=item_id                    put an item in slot 1 and select it
+##   --autofight                        (test) counter every wind-up and strike when in reach
 ##   --autoaim                          (test) keep the crosshair on the nearest enemy
 ##   --aimat=x,y,z                      keep the camera centre on a world point (weapon tests)
 ##   --bench                            run the 6-scene benchmark for the current preset, write JSON, quit
@@ -50,6 +51,7 @@ var drive: DriveController
 var anim_debug: AnimDebug
 var director: Director
 var street: StreetLife
+var melee: Melee
 var targets: TargetRange
 var _step_dist := 0.0
 var _last_pos := Vector3.ZERO
@@ -164,6 +166,14 @@ func _ready() -> void:
 	director.sound_event.connect(audio.play)
 	add_child(director)
 	equipment.director = director
+	melee = Melee.new()
+	melee.player = player
+	melee.cam = cam
+	melee.director = director
+	melee.effects = effects
+	melee.audio = audio
+	add_child(melee)
+	director.melee = melee
 	street = StreetLife.new()
 	street.player = player
 	street.district = district
@@ -185,6 +195,7 @@ func _ready() -> void:
 		hud.damage_flash(amount, from, player.global_position, cam.yaw)
 		audio.play("weapon.impact"))
 	hud.director = director
+	melee.combo_changed.connect(hud.show_combo)
 	hud.minimap.game = self
 	if args.has("log"):
 		weapons.hit_confirmed.connect(func(kill): print("[ck] f%d hit%s %s" % [frame, " KNOCKDOWN" if kill else "", weapons.status(Time.get_ticks_msec())]))
@@ -286,6 +297,7 @@ func apply_settings() -> void:
 	get_tree().root.content_scale_factor = settings["uiScale"]
 	audio.apply_settings(settings)
 	Vehicle.reduce_motion = settings["reduceMotion"]
+	melee.reduce_motion = settings["reduceMotion"]
 	FollowCamera.reduce_motion = settings["reduceMotion"]
 	_apply_hud_visibility()
 	saves.write_settings(settings, CKInput.overrides)
@@ -445,7 +457,14 @@ func _process(dt: float) -> void:
 		var d: Vector3 = (aim_at - cam.camera.global_position).normalized()
 		cam.yaw = lerp_angle(cam.yaw, atan2(-d.x, -d.z), 0.5)
 		cam.pitch = lerpf(cam.pitch, asin(-d.y), 0.5)
+	if args.has("autofight") and not drive.driving: # test aid: counter every telegraph, strike when in reach
+		if melee.counter_target():
+			if melee.counter() and args.has("log"):
+				print("[ck] f%d COUNTER" % frame)
+		elif melee.engaged(false) and frame % 14 == 0:
+			melee.strike(frame % 56 == 0)
 	equipment.update(dt, now)
+	melee.update(dt)
 	var firing := drive.driving == null
 	weapons.update(dt, now, firing and Input.is_action_just_pressed("primaryAction"), firing and Input.is_action_pressed("primaryAction"))
 	hud.weapon_status = weapons.status(now)
@@ -565,7 +584,20 @@ func _gameplay_input(now: int) -> void:
 		_equip_selected()
 	if Input.is_action_just_pressed("reload"):
 		weapons.reload(now)
-	if Input.is_action_just_pressed("primaryAction") and not weapons.is_weapon(inventory.selected_item()):
+	var sel_id := inventory.selected_item()
+	var ranged: bool = weapons.is_weapon(sel_id) and weapons.defs[sel_id]["kind"] != "melee"
+	var fists := melee.engaged(ranged) and not weapons.is_weapon(sel_id)
+	player.melee_engaged = fists
+	if fists:
+		if Input.is_action_just_pressed("primaryAction"):
+			melee.strike(false)
+		elif Input.is_action_just_pressed("secondaryAction"):
+			melee.strike(true)
+		elif Input.is_action_just_pressed("crouch"):
+			var m: Vector2 = CKInput.move()
+			var f := Vector3(-sin(cam.yaw), 0, -cos(cam.yaw))
+			melee.dodge(f * m.y + Vector3(-f.z, 0, f.x) * m.x)
+	elif Input.is_action_just_pressed("primaryAction") and not weapons.is_weapon(inventory.selected_item()):
 		if args.has("log"):
 			print("[ck] use ", inventory.selected_item())
 		equipment.use_selected(now)
@@ -606,6 +638,11 @@ func _interact() -> void:
 	var near_exit := underground and p.distance_to(citadel.anchor("Anchor_Exit")) < 4
 	var car := drive.nearby()
 	prompt = []
+	if melee.counter_target():
+		prompt = ["interact", "Counter"]
+		if Input.is_action_just_pressed("interact"):
+			melee.counter()
+		return
 	var foe := _takedown_target()
 	if foe:
 		prompt = ["interact", "Takedown"]

@@ -50,6 +50,11 @@ var _climb_t := 0.0
 var _climb_from := Vector3.ZERO
 var _vault_t := 0.0
 var _regrab_t := 0.0
+## melee: a short dash toward a target while a strike / dodge one-shot plays
+var _lunge_t := 0.0
+var _lunge_vel := Vector3.ZERO
+## set by the game while hand-to-hand is engaged: C dodges instead of crouching, RMB strikes instead of aiming
+var melee_engaged := false
 
 const GRAPPLE_RANGE := 70.0
 const GRAPPLE_MAX_SPEED := 30.0
@@ -82,9 +87,9 @@ func _ready() -> void:
 func handle_input() -> void:
 	if Input.is_action_just_pressed("walkToggle"):
 		walk_mode = not walk_mode
-	if Input.is_action_just_pressed("crouch") and mode == "ground":
+	if Input.is_action_just_pressed("crouch") and mode == "ground" and not melee_engaged:
 		crouched = not crouched
-	aiming = Input.is_action_pressed("secondaryAction") and mode == "ground"
+	aiming = Input.is_action_pressed("secondaryAction") and mode == "ground" and not melee_engaged
 	if Input.is_action_just_pressed("grapple") and not grapple_target.is_empty() and mode in ["ground", "air", "glide", "ledge"]:
 		grapple_to(grapple_target["point"], grapple_target["ledge"], grapple_target.get("normal", Vector3.ZERO))
 		return
@@ -128,7 +133,7 @@ func set_gadget(id: String) -> bool:
 
 ## One-shot action clip (equipment use, vehicle call). Only on the ground.
 func act(clip: String, lock := -1.0) -> bool:
-	if mode != "ground":
+	if mode != "ground" and mode != "action":
 		return false
 	_one_shot(clip, lock)
 	return true
@@ -199,6 +204,12 @@ func find_grapple_target() -> Dictionary:
 	return {"point": Vector3(p.x, edge.y, p.z) + wall_n * 0.35, "ledge": true, "normal": wall_n}
 
 
+## Dash at `v` (m/s, horizontal) for `t` seconds, through normal collision (melee lunges and dodges).
+func lunge(v: Vector3, t: float) -> void:
+	_lunge_vel = Vector3(v.x, 0, v.z)
+	_lunge_t = t
+
+
 func grapple_anchor():
 	return _grapple_point if mode == "grapple" else null
 
@@ -256,6 +267,10 @@ func _physics_process(dt: float) -> void:
 	elif mode == "action":
 		vel.x *= 0.8
 		vel.z *= 0.8
+	if _lunge_t > 0.0:
+		_lunge_t -= dt
+		vel.x = _lunge_vel.x
+		vel.z = _lunge_vel.z
 
 	# facing
 	if aiming or (combat_t > 0.0 and mode == "ground"):

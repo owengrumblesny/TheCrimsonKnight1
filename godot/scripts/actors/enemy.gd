@@ -28,6 +28,8 @@ var _last_seen := Vector3.ZERO
 var _strafe := 1.0
 var _avoid := Vector3.ZERO
 var _anim_pending := 0.0
+var _windup_t := 0.0
+var _mark: Label3D
 
 
 static func create(npc_id: String, at: Vector3, heading: float, dir: Node, clip := "NPC_Idle") -> Enemy:
@@ -73,6 +75,17 @@ func _ready() -> void:
 	_play(idle_clip)
 	if anim:
 		anim.seek(randf() * 2.0, true)
+	# counter telegraph: a red "!" over the head while winding up a strike
+	_mark = Label3D.new()
+	_mark.text = "!"
+	_mark.font_size = 96
+	_mark.outline_size = 12
+	_mark.modulate = Color(1, 0.2, 0.25)
+	_mark.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_mark.no_depth_test = true
+	_mark.position = Vector3(0, 2.35, 0)
+	_mark.visible = false
+	add_child(_mark)
 	_strafe = 1.0 if randf() < 0.5 else -1.0
 
 
@@ -103,6 +116,23 @@ func hit(amount: float, _point: Vector3, dir: Vector3) -> bool:
 	return false
 
 
+## The Knight countered the wind-up: the strike never lands and the attacker reels.
+func countered() -> void:
+	_windup_t = 0.0
+	_mark.visible = false
+	state = "attack"
+	director.release_token(self)
+	stun(1.2)
+
+
+## A guard against a light strike: no damage, a brief recoil.
+func block() -> void:
+	_play("NPC_Alert")
+	model.position.z = -0.2
+	create_tween().tween_property(model, "position:z", 0.0, 0.2)
+	_attack_t = maxf(_attack_t, 0.4)
+
+
 ## Stun without damage (sonic burst, EMP on robots, batarang).
 func stun(seconds: float) -> void:
 	if state != "down":
@@ -115,6 +145,8 @@ func knock_down(dir := Vector3.ZERO) -> void:
 		return
 	state = "down"
 	health = 0
+	_mark.visible = false
+	director.release_token(self)
 	velocity = Vector3.ZERO
 	collision_layer = 0
 	collision_mask = 1 # still rests on the ground
@@ -192,8 +224,21 @@ func _physics_process(dt: float) -> void:
 	to.y = 0
 	var dist := to.length()
 	var want := Vector3.ZERO
-	if _stagger_t > 0:
+	if state == "windup":
+		_windup_t -= dt
+		_face(to, dt)
+		_play("NPC_Alert")
+		if _windup_t <= 0.0:
+			_mark.visible = false
+			state = "attack"
+			_attack(p)
+			director.release_token(self)
+			_attack_t = cfg["interval"] * randf_range(0.9, 1.3)
+	elif _stagger_t > 0:
 		_stagger_t -= dt
+		_mark.visible = false
+		if state == "windup":
+			state = "attack"
 		_play("NPC_Cower", 1.4)
 	else:
 		match state:
@@ -210,6 +255,9 @@ func _physics_process(dt: float) -> void:
 					home = global_position
 				var ranged: bool = cfg["attack"] == "ranged"
 				var keep: float = cfg["range"] * (0.6 if ranged else 0.8)
+				var waiting: bool = not ranged and p == director.player and not director.has_token(self)
+				if waiting:
+					keep = 4.0 # circle the fight until it's this enemy's turn
 				if dist > keep or not sees:
 					want = to.normalized() * cfg["speed"]
 					state = "chase"
@@ -218,14 +266,22 @@ func _physics_process(dt: float) -> void:
 					state = "attack"
 					if ranged and dist < keep * 0.5:
 						want = -to.normalized() * cfg["speed"] * 0.6 # back off to firing range
+					elif waiting:
+						want = to.normalized().cross(Vector3.UP) * _strafe * 1.6 # circle, wait for an opening
 					elif ranged:
 						want = to.normalized().cross(Vector3.UP) * _strafe * 1.2 # strafe while shooting
 					_play("NPC_Alert")
 				_face(to, dt)
 				_attack_t -= dt
 				if state == "attack" and sees and _attack_t <= 0 and dist <= cfg["range"]:
-					_attack_t = cfg["interval"] * randf_range(0.8, 1.25)
-					_attack(p)
+					if cfg["attack"] == "melee" and p == director.player:
+						if director.take_token(self):
+							state = "windup" # telegraphed: the Knight can counter (E) until it lands
+							_windup_t = 0.6
+							_mark.visible = true
+					else:
+						_attack_t = cfg["interval"] * randf_range(0.8, 1.25)
+						_attack(p)
 	# obstacle avoidance: a short probe ahead; slide sideways around blockers
 	if want.length() > 0.1:
 		var q := PhysicsRayQueryParameters3D.create(global_position + Vector3(0, 0.8, 0), global_position + Vector3(0, 0.8, 0) + want.normalized() * 1.6)

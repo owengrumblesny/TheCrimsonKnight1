@@ -67,13 +67,7 @@ func _layout() -> Array:
 	# law enforcement at the intersection corners and the Owen Enterprises frontage
 	out.append_array([_spot("npc_police_officer", 6.2, 5.6, -2.4, "NPC_Idle"), _spot("npc_police_officer", -6.0, -6.4, 0.7, "NPC_Idle"),
 		_spot("npc_security_guard", -18, -6.0, 0, "NPC_Idle"), _spot("npc_security_guard", -21, -6.0, 0, "NPC_Idle")])
-	# enemy groups: thugs in the dumpster alley, a merc squad in the industrial yard
-	out.append_array([_spot("npc_criminal_thug", -41.5, 7.6, 0.4, "NPC_Alert"), _spot("npc_criminal_thug", -38.8, 7.2, -0.5, "NPC_Talk"),
-		_spot("npc_criminal_thug", -40.2, 6.2, PI, "NPC_Idle"), _spot("npc_mercenary", 88, -4.5, -1.2, "NPC_Alert"),
-		_spot("npc_mercenary", 90.5, -3.4, PI, "NPC_Alert"), _spot("npc_enforcer", 95, -2.5, PI * 0.9, "NPC_Alert"),
-		_spot("npc_riot_trooper", 84, -1.8, -PI / 2, "NPC_Alert"), _spot("npc_riot_trooper", 84, 0.6, -PI / 2, "NPC_Alert"),
-		_spot("npc_stealth_operative", 97.5, 3.5, -2.2, "NPC_Alert"), _spot("npc_security_robot", 80, -5.5, -PI / 2, "NPC_Alert"),
-		_spot("npc_security_robot", -24, -6.0, 0, "NPC_Idle")])
+	# hostile factions are real enemies now (godot/scripts/actors/enemy.gd), spawned by the Director
 	return out
 
 

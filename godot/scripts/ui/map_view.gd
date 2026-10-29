@@ -31,6 +31,11 @@ func _draw() -> void:
 		if f["kind"] == "portal":
 			draw_string(font, c + Vector2(f["max"].x, (f["min"].y + f["max"].y) / 2) * s + Vector2(8, 6), "RED CITADEL ENTRANCE",
 				HORIZONTAL_ALIGNMENT_LEFT, -1, 14, CKUI.BRIGHT)
+	for m in game.director.markers:
+		var mp: Vector3 = m["pos"]
+		var col := CKUI.BRIGHT if m["kind"] == "crime" else Color("#ffc040")
+		draw_circle(c + Vector2(mp.x, mp.z) * s, 7.0, col)
+		draw_string(font, c + Vector2(mp.x, mp.z) * s + Vector2(10, 5), m["label"], HORIZONTAL_ALIGNMENT_LEFT, -1, 13, col)
 	var p: Vector3 = game.player.global_position
 	var xf := Transform2D(-game.player.heading + PI, c + Vector2(p.x, p.z) * s)
 	draw_set_transform_matrix(xf)

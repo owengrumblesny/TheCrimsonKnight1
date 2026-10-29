@@ -26,6 +26,12 @@ var _marker: Control
 var weapon_status := ""
 ## [title, sub] shown in the selected-item card while driving; the hotbar hides
 var vehicle_text: Array = []
+var director: Director
+var _stars: Label
+var _rank: Label
+var _objective: Label
+var _flash: ColorRect
+var _compass_marks: Control
 
 
 func _ready() -> void:
@@ -39,6 +45,7 @@ func _ready() -> void:
 	add_child(widgets)
 	_build_status()
 	_build_compass()
+	_build_world_widgets()
 	_build_selected()
 	_build_hotbar()
 	_crosshair = CKUI.image_rect(CKUI.icon("crosshair"), Vector2(36, 36))
@@ -234,6 +241,66 @@ func render_hotbar() -> void:
 		b.tooltip_text = "%s\n%s" % [d.get("displayName", "Empty"), status]
 
 
+func _build_world_widgets() -> void:
+	# heat stars under the compass
+	_stars = CKUI.label("", 20, CKUI.BRIGHT, true)
+	_stars.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	CKUI.place(_stars, Vector4(.5, 0, .5, 0), Vector4(-120, 50, 120, 76))
+	widgets.add_child(_stars)
+	# credits / rank and the mission objective under the vitals
+	_rank = CKUI.label("", 12, CKUI.MUTED)
+	_rank.position = Vector2(18, 98)
+	widgets.add_child(_rank)
+	var obj := PanelContainer.new()
+	obj.add_theme_stylebox_override("panel", CKUI.box(Color(CKUI.BG, 0.78), CKUI.BORDER, 8, 1, 8))
+	obj.position = Vector2(18, 122)
+	obj.custom_minimum_size = Vector2(330, 0)
+	_objective = CKUI.label("", 13)
+	_objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_objective.custom_minimum_size.x = 314
+	obj.add_child(_objective)
+	widgets.add_child(obj)
+	# crime / mission ticks on the compass
+	_compass_marks = Control.new()
+	CKUI.place(_compass_marks, Vector4(.5, 0, .5, 0), Vector4(-180, 14, 180, 48))
+	_compass_marks.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_compass_marks.draw.connect(_draw_marks)
+	widgets.add_child(_compass_marks)
+	# damage flash (red vignette)
+	_flash = ColorRect.new()
+	_flash.color = Color(0.85, 0.05, 0.1, 0.0)
+	_flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_flash)
+	move_child(_flash, 0)
+
+
+var _heading := 0.0
+
+
+func _draw_marks() -> void:
+	if director == null:
+		return
+	var deg := fposmod(180.0 - rad_to_deg(_heading), 360.0)
+	for m in director.markers:
+		var d: Vector3 = m["pos"] - director.player.global_position
+		var bearing := fposmod(rad_to_deg(atan2(d.x, -d.z)), 360.0) # 0 = north (-Z), like the strip
+		var off := wrapf(bearing - deg, -180.0, 180.0)
+		if absf(off) > 80.0:
+			continue
+		var x := 180.0 + off * 2.0 # the strip is 45 px per 45 degrees
+		var col := CKUI.BRIGHT if m["kind"] == "crime" else Color("#ffc040")
+		_compass_marks.draw_colored_polygon(PackedVector2Array([Vector2(x, 26), Vector2(x - 6, 34), Vector2(x + 6, 34)]), col)
+		_compass_marks.draw_string(get_theme_default_font(), Vector2(x - 20, 46), "%d m" % roundi(d.length()),
+			HORIZONTAL_ALIGNMENT_CENTER, 40, 10, col)
+
+
+## Red vignette when the Knight takes a hit.
+func damage_flash(amount: float, _from: Vector3, _at: Vector3, _yaw: float) -> void:
+	_flash.color.a = clampf(0.12 + amount / 60.0, 0.12, 0.4)
+	create_tween().tween_property(_flash, "color:a", 0.0, 0.5)
+
+
 ## Hit marker around the crosshair: white on hit, crimson on a knockdown.
 func hit_marker(kill: bool) -> void:
 	_marker.self_modulate = CKUI.BRIGHT if kill else Color.WHITE
@@ -340,6 +407,14 @@ func update_hud(now: int, heading: float, show_crosshair: bool) -> void:
 		_sel_title.text = d["displayName"]
 		_sel_sub.text = " · ".join(parts)
 	_crosshair.visible = show_crosshair
+	if director:
+		_heading = heading
+		var st := director.stars()
+		_stars.text = "★".repeat(st) + "☆".repeat(5 - st) if st > 0 else ""
+		_rank.text = "%s · %d cr" % [director.rank(), director.credits]
+		_objective.get_parent().visible = director.objective != ""
+		_objective.text = director.objective
+		_compass_marks.queue_redraw()
 	for i in 8:
 		var sid: String = inventory.hotbar[i]
 		_slots[i]["cd"].value = inventory.cooldown_fraction(sid, now) if sid != "" else 0.0

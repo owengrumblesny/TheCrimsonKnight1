@@ -20,6 +20,7 @@ var _projectiles: Array = [] # {node, vel, travelled}
 var _beacons: Array = []
 var _lamp: SpotLight3D
 var _line: MeshInstance3D
+var director: Director
 
 
 func _ready() -> void:
@@ -152,6 +153,8 @@ func _use_drone(now: int) -> bool:
 
 func _use_smoke(_now: int) -> bool:
 	effects.burst("smoke", _feet(), 16, 1.6, 2.4, 3.2)
+	if director:
+		director.add_smoke(_feet()) # enemies can't see through it for 6 s
 	sound.emit("gadget.deploy")
 	return true
 
@@ -216,6 +219,10 @@ func _use_emp(now: int) -> bool:
 			l["off_until"] = now + 6000
 			n += 1
 	district.update_lights(p, now, 1.0) # apply immediately
+	if director:
+		for e in director.enemies:
+			if is_instance_valid(e) and e.cfg.get("robot", false) and e.global_position.distance_to(p) < 25:
+				e.stun(6.0) # the EMP shuts security robots down
 	effects.burst("electrical", p + Vector3(0, 1, 0), 6, 2, 1.8, 0.6)
 	var ring := _ring(p, Color("#6aa8ff"))
 	_add_timed(700, now, ring.queue_free, func(t, _dt): _grow(ring, t, now, 700, 25))
@@ -237,6 +244,12 @@ func _use_sonic(now: int) -> bool:
 		imp.y = b.mass * 3
 		b.apply_central_impulse(imp)
 		pushed += 1
+	if director:
+		for e in director.enemies:
+			if is_instance_valid(e) and not e.is_down() and e.global_position.distance_to(p) < 9:
+				e.stun(2.5)
+				e.velocity += (e.global_position - p).normalized() * 8.0
+				pushed += 1
 	var ring := _ring(p, Color.WHITE)
 	_add_timed(500, now, ring.queue_free, func(t, _dt): _grow(ring, t, now, 500, 9))
 	sound.emit("gadget.pulse")
@@ -356,6 +369,9 @@ func update(dt: float, now: int) -> void:
 			var c = hit["collider"]
 			if c is RigidBody3D:
 				c.apply_central_impulse(vel.normalized() * 6 * c.mass)
+			elif c is Enemy:
+				c.hit(15.0, hit["position"], vel.normalized()) # batarang: light damage and a stagger
+				c.stun(1.5)
 			effects.burst("sparks", hit["position"], 6, 2.5, 0.5, 0.4)
 			sound.emit("armor.step")
 		node.global_position += vel * dt

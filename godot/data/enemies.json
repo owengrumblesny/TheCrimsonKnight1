@@ -1,0 +1,9 @@
+{
+  "about": "Godot port enemy tuning (original factions). attack = ranged | melee. damage is to the Knight's health/armour (armour absorbs half). reward = credits. Models are the NPC families from config/npc_assets.json; there are no combat clips, so NPC_Alert is the aim/strike pose and NPC_Walk runs faster when chasing.",
+  "npc_criminal_thug":     {"faction": "Red Hand gang", "health": 60,  "speed": 4.2, "attack": "melee",  "damage": 8,  "range": 1.7,  "interval": 1.1, "accuracy": 0.0,  "reward": 40},
+  "npc_enforcer":          {"faction": "Red Hand gang", "health": 140, "speed": 3.4, "attack": "melee",  "damage": 16, "range": 1.9,  "interval": 1.5, "accuracy": 0.0,  "reward": 90},
+  "npc_mercenary":         {"faction": "Black Ledger mercs", "health": 80, "speed": 3.8, "attack": "ranged", "damage": 6, "range": 22, "interval": 1.4, "accuracy": 0.45, "reward": 60},
+  "npc_riot_trooper":      {"faction": "Black Ledger mercs", "health": 160, "speed": 3.0, "attack": "ranged", "damage": 9, "range": 16, "interval": 1.8, "accuracy": 0.4, "reward": 110, "armored": true},
+  "npc_stealth_operative": {"faction": "Black Ledger mercs", "health": 70, "speed": 4.8, "attack": "ranged", "damage": 10, "range": 26, "interval": 2.0, "accuracy": 0.6, "reward": 100},
+  "npc_security_robot":    {"faction": "rogue security", "health": 120, "speed": 2.8, "attack": "ranged", "damage": 7, "range": 20, "interval": 1.0, "accuracy": 0.35, "reward": 120, "robot": true}
+}

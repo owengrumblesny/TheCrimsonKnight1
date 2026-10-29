@@ -13,10 +13,14 @@ extends Node3D
 ##   --vehicle=id                       summon a vehicle and get in (crx1_interceptor / crb1_batcycle / cra1_specter)
 ##   --chase                            start driving in the chase camera
 ##   --equip=item_id                    put an item in slot 1 and select it
+##   --autoaim                          (test) keep the crosshair on the nearest enemy
 ##   --aimat=x,y,z                      keep the camera centre on a world point (weapon tests)
 ##   --bench                            run the 6-scene benchmark for the current preset, write JSON, quit
 ##   --animdebug=CK_Clip                open the animation debug panel on a clip
 ##   --burst=sparks|smoke|debris|electrical   keep spawning effect sprites (effects test)
+##   --crime                            start a street crime right away
+##   --nomissions                       don't start the story missions
+##   --mission=N                        start at story mission N (0-based)
 ##   --notify=text                      post a HUD notification at start
 
 var stage: Stage
@@ -44,6 +48,8 @@ var audio: CKAudio
 var weapons: Weapons
 var drive: DriveController
 var anim_debug: AnimDebug
+var director: Director
+var street: StreetLife
 var targets: TargetRange
 var _step_dist := 0.0
 var _last_pos := Vector3.ZERO
@@ -148,6 +154,23 @@ func _ready() -> void:
 	drive.sound.connect(audio.play)
 	drive.notify.connect(notify)
 	add_child(drive)
+	director = Director.new()
+	director.player = player
+	director.effects = effects
+	director.vitals = vitals
+	director.drive = drive
+	director.notify.connect(notify)
+	director.sound_event.connect(audio.play)
+	add_child(director)
+	equipment.director = director
+	street = StreetLife.new()
+	street.player = player
+	street.district = district
+	street.drive = drive
+	add_child(street)
+	street.build()
+	weapons.noise.connect(func(at, r): street.panic(at, r * 0.6))
+	weapons.noise.connect(director.noise)
 	targets = TargetRange.new()
 	add_child(targets)
 	# training dummies on the north avenue sidewalks (facing the spawn) and in the industrial yard
@@ -157,6 +180,10 @@ func _ready() -> void:
 	equipment.photo_mode_changed.connect(func(_on): _apply_hud_visibility())
 	_build_ui()
 	weapons.hit_confirmed.connect(hud.hit_marker)
+	director.player_hurt.connect(func(amount, from):
+		hud.damage_flash(amount, from, player.global_position, cam.yaw)
+		audio.play("weapon.impact"))
+	hud.director = director
 	if args.has("log"):
 		weapons.hit_confirmed.connect(func(kill): print("[ck] f%d hit%s %s" % [frame, " KNOCKDOWN" if kill else "", weapons.status(Time.get_ticks_msec())]))
 	apply_settings()
@@ -180,6 +207,10 @@ func _ready() -> void:
 		(func():
 			anim_debug.toggle()
 			anim_debug.select(args["animdebug"])).call_deferred()
+	if args.has("mission"):
+		director.mission_index = int(args["mission"])
+	if args.has("crime"):
+		(func(): director.start_crime()).call_deferred()
 	if args.has("notify"):
 		notify(args["notify"], "notification")
 	if args.has("menu"):
@@ -263,6 +294,7 @@ func _apply_hud_visibility() -> void:
 func _snapshot() -> Dictionary:
 	var p := player.global_position
 	return {"inventory": inventory.snapshot(), "bindings": CKInput.overrides, "quickVehicle": quick_vehicle, "settings": settings,
+		"world": director.snapshot(),
 		"player": {"position": [p.x, p.y, p.z], "heading": player.heading}}
 
 
@@ -272,6 +304,8 @@ func save_now() -> void:
 
 
 func play() -> void:
+	if not started and director.mission.is_empty() and not args.has("nomissions"):
+		director.start_mission(director.mission_index)
 	started = true
 	audio.start_ambience()
 
@@ -281,6 +315,8 @@ func continue_save() -> void:
 	if s == null:
 		return
 	inventory.load_state(s["inventory"])
+	if s.get("world") is Dictionary:
+		director.load_state(s["world"])
 	quick_vehicle = s.get("quickVehicle", quick_vehicle)
 	if s.get("player") is Dictionary:
 		var pos: Array = s["player"]["position"]
@@ -296,6 +332,7 @@ func new_sandbox() -> void:
 	saves.clear()
 	inventory.reset()
 	vitals.reset()
+	director.load_state({})
 	player.respawn(spawn + Vector3(0, 1, 0))
 	_equip_selected()
 	play()
@@ -386,8 +423,15 @@ func _process(dt: float) -> void:
 		_on_foot(now)
 	hud.vehicle_text = drive.hud_text() if drive.driving else []
 	player.can_exert = vitals.energy > 1
-	if args.has("aimat"):
-		var d := (_vec(args["aimat"], Vector3.ZERO) - cam.camera.global_position).normalized()
+	var aim_at = _vec(args["aimat"], Vector3.ZERO) if args.has("aimat") else null
+	if args.has("autoaim"): # test aid: keep the crosshair on the nearest upright enemy
+		var best := 1e9
+		for e in director.enemies:
+			if is_instance_valid(e) and not e.is_down() and e.global_position.distance_to(player.global_position) < best:
+				best = e.global_position.distance_to(player.global_position)
+				aim_at = e.global_position + Vector3(0, 1.2, 0)
+	if aim_at != null:
+		var d: Vector3 = (aim_at - cam.camera.global_position).normalized()
 		cam.yaw = lerp_angle(cam.yaw, atan2(-d.x, -d.z), 0.5)
 		cam.pitch = lerpf(cam.pitch, asin(-d.y), 0.5)
 	equipment.update(dt, now)
@@ -404,6 +448,10 @@ func _process(dt: float) -> void:
 	stage.set_underground(underground)
 	district.visible = not underground # sector streaming: the city does not render underground
 	npcs.visible = not underground
+	director.update(dt, underground)
+	street.visible = not underground
+	if not underground:
+		street.update(dt)
 	if not underground:
 		district.update_lights(player.global_position, now, dt)
 		npcs.update(player.global_position, dt)
@@ -414,6 +462,16 @@ func _process(dt: float) -> void:
 		print("[ck] f%d pos=%s %s lod=%d fps=%d%s" % [frame, player.global_position.snapped(Vector3.ONE * 0.01),
 			player.status, player.hero.lod_level, Engine.get_frames_per_second(),
 			" citadel rooms=%d" % citadel.visible_rooms if underground else ""])
+		if director.enemies.size():
+			var states := {}
+			for e in director.enemies:
+				if is_instance_valid(e):
+					states[e.state] = states.get(e.state, 0) + 1
+			print("    world hp=%d armor=%d heat=%.1f cr=%d enemies=%s obj=%s" % [vitals.health, vitals.armor, director.heat,
+				director.credits, states, director.objective.left(40)])
+			var e0: Enemy = director.enemies[0]
+			if is_instance_valid(e0):
+				print("    e0 ", e0.id, " at ", e0.global_position.snapped(Vector3.ONE * 0.1), " ", e0.state, " sees=", e0._sees_player())
 		if drive.driving:
 			print("    drive ", drive.hud_text(), " up=", drive.driving.global_basis.y.snapped(Vector3.ONE * 0.01))
 			var c := get_viewport().get_camera_3d()
@@ -503,6 +561,20 @@ func _gameplay_input(now: int) -> void:
 		drive.summon(quick_vehicle, underground)
 
 
+## Takedown: an upright enemy within 2.4 m in front of the Knight (E).
+func _takedown_target() -> Enemy:
+	var best: Enemy = null
+	var best_d := 2.4
+	for e in director.enemies:
+		if not is_instance_valid(e) or e.is_down():
+			continue
+		var d: float = e.global_position.distance_to(player.global_position)
+		if d < best_d:
+			best_d = d
+			best = e
+	return best
+
+
 func _nearest_prop() -> RigidBody3D:
 	var best: RigidBody3D = null
 	var best_d := 2.6
@@ -522,6 +594,16 @@ func _interact() -> void:
 	var near_exit := underground and p.distance_to(citadel.anchor("Anchor_Exit")) < 4
 	var car := drive.nearby()
 	prompt = []
+	var foe := _takedown_target()
+	if foe:
+		prompt = ["interact", "Takedown"]
+		if Input.is_action_just_pressed("interact"):
+			player.heading = atan2(foe.global_position.x - p.x, foe.global_position.z - p.z)
+			player.act("CK_Interact", 0.5)
+			foe.hit(foe.health + 1.0, foe.global_position, (foe.global_position - p).normalized())
+			effects.burst("sparks", foe.global_position + Vector3(0, 1.2, 0), 8, 2.0, 0.5, 0.3)
+			audio.play("weapon.impact")
+		return
 	if car:
 		prompt = ["interact", "Enter the " + drive.label(car)]
 		if Input.is_action_just_pressed("interact"):

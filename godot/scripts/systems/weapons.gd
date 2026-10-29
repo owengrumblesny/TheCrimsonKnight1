@@ -11,6 +11,8 @@ extends Node3D
 signal notify(text: String, icon: String, kind: String)
 signal sound(id: String)
 signal hit_confirmed(kill: bool)
+## gunfire / explosions at a point (enemies within earshot react)
+signal noise(at: Vector3, radius: float)
 
 const MAX_DECALS := 60
 
@@ -127,9 +129,11 @@ func _fire(id: String, now: int) -> void:
 		if hit:
 			_impact(hit, dir, d)
 		sound.emit("weapon.shot")
+		noise.emit(muzzle, 45.0)
 	else:
 		_spawn_projectile(id, muzzle, dir * d["speed"], Color(d["color"]), d["size"])
 		sound.emit("weapon.heavy")
+		noise.emit(muzzle, 60.0)
 	if _ammo[id] == 0:
 		reload(now)
 
@@ -220,10 +224,9 @@ func _decal(at: Vector3, normal: Vector3, size: float) -> void:
 	_decals.append(dc)
 	if _decals.size() > MAX_DECALS:
 		_decals.pop_front().queue_free()
-	get_tree().create_timer(14.0).timeout.connect(func():
-		if is_instance_valid(dc):
-			_decals.erase(dc)
-			dc.queue_free())
+	# bound to the decal itself, so the timer quietly does nothing if the decal was already recycled
+	get_tree().create_timer(14.0).timeout.connect(dc.queue_free)
+	_decals = _decals.filter(func(x): return is_instance_valid(x))
 
 
 func _flash(at: Vector3, color: Color) -> void:

@@ -50,6 +50,8 @@ var weapons: Weapons
 var drive: DriveController
 var anim_debug: AnimDebug
 var red: RedAI
+## the ten talking villains and the 20 landmarks (godot/scripts/villains/)
+var villains: VillainSystem
 var vweapons: VehicleWeapons
 var red_panel: RedPanel
 var director: Director
@@ -246,6 +248,9 @@ func _ready() -> void:
 	red.voice.speaking_changed.connect(func(on): red_panel.speaking = on)
 	red_panel.submitted.connect(red.hear)
 	red_panel.chat_open_changed.connect(_on_red_chat)
+	villains = VillainSystem.new()
+	villains.game = self
+	add_child(villains)
 	melee.combo_changed.connect(hud.show_combo)
 	hud.minimap.game = self
 	if args.has("log"):
@@ -532,6 +537,8 @@ func _process(dt: float) -> void:
 	elif equipment.piloting():
 		equipment.pilot(dt, CKInput.take_look())
 		prompt = []
+	elif villains.talking: # a conversation holds the Knight still; the villain system runs it
+		prompt = []
 	else:
 		_on_foot(now)
 	vweapons.update(dt, drive.driving, drive.driving != null and Input.is_action_pressed("primaryAction"),
@@ -670,6 +677,8 @@ func _finish_check() -> void:
 
 ## What the Knight can do right now, for the HUD hint bar (keeps the controls discoverable).
 func _control_hints() -> Array:
+	if villains and villains.talking:
+		return [["villainTalk", "Hold: speak"], ["villainType", "Type"], ["pause", "Leave"]]
 	if drive.driving:
 		var v: Vehicle = drive.driving
 		var out := [["moveForward", "Throttle"], ["moveBack", "Brake"], ["vehicleMode", "Mode: " + v.mode.capitalize()],
@@ -822,6 +831,12 @@ func _interact() -> void:
 			foe.hit(foe.health + 1.0, foe.global_position, (foe.global_position - p).normalized())
 			effects.burst("sparks", foe.global_position + Vector3(0, 1.2, 0), 8, 2.0, 0.5, 0.3)
 			audio.play("weapon.impact")
+		return
+	var villain := villains.interact_prompt()
+	if not villain.is_empty():
+		prompt = villain
+		if Input.is_action_just_pressed("interact"):
+			villains.begin(villains.nearest_villain())
 		return
 	if car:
 		prompt = ["interact", "Enter the " + drive.label(car)]

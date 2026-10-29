@@ -40,6 +40,8 @@ static func clear_lot(at: Vector2) -> bool:
 	return false
 ## Shared wet-street material: the ground and every surface that used png_wet_asphalt (road tiles).
 var wet: ShaderMaterial
+## enterable places (stores, banks, diners...) and parks, built during build()
+var places: Places
 
 
 func _rand() -> float:
@@ -67,7 +69,7 @@ func build() -> void:
 				for o in [-WALK, WALK]:
 					walks.append_array([_p(a, c + o), _p(c + o, a)])
 	instanced("road_tile_v01", road_tiles, {"collide": false, "shadow": false})
-	instanced("sidewalk_tile_v01", walks, {"collide": true, "shadow": false})
+	instanced("sidewalk_tile_v01", walks, {"collide": true, "shadow": false, "layer": 16}) # not layer 1: vehicles ignore the curb
 	for k in range(-GRID, GRID + 1):
 		map_features.append({"kind": "road", "min": Vector2(-half, k * SPACING - ROAD_HALF), "max": Vector2(half, k * SPACING + ROAD_HALF)})
 		map_features.append({"kind": "road", "min": Vector2(k * SPACING - ROAD_HALF, -half), "max": Vector2(k * SPACING + ROAD_HALF, half)})
@@ -78,6 +80,12 @@ func build() -> void:
 		"kit_warehouse": [24, 20], "kit_shopfront": [10, 12]}
 	var kinds := ["kit_apartment", "kit_shopfront", "kit_office_tower", "kit_apartment", "kit_warehouse", "kit_shopfront", "kit_gothic_tower"]
 	var lots := {}
+	places = Places.new()
+	places.name = "Places"
+	places.district = self
+	add_child(places)
+	var place_types := ["store", "diner", "pawn", "store", "bank", "diner"]
+	var n_places := 0
 	for axis in ["x", "z"]:
 		for k in range(-GRID, GRID + 1):
 			var c := k * SPACING
@@ -94,9 +102,17 @@ func build() -> void:
 						var along := cursor + w / 2
 						var off: float = c + side * (FACADE + d / 2)
 						var at := Vector2(along, off) if axis == "x" else Vector2(off, along)
-						if not clear_lot(at):
+						if not clear_lot(at) and not Places.is_park_block(at):
 							var rot: float = (PI if side > 0 else 0.0) if axis == "x" else (-PI / 2 if side > 0 else PI / 2)
-							_add(lots, kind, _p(at.x, at.y, rot))
+							var front := Vector3(0, 0, -side) if axis == "x" else Vector3(-side, 0, 0)
+							if kind == "kit_shopfront" and n_places < 36 and _rand() < 0.22:
+								places.add_place(place_types[n_places % place_types.size()], Vector3(at.x, 0, at.y), front, w, d, n_places)
+								n_places += 1
+							elif kind == "kit_warehouse" and n_places < 36 and _rand() < 0.2:
+								places.add_place("bank" if n_places % 2 == 0 else "gym", Vector3(at.x, 0, at.y), front, w, d, n_places)
+								n_places += 1
+							else:
+								_add(lots, kind, _p(at.x, at.y, rot))
 						cursor += w + 1.5
 	for kind in lots:
 		instanced(kind, lots[kind], {"collide": true, "map_kind": "building", "chunk": 40, "vis_end": LOD_DIST})
@@ -179,6 +195,8 @@ func build() -> void:
 		for p in loose[id]:
 			_dynamic_prop(id, p)
 
+	for b in Places.PARKS:
+		places.add_park(b)
 	_billboards()
 	_citadel_portal()
 
@@ -416,6 +434,7 @@ func instanced(id: String, list: Array, opts: Dictionary) -> void:
 	var body: StaticBody3D = null
 	if opts.get("collide", false):
 		body = StaticBody3D.new()
+		body.collision_layer = opts.get("layer", 1)
 		body.name = id + "_static"
 		add_child(body)
 	var bounds: AABB = info["bounds"]

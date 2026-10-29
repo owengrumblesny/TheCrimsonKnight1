@@ -160,6 +160,38 @@ func _street_spot() -> Vector3:
 	return spot
 
 
+## CR-B1 wall grapple: fire at the building ahead (within 45 m); the Cycle drives to the wall, winches up the
+## face on its cable and rolls over the edge onto the roof.
+func _bike_grapple(v: Vehicle) -> void:
+	var space := player.get_world_3d().direct_space_state
+	var fwd := v.global_basis.z
+	fwd.y = 0
+	fwd = fwd.normalized()
+	var from := v.global_position + Vector3(0, 1.0, 0)
+	var q := PhysicsRayQueryParameters3D.create(from, from + fwd * 45.0)
+	q.collision_mask = 1
+	q.exclude = [v.get_rid(), player.get_rid()]
+	var hit := space.intersect_ray(q)
+	if hit.is_empty() or absf(hit["normal"].y) > 0.3:
+		notify.emit("No wall to grapple: face a building", "grapple", "warn")
+		sound.emit("ui.deny")
+		return
+	var n: Vector3 = hit["normal"]
+	n.y = 0
+	n = n.normalized()
+	var wall: Vector3 = hit["position"]
+	var top := _roof_height(space, wall - n * 2.5)
+	if top == -INF or top - v.global_position.y < 3.0 or top - v.global_position.y > 60.0:
+		notify.emit("Nothing to climb onto there", "grapple", "warn")
+		sound.emit("ui.deny")
+		return
+	var base := Vector3(wall.x, v.global_position.y, wall.z) + n * 1.6
+	var roof := Vector3(wall.x, top, wall.z) - n * 3.5
+	v.winch(base, Vector3(wall.x, top, wall.z) + n * 0.9, roof, atan2(-n.x, -n.z))
+	sound.emit("gadget.throw")
+	notify.emit("%s: winching up the wall" % label(v), "grapple", "info")
+
+
 func _land_jet(v: Vehicle) -> void:
 	while is_instance_valid(v) and v.global_position.y > JET_PAD.y + 0.6 and not v.driver_in:
 		await get_tree().physics_frame
@@ -347,6 +379,8 @@ func drive(dt: float, look: Vector2) -> void:
 		notify.emit("Camera: %s" % v.view.capitalize(), "interceptor", "info")
 	if Input.is_action_just_pressed("eject"):
 		eject()
+	if Input.is_action_just_pressed("grapple") and v.kind == "bike" and v.mode in ["pursuit", "stealth"] and not v.winching():
+		_bike_grapple(v)
 	if _enter_time > 0:
 		_enter_time -= dt
 		if _enter_time <= 0:

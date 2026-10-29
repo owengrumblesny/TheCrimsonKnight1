@@ -48,7 +48,7 @@ func _draw() -> void:
 			var mx: Vector2 = f["max"]
 			if mx.x < o.x - reach or mn.x > o.x + reach or mx.y < o.z - reach or mn.y > o.z + reach:
 				continue
-			var col := Color(0.2, 0.19, 0.25) if f["kind"] == "road" else Color(0.75, 0.13, 0.2) if f["kind"] == "portal" else Color(0.13, 0.1, 0.13)
+			var col := Color(0.2, 0.19, 0.25) if f["kind"] == "road" else Color(0.75, 0.13, 0.2) if f["kind"] == "portal" else Color(0.1, 0.22, 0.12) if f["kind"] == "park" else Color(0.35, 0.22, 0.1) if f["kind"] == "place" else Color(0.13, 0.1, 0.13)
 			var pts := PackedVector2Array()
 			for corner in [Vector3(mn.x, 0, mn.y), Vector3(mx.x, 0, mn.y), Vector3(mx.x, 0, mx.y), Vector3(mn.x, 0, mx.y)]:
 				pts.append(_to_map(corner, o, rot))

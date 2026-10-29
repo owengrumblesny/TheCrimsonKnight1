@@ -80,7 +80,7 @@ func _ready() -> void:
 	add_child(col)
 	_shape = shape
 	_col = col
-	collision_mask = 3 # world (1) + enemies (2)
+	collision_mask = 19 # world (1) + enemies (2) + sidewalks (16: vehicles roll over the curb)
 	floor_max_angle = deg_to_rad(50)
 	floor_snap_length = 0.35
 	safe_margin = 0.02

@@ -132,6 +132,7 @@ func _ready() -> void:
 	npcs.build()
 	effects = Effects.new()
 	add_child(effects)
+	Smashable.fx = effects
 	var sp: Array = CKData.json("world")["spawn"]
 	spawn = Vector3(sp[0], sp[1] - 2, sp[2])
 	await loading.step("CR-X9 Crimson Knight")
@@ -196,6 +197,13 @@ func _ready() -> void:
 	melee.audio = audio
 	add_child(melee)
 	director.melee = melee
+	director.places = district.places
+	if args.has("log"):
+		var near_list: Array = district.places.list.duplicate()
+		near_list.sort_custom(func(a, b): return a["center"].length() < b["center"].length())
+		for pl in near_list.slice(0, 6):
+			print("[ck] place %s '%s' at %s front %s" % [pl["type"], pl["name"], pl["center"].snapped(Vector3.ONE * 0.1), pl["front"]])
+		print("[ck] places %d, parks %d" % [district.places.list.size(), district.places.parks.size()])
 	street = StreetLife.new()
 	street.player = player
 	street.district = district
@@ -258,6 +266,10 @@ func _ready() -> void:
 		quick_vehicle = args["vehicle"]
 		(func():
 			drive.summon(quick_vehicle, false)
+			if args.has("vheading"): # test aid: put the vehicle where the Knight stands, facing vheading (radians)
+				drive.vehicles[quick_vehicle].route = []
+				drive.vehicles[quick_vehicle].land_at = null
+				drive.vehicles[quick_vehicle].place(player.global_position + Vector3(0, 0.5, 0), float(args["vheading"]))
 			drive.enter(drive.vehicles[quick_vehicle])
 			if args.has("chase"):
 				drive.driving.view = "chase"
@@ -586,6 +598,8 @@ func _process(dt: float) -> void:
 		npcs.update(player.global_position, dt)
 	stage.follow(player.global_position)
 	stage.update_sky(dt)
+	if not underground and frame % 10 == 0:
+		stage.rain.visible = stage.preset["rain"] > 0 and stage.weather >= 0.12 and not district.places.inside(player.global_position)
 	district.wet.set_shader_parameter("ripples", 0.0 if stage.quality == "low" else clampf(stage.weather * 1.4 - 0.2, 0.0, 1.0))
 	player.hero.update_lod(cam.camera.global_position.distance_to(player.global_position),
 		stage.preset["lod_scale"], stage.preset["hero_min_lod"])
@@ -682,6 +696,8 @@ func _control_hints() -> Array:
 				out.insert(2, ["crouch", "Down"])
 		elif v.id == "crx1_interceptor":
 			out.insert(3, ["eject", "Launch bike"])
+		elif v.kind == "bike" and v.mode in ["pursuit", "stealth"]:
+			out.insert(3, ["grapple", "Wall grapple"])
 		if vweapons.armed(v):
 			var lo: Dictionary = vweapons.loadout(v)
 			out.insert(1, ["primaryAction", "Fire"])

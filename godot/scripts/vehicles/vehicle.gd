@@ -45,6 +45,8 @@ var look := Vector2.ZERO # jet: mouse pitch/yaw input this frame; car/bike: FPV 
 var top_speed := 50.0
 ## summon autopilot: drive along these road waypoints to the Knight, then park (car / bike)
 var route: Array = []
+## R.E.D. is driving (route followed even with the Knight at the wheel)
+var autodrive := false
 signal arrived
 var _stuck_t := 0.0
 var _wheels: Array = [] # {wheel, susp, steer, spin_node, radius, spin}
@@ -340,11 +342,12 @@ func _physics_process(dt: float) -> void:
 	_crash_check(dt)
 	if kind == "car":
 		_smash_ahead()
-	if not route.is_empty() and not driver_in:
+	if not route.is_empty() and (not driver_in or autodrive):
 		_autopilot(dt)
 	var fwd_speed := linear_velocity.dot(global_basis.z)
 	var steer_max: float = cfg["steer"] * lerpf(1.0, 0.35, clampf(absf(fwd_speed) / top_speed, 0.0, 1.0))
-	steering = move_toward(steering, steer_in * steer_max, dt * 2.5)
+	# quick to turn in, quicker to straighten (easy to hold a line)
+	steering = move_toward(steering, steer_in * steer_max, dt * (3.2 if absf(steer_in) > 0.05 else 5.0))
 	var force := 0.0
 	var brk := 0.0
 	if throttle > 0.05:
@@ -372,6 +375,53 @@ func _physics_process(dt: float) -> void:
 	var pitch_err := global_basis.z.y
 	if kind == "bike":
 		apply_torque(global_basis.x * pitch_err * mass * 2.0)
+	_assists(dt, fwd_speed)
+
+
+## Driving assists (arcade, always on): stability control damps yaw toward what the steering asks for, grip
+## assist bleeds off sideways slide (less with the handbrake, so drifts still work), downforce keeps the car
+## planted at speed, and a flipped vehicle rights itself after a moment.
+static var assists := true
+
+
+func _assists(dt: float, fwd_speed: float) -> void:
+	if freeze or not assists:
+		return
+	var on_ground := false
+	for w in _wheels:
+		if w["wheel"].is_in_contact():
+			on_ground = true
+			break
+	var up := global_basis.y
+	if on_ground:
+		var spd := absf(fwd_speed)
+		# stability: target yaw rate from steering, damp the rest
+		var wheelbase := 2.8 if kind == "car" else 1.5
+		var want_yaw := fwd_speed * tan(steering) / wheelbase
+		var yaw_rate := angular_velocity.dot(up)
+		var k := 0.45 if not handbrake else 0.1
+		apply_torque(up * (want_yaw - yaw_rate) * mass * k * clampf(spd / 6.0, 0.0, 1.0))
+		# grip: remove a share of the sideways velocity each step
+		var side := global_basis.x
+		var lat := linear_velocity.dot(side)
+		var grip := 2.5 if not handbrake else 0.5
+		apply_central_force(-side * lat * mass * grip * minf(1.0, spd / 4.0))
+		# downforce grows with speed
+		apply_central_force(-up * mass * minf(spd * spd * 0.002, 3.0))
+	# auto-right: tipped past ~65 degrees and nearly stopped for 1.2 s
+	if up.y < 0.42 and linear_velocity.length() < 3.0:
+		_flip_t += dt
+		if _flip_t > 1.2:
+			_flip_t = 0.0
+			var yaw := atan2(global_basis.z.x, global_basis.z.z)
+			global_transform = Transform3D(Basis(Vector3.UP, yaw), global_position + Vector3(0, 1.2, 0))
+			linear_velocity = Vector3.ZERO
+			angular_velocity = Vector3.ZERO
+	else:
+		_flip_t = 0.0
+
+
+var _flip_t := 0.0
 
 
 ## Drive the summon route: steer at the next waypoint, slow for corners, brake to a stop at the last one.

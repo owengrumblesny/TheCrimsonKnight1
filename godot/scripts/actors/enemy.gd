@@ -30,6 +30,13 @@ var _avoid := Vector3.ZERO
 var _anim_pending := 0.0
 var _windup_t := 0.0
 var _feint := false
+## surround slot: each waiting attacker takes its own angle around the Knight (no clumping)
+var _slot := randf() * TAU
+var _fled := false
+var _flee_t := 0.0
+var _flash_t := 0.0
+var _meshes: Array = []
+static var _flash_mat: StandardMaterial3D
 var _mark: Label3D
 
 
@@ -73,6 +80,10 @@ func _ready() -> void:
 			ba.bone_name = "Hand_R"
 			sk[0].add_child(ba)
 			hand = ba
+			if cfg.get("attack", "") == "ranged":
+				_give_gun(ba)
+			elif id in ["npc_enforcer", "npc_criminal_thug"]:
+				_give_club(ba)
 	_play(idle_clip)
 	if anim:
 		anim.seek(randf() * 2.0, true)
@@ -88,6 +99,45 @@ func _ready() -> void:
 	_mark.visible = false
 	add_child(_mark)
 	_strafe = 1.0 if randf() < 0.5 else -1.0
+	_meshes = model.find_children("*", "GeometryInstance3D", true, false)
+
+
+## Simple held props so threats read at a glance: a compact rifle for gunmen, a pipe for brawlers.
+func _give_gun(ba: Node3D) -> void:
+	var g := MeshInstance3D.new()
+	var b := BoxMesh.new()
+	b.size = Vector3(0.07, 0.12, 0.62)
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color("#1a1a1e")
+	m.metallic = 0.6
+	m.roughness = 0.4
+	b.material = m
+	g.mesh = b
+	g.position = Vector3(0, -0.05, 0.22)
+	ba.add_child(g)
+	var mag := MeshInstance3D.new()
+	var mb := BoxMesh.new()
+	mb.size = Vector3(0.05, 0.16, 0.08)
+	mb.material = m
+	mag.mesh = mb
+	mag.position = Vector3(0, -0.16, 0.12)
+	ba.add_child(mag)
+
+
+func _give_club(ba: Node3D) -> void:
+	var c := MeshInstance3D.new()
+	var cm := CylinderMesh.new()
+	cm.top_radius = 0.03
+	cm.bottom_radius = 0.035
+	cm.height = 0.7
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color("#5a5048")
+	m.metallic = 0.7
+	cm.material = m
+	c.mesh = cm
+	c.rotation.x = PI / 2
+	c.position = Vector3(0, 0, 0.3)
+	ba.add_child(c)
 
 
 func _play(clip: String, speed := 1.0) -> void:
@@ -110,6 +160,14 @@ func hit(amount: float, _point: Vector3, dir: Vector3) -> bool:
 	health -= amount
 	alert(director.player.global_position)
 	_stagger_t = 0.35
+	_hit_flash()
+	# badly hurt and alone in the open: break off, run, and shout for backup (once)
+	if not _fled and health > 0 and health < cfg["health"] * 0.3 and randf() < 0.45:
+		_fled = true
+		_flee_t = 3.5
+		director.noise(global_position, 30.0)
+		if director.has_method("call_backup"):
+			director.call_backup(global_position)
 	velocity += Vector3(dir.x, 0, dir.z).normalized() * 2.5
 	if health <= 0:
 		knock_down(dir)
@@ -225,6 +283,15 @@ func _physics_process(dt: float) -> void:
 	to.y = 0
 	var dist := to.length()
 	var want := Vector3.ZERO
+	if _flee_t > 0.0 and state != "down":
+		_flee_t -= dt
+		_face(-to, dt)
+		_play("NPC_Walk", 1.8)
+		velocity.x = -to.normalized().x * cfg["speed"] * 1.3
+		velocity.z = -to.normalized().z * cfg["speed"] * 1.3
+		velocity.y -= 9.8 * dt
+		move_and_slide()
+		return
 	if state == "windup":
 		_windup_t -= dt
 		_face(to, dt)
@@ -275,7 +342,12 @@ func _physics_process(dt: float) -> void:
 					if ranged and dist < keep * 0.5:
 						want = -to.normalized() * cfg["speed"] * 0.6 # back off to firing range
 					elif waiting:
-						want = to.normalized().cross(Vector3.UP) * _strafe * 1.6 # circle, wait for an opening
+						# take an assigned spot on a ring around the Knight, so a crowd surrounds instead of queuing
+						var ring_pt: Vector3 = p.global_position + Vector3(cos(_slot), 0, sin(_slot)) * 4.2
+						var to_slot := ring_pt - global_position
+						to_slot.y = 0
+						want = to_slot.normalized() * minf(cfg["speed"], to_slot.length() * 1.5) if to_slot.length() > 0.6 else Vector3.ZERO
+						_slot += _strafe * get_physics_process_delta_time() * 0.25 # the ring slowly turns
 					elif ranged:
 						want = to.normalized().cross(Vector3.UP) * _strafe * 1.2 # strafe while shooting
 					_play("NPC_Alert")
@@ -344,3 +416,19 @@ func _attack(p: Node3D) -> void:
 	director.tracer(from, end, Color(1.0, 0.55, 0.15))
 	director.effects.burst("sparks", end, 3, 1.5, 0.25, 0.2)
 	director.sound("weapon.shot")
+
+
+## Brief red flash on the whole model when hit (readable hit feedback).
+func _hit_flash() -> void:
+	if _flash_mat == null:
+		_flash_mat = StandardMaterial3D.new()
+		_flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_flash_mat.albedo_color = Color(1, 0.25, 0.2, 0.45)
+		_flash_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	for mi in _meshes:
+		if is_instance_valid(mi) and mi.material_overlay == null:
+			mi.material_overlay = _flash_mat
+	get_tree().create_timer(0.09).timeout.connect(func():
+		for mi in _meshes:
+			if is_instance_valid(mi) and mi.material_overlay == _flash_mat:
+				mi.material_overlay = null)

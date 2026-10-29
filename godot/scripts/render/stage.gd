@@ -19,7 +19,7 @@ const DAY := Color("#8a96a8") # overcast New Gotham day
 const DUSK := Color("#5a3a44")
 
 ## Day/night: hours 0..24, advancing `day_speed` game hours per real minute (1 = a 24-minute day).
-var hour := 21.5
+var hour := 16.5
 var day_speed := 1.0
 var cycle := true
 ## Weather: 0 = dry, 1 = storm. Drifts toward `weather_target`, which changes every few minutes.

@@ -16,6 +16,16 @@ const EQUIP_VERBS := ["equip", "switch to", "give me", "use", "pull out", "draw"
 ## [intent, [phrases]] in priority order: the first intent with a matching phrase wins its clause.
 const INTENTS := [
 	["stop", ["stop talking", "shut up", "be quiet", "quiet", "silence", "hush", "enough", "stop"]],
+	["autodrive", ["drive me", "take the wheel", "autopilot", "auto pilot", "you drive", "drive for me", "drive to", "self drive", "auto drive"]],
+	["combat_assist", ["combat assist", "help me fight", "assist me", "fight assist", "battle assist", "back me up", "tactical mode", "help me in combat"]],
+	["assist_off", ["assist off", "stop assisting", "i got this", "i've got this", "turn off assist", "manual"]],
+	["vision_thermal", ["thermal", "heat vision", "infrared", "heat signature"]],
+	["vision_xray", ["x ray", "xray", "see through walls", "see through"]],
+	["vision_knight", ["knight vision", "detective vision", "detective mode", "night vision", "scan mode"]],
+	["vision_off", ["normal vision", "vision off", "turn off vision", "normal view"]],
+	["time_day", ["make it day", "daytime", "day time", "sunrise", "morning", "make it daytime", "skip to day"]],
+	["time_night", ["make it night", "night time", "nighttime", "sunset", "skip to night"]],
+	["helmet_view", ["helmet view", "first person", "helmet cam", "helmet camera", "visor"]],
 	["clear_waypoint", ["clear waypoint", "clear the waypoint", "cancel route", "cancel the route", "remove waypoint", "clear route"]],
 	["help", ["what can you do", "help", "commands", "what do you do", "abilities"]],
 	["eject", ["eject", "launch the bike", "launch bike", "split off"]],

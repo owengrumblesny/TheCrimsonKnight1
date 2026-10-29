@@ -25,6 +25,8 @@ var shoulder := false
 ## aim lock: a world point the camera turns to (null = free look); mouse flicks still move it
 var lock_point = null
 var _shoulder_blend := 0.0
+## helmet camera: first person from the Knight's visor (the game hides his body)
+var helmet := false
 
 
 func _ready() -> void:
@@ -61,6 +63,13 @@ func _process(dt: float) -> void:
 	var right := Vector3(cos(yaw), 0, -sin(yaw)) * (0.55 * _aim_blend + 0.7 * _shoulder_blend * (1.0 - _aim_blend))
 	global_position = _focus + right
 	arm.basis = Basis.from_euler(Vector3(-pitch, yaw, 0))
+	if helmet:
+		# eyes at visor height, a hand's width ahead of the face so the head never fills the view
+		var fwd := Vector3(-sin(yaw), 0, -cos(yaw))
+		global_position = target.global_position + Vector3(0, 1.74, 0) + fwd * 0.22
+		arm.spring_length = 0.0
+		camera.fov = lerpf(camera.fov, 78.0 if not aiming else 55.0, minf(1.0, dt * 6.0))
+		return
 	# framing by activity: close when walking (armour detail), pulled back for sprint / air, far for gliding
 	var want_d := distance
 	var want_fov := 60.0

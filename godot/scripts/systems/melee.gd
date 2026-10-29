@@ -25,6 +25,15 @@ var reduce_motion := false
 var power := 1.0
 ## hold E in a fight (with nothing to counter) to block: frontal strikes glance off and stagger the attacker
 var blocking := false
+## R.E.D. combat assist: counters every telegraphed blow automatically (enabled by asking R.E.D.)
+var auto := false
+## light combo order and heavy rotation: [clip, lock s, impact s, reach bonus m, knockback]
+const LIGHTS := [["CK_PunchR", 0.3, 0.2, 0.0, 1.0], ["CK_PunchL", 0.3, 0.2, 0.0, 1.0], ["CK_KickFront", 0.42, 0.3, 0.8, 2.2],
+	["CK_Elbow", 0.3, 0.23, -0.3, 1.0], ["CK_PunchR", 0.3, 0.2, 0.0, 1.0], ["CK_KneeStrike", 0.36, 0.22, -0.4, 1.4]]
+const HEAVIES := [["CK_HeavyStrike", 0.55, 0.45, 0.0, 1.0], ["CK_KickRound", 0.62, 0.43, 0.9, 1.6], ["CK_Uppercut", 0.5, 0.3, 0.0, 1.3]]
+var _light_i := 0
+var _pending_knock := 1.0
+var _heavy_i := 0
 var _combo_t := 0.0
 var _left := false
 var _busy_t := 0.0
@@ -109,6 +118,26 @@ func blocks(from: Vector3) -> bool:
 	return true
 
 
+## Next strike in the combo: punches, a front kick, an elbow, a knee when tight; heavies rotate hammer strike,
+## spinning roundhouse and uppercut. Falls back to the punches if the hero lacks a clip.
+func _next_move(heavy: bool, t: Enemy) -> Array:
+	var list: Array = HEAVIES if heavy else LIGHTS
+	for tries in list.size():
+		var i := (_heavy_i if heavy else _light_i) % list.size()
+		if heavy:
+			_heavy_i += 1
+		else:
+			_light_i += 1
+		var m: Array = list[i]
+		if not player.hero.has_clip(m[0]):
+			continue
+		# the knee only when already in close
+		if m[0] == "CK_KneeStrike" and (t == null or t.global_position.distance_to(player.global_position) > 1.8):
+			continue
+		return m
+	return ["CK_HeavyStrike", 0.55, 0.45, 0.0, 1.0] if heavy else ["CK_PunchR", 0.3, 0.2, 0.0, 1.0]
+
+
 func set_block(on: bool) -> void:
 	if on == blocking:
 		return
@@ -124,7 +153,8 @@ func strike(heavy: bool) -> void:
 		director.record("heavy" if heavy else "light")
 	var t := _pick_target()
 	_busy_t = 0.5 if heavy else 0.26
-	var clip := "CK_HeavyStrike" if heavy else ("CK_PunchL" if _left else "CK_PunchR")
+	var move: Array = _next_move(heavy, t)
+	var clip: String = move[0]
 	_left = not _left
 	if t == null:
 		player.act(clip, 0.3 if not heavy else 0.55) # swing at air
@@ -136,8 +166,8 @@ func strike(heavy: bool) -> void:
 	var gap := maxf(0.0, to.length() - 1.25)
 	if gap > 0.3:
 		player.lunge(to.normalized() * clampf(gap / 0.22, 4.0, 14.0), 0.22) # close the distance
-	player.act(clip, (0.55 if heavy else 0.3) + (0.22 if gap > 0.3 else 0.0))
-	_pending = {"target": t, "at": (0.22 if gap > 0.3 else 0.0) + (0.45 if heavy else 0.2), "heavy": heavy}
+	player.act(clip, move[1] + (0.22 if gap > 0.3 else 0.0))
+	_pending = {"target": t, "at": (0.22 if gap > 0.3 else 0.0) + move[2], "heavy": heavy, "knock": move[4]}
 	audio.play("weapon.swing")
 
 
@@ -191,6 +221,7 @@ func update(dt: float) -> void:
 		if _pending["at"] <= 0.0:
 			var t: Enemy = _pending["target"]
 			var heavy: bool = _pending["heavy"]
+			_pending_knock = _pending.get("knock", 1.0)
 			_pending = {}
 			if is_instance_valid(t) and not t.is_down() and t.global_position.distance_to(player.global_position) < 2.4:
 				var dir := (t.global_position - player.global_position)
@@ -205,8 +236,12 @@ func update(dt: float) -> void:
 					audio.play("weapon.impact")
 					_same_target = 0
 					return
-				var dmg := (45.0 if heavy else 20.0) * (1.0 + minf(combo, 10) * 0.1) * power
+				var knock: float = _pending_knock
+				var dmg := (45.0 if heavy else 20.0) * (1.0 + minf(combo, 10) * 0.1) * power * (1.1 if knock > 1.5 else 1.0)
 				_land_hit(t, dmg, heavy, dir.normalized())
+				if knock > 1.2 and not t.is_down():
+					t.velocity += dir.normalized() * 3.0 * knock * power
+					t.stun(0.4 * knock)
 
 
 func _land_hit(t: Enemy, dmg: float, heavy: bool, dir: Vector3) -> void:

@@ -282,6 +282,51 @@
       "description": "two-handed hammer strike; impact at frame 14"
     },
     {
+      "name": "CK_KickFront",
+      "frames": 18,
+      "fps": 30,
+      "duration": 0.6,
+      "loop": false,
+      "refSpeed": null,
+      "description": "front push kick; impact at frame 9"
+    },
+    {
+      "name": "CK_KickRound",
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": false,
+      "refSpeed": null,
+      "description": "spinning roundhouse; impact at frame 13"
+    },
+    {
+      "name": "CK_Uppercut",
+      "frames": 16,
+      "fps": 30,
+      "duration": 0.5333,
+      "loop": false,
+      "refSpeed": null,
+      "description": "rising uppercut; impact at 9"
+    },
+    {
+      "name": "CK_Elbow",
+      "frames": 14,
+      "fps": 30,
+      "duration": 0.4667,
+      "loop": false,
+      "refSpeed": null,
+      "description": "short elbow; impact at 7"
+    },
+    {
+      "name": "CK_KneeStrike",
+      "frames": 16,
+      "fps": 30,
+      "duration": 0.5333,
+      "loop": false,
+      "refSpeed": null,
+      "description": "clinch knee; impact at 6"
+    },
+    {
       "name": "CK_Counter",
       "frames": 18,
       "fps": 30,

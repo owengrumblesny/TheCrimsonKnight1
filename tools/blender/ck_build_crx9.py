@@ -815,6 +815,22 @@ def clip_table():
     heavy_hit = dict(guard, hz=-0.34, sp=34, cp=16, hdp=8, sw_L=70, sw_R=70, ad_L=12, ad_R=12, elb_L=10, elb_R=10, cyaw=0,
                      fy_L=0.22, capelift=26, capewave=4)
     parry = dict(guard, cyaw=26, sw_L=104, ad_L=58, elb_L=96, tw_L=30, hdyaw=8)
+    # kicks and close strikes (FK legs so the kicking leg leaves the ground; the arms stay in guard)
+    g_arms = dict(sw_L=62, ad_L=30, elb_L=112, sw_R=56, ad_R=34, elb_R=118)
+    kick_chamber = fk(hz=-0.06, sp=-6, cp=-4, hdp=-6, th_L=6, kn_L=14, th_R=82, kn_R=112, ank_L=6, ank_R=30,
+                      capelift=10, **g_arms)
+    kick_front = fk(hz=-0.04, sp=-14, cp=-8, hdp=4, th_L=4, kn_L=10, th_R=92, kn_R=6, ank_L=6, ank_R=-20,
+                    capelift=26, capewave=4, **g_arms)
+    round_wind = fk(hz=-0.08, sp=2, cyaw=-24, syaw=-14, hyaw=-20, hdyaw=18, th_L=8, kn_L=18, th_R=40, kn_R=90, thab_R=30,
+                    ank_L=8, ank_R=20, capelift=14, **g_arms)
+    round_kick = fk(hz=-0.06, sr=-14, cyaw=18, syaw=20, hyaw=34, hdyaw=-22, th_L=6, kn_L=14, th_R=70, kn_R=8, thab_R=62,
+                    ank_L=8, ank_R=-10, capelift=40, capewave=8, capespread=10,
+                    sw_L=40, ad_L=50, elb_L=90, sw_R=30, ad_R=60, elb_R=60)
+    upper_wind = dict(guard, hz=-0.22, sp=18, cp=8, cyaw=14, sw_R=10, ad_R=30, elb_R=120, hdp=-6)
+    upper_hit = dict(guard, hz=0.02, sp=-12, cp=-10, cyaw=-18, sw_R=150, ad_R=20, elb_R=70, hdp=-14, capelift=20, fy_R=0.1)
+    elbow_hit = dict(guard, cyaw=-34, syaw=-10, sw_R=82, ad_R=86, elb_R=150, tw_R=-20, hz=-0.1, fy_R=0.08, capelift=8)
+    knee_up = fk(hz=-0.05, sp=14, cp=10, hdp=-12, th_L=4, kn_L=12, th_R=104, kn_R=128, ank_L=6, ank_R=34,
+                 sw_L=78, ad_L=20, elb_L=70, sw_R=78, ad_R=20, elb_R=70, capelift=16)
     dodge_low = P_(hz=-0.42, hy=0.08, sp=30, cp=12, hdp=-20, syaw=18, fx_L=0.10, fx_R=-0.18, fy_L=0.06, fy_R=-0.16,
                    sw_L=40, ad_L=34, elb_L=100, sw_R=36, ad_R=34, elb_R=104, capelift=34, capespread=10)
     vault_plant = P_(hz=-0.12, sp=26, cp=12, hdp=-10, sw_L=78, sw_R=78, ad_L=16, ad_R=16, elb_L=8, elb_R=8, capelift=20)
@@ -911,6 +927,13 @@ def clip_table():
         ("CK_PunchL", 14, False, None, keyed([(0, guard), (4, wind_l), (7, jab_l), (14, guard)]), "left hook"),
         ("CK_HeavyStrike", 26, False, None, keyed([(0, guard), (9, heavy_wind), (14, heavy_hit), (18, heavy_hit), (26, guard)]),
          "two-handed hammer strike; impact at frame 14"),
+        ("CK_KickFront", 18, False, None, keyed([(0, guard), (5, kick_chamber), (9, kick_front), (12, kick_chamber), (18, guard)]),
+         "front push kick; impact at frame 9"),
+        ("CK_KickRound", 24, False, None, keyed([(0, guard), (7, round_wind), (13, round_kick), (17, round_wind), (24, guard)]),
+         "spinning roundhouse; impact at frame 13"),
+        ("CK_Uppercut", 16, False, None, keyed([(0, guard), (5, upper_wind), (9, upper_hit), (16, guard)]), "rising uppercut; impact at 9"),
+        ("CK_Elbow", 14, False, None, keyed([(0, guard), (4, wind_r), (7, elbow_hit), (14, guard)]), "short elbow; impact at 7"),
+        ("CK_KneeStrike", 16, False, None, keyed([(0, guard), (5, knee_up), (8, knee_up), (16, guard)]), "clinch knee; impact at 6"),
         ("CK_Counter", 18, False, None, keyed([(0, guard), (4, parry), (9, jab_r), (18, guard)]),
          "parry with the left forearm, answer with the right"),
         ("CK_Dodge", 16, False, None, keyed([(0, guard), (5, dodge_low), (11, dodge_low), (16, guard)]),

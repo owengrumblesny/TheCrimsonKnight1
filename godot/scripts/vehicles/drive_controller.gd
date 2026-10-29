@@ -208,6 +208,56 @@ func _bike_grapple(v: Vehicle) -> void:
 	notify.emit("%s: winching up the wall" % label(v), "grapple", "info")
 
 
+signal autodrive_ended(arrived: bool)
+
+
+## Street-grid route from `from` to `to` (both snapped to avenue centre lines): straight runs and right-angle
+## turns at crossings, ending on the road beside the target.
+static func grid_route(from: Vector3, to: Vector3) -> Array:
+	var S := District.SPACING
+	var ax := roundf(from.x / S) * S
+	var az := roundf(from.z / S) * S
+	var start_ns := absf(from.x - ax) < absf(from.z - az)
+	var ex := roundf(to.x / S) * S
+	var ez := roundf(to.z / S) * S
+	var end_ns := absf(to.x - ex) < absf(to.z - ez)
+	var end := Vector3(ex, 0, to.z) if end_ns else Vector3(to.x, 0, ez)
+	var pts: Array = []
+	if start_ns and end_ns:
+		if absf(ax - ex) > 1.0:
+			var c := roundf(((from.z + end.z) / 2.0) / S) * S
+			pts = [Vector3(ax, 0, c), Vector3(ex, 0, c)]
+	elif start_ns and not end_ns:
+		pts = [Vector3(ax, 0, ez)]
+	elif not start_ns and end_ns:
+		pts = [Vector3(ex, 0, az)]
+	else:
+		if absf(az - ez) > 1.0:
+			var c2 := roundf(((from.x + end.x) / 2.0) / S) * S
+			pts = [Vector3(c2, 0, az), Vector3(c2, 0, ez)]
+	pts.append(end)
+	return pts
+
+
+## R.E.D. takes the wheel: drive to `target` along the streets. Returns false if not in a car or bike.
+func start_autodrive(target: Vector3) -> bool:
+	var v := driving
+	if v == null or v.kind == "jet":
+		return false
+	v.route = grid_route(v.global_position, target)
+	v.autodrive = true
+	if not v.arrived.is_connected(_on_autodrive_arrived):
+		v.arrived.connect(_on_autodrive_arrived.bind(v))
+	return true
+
+
+func _on_autodrive_arrived(v: Vehicle) -> void:
+	if v.autodrive:
+		v.autodrive = false
+		v.linear_velocity *= 0.15 # pull up at the scene instead of coasting past it
+		autodrive_ended.emit(true)
+
+
 func _land_jet(v: Vehicle) -> void:
 	while is_instance_valid(v) and v.global_position.y > JET_PAD.y + 0.6 and not v.driver_in:
 		await get_tree().physics_frame
@@ -379,8 +429,14 @@ func _apply_camera() -> void:
 func drive(dt: float, look: Vector2) -> void:
 	var v := driving
 	var m: Vector2 = CKInput.move()
-	v.throttle = m.y
-	v.steer_in = -m.x # +steering turns left in VehicleBody3D
+	if v.autodrive and m.length() > 0.2:
+		v.autodrive = false # touching the controls takes the wheel back
+		v.route = []
+		notify.emit("Manual control", "interceptor", "info")
+		autodrive_ended.emit(false)
+	if not v.autodrive:
+		v.throttle = m.y
+		v.steer_in = -m.x # +steering turns left in VehicleBody3D
 	v.handbrake = Input.is_action_pressed("jump") and v.kind != "jet"
 	v.vtol_up = (1.0 if Input.is_action_pressed("jump") else 0.0) - (1.0 if Input.is_action_pressed("crouch") else 0.0)
 	v.boost = Input.is_action_pressed("sprint")

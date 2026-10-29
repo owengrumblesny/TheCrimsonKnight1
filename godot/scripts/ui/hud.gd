@@ -44,6 +44,10 @@ var hints_enabled := true
 ## reticle state, set by the game: weapons (bloom / under_crosshair / locked) and the camera for projection
 var weapons: Weapons
 var stage: Stage
+## helmet view: the HUD is projected on the visor (tint + head-turn lag)
+var visor := false
+var _sway := Vector2.ZERO
+var _last_cam_basis := Basis()
 var minimap: MiniMap
 
 
@@ -479,6 +483,7 @@ func set_prompt(action: String, text := "") -> void:
 
 
 func update_hud(now: int, heading: float, show_crosshair: bool) -> void:
+	_visor_update()
 	for k in _meters:
 		var v: float = vitals.get(k)
 		_meters[k][0].value = v
@@ -523,3 +528,19 @@ func update_hud(now: int, heading: float, show_crosshair: bool) -> void:
 	for i in mini(_slots.size(), inventory.hotbar.size()):
 		var sid: String = inventory.hotbar[i]
 		_slots[i]["cd"].value = inventory.cooldown_fraction(sid, now) if sid != "" else 0.0
+
+
+## Visor projection: holographic tint, and a small lag behind head turns so the displays feel like they sit on
+## the inside of the helmet glass rather than on the screen.
+func _visor_update() -> void:
+	var dt := get_process_delta_time()
+	var target := Vector2.ZERO
+	if visor and camera:
+		var b := camera.global_basis
+		var dyaw := wrapf(b.get_euler().y - _last_cam_basis.get_euler().y, -PI, PI)
+		var dpitch := b.get_euler().x - _last_cam_basis.get_euler().x
+		_last_cam_basis = b
+		target = Vector2(dyaw * 260.0, -dpitch * 260.0).limit_length(28.0)
+	_sway = _sway.lerp(target, minf(1.0, dt * 6.0))
+	widgets.position = _sway
+	widgets.modulate = widgets.modulate.lerp(Color(0.82, 0.97, 1.0, 0.93) if visor else Color.WHITE, minf(1.0, dt * 4.0))

@@ -130,7 +130,7 @@
   ],
   "heat_up": [
     "Heat's rising: {stars} stars. Ask me to jam the police if it gets annoying.",
-    "Police are on you. {stars} stars and climbing."
+    "Police are on you. Heat level {stars} and climbing."
   ],
   "heat_clear": [
     "Police lost interest. Heat's cleared.",
@@ -195,5 +195,59 @@
   "brain_booting": [
     "Give me a second, my conversation core is still booting. Commands work right now though.",
     "Still warming up my brain. Ask me again in a few seconds."
+  ],
+  "vision_knight": [
+    "Knight vision on. Orange means punchable, blue means don't.",
+    "Detective mode. Try not to stare, it's rude."
+  ],
+  "vision_thermal": [
+    "Thermal up. Everyone warm-blooded is now a glowing target.",
+    "Heat vision on. Bodies glow, walls don't matter."
+  ],
+  "vision_xray": [
+    "X-ray scan running. Walls are now merely a suggestion.",
+    "Seeing through walls. Privacy laws? Never heard of them."
+  ],
+  "vision_off": [
+    "Back to boring human eyes."
+  ],
+  "time_day": [
+    "Fast-forwarding to daylight. I'm not saying I control the sun, but I'm not denying it.",
+    "Morning it is. Try not to burst into flames."
+  ],
+  "time_night": [
+    "Night it is. Much more our aesthetic.",
+    "Skipping to nightfall. Brooding time."
+  ],
+  "helmet_view": [
+    "Visor cam toggled. Enjoy the view from inside the genius-built helmet."
+  ],
+  "autodrive": [
+    "I've got the wheel. Heading to {what}. Touch the controls and it's yours again.",
+    "Autopilot engaged, destination {what}. Sit back and look heroic."
+  ],
+  "autodrive_fail": [
+    "I can drive the car or the Cycle. Get in one first.",
+    "Nothing to drive. Unless you want me to steer your legs."
+  ],
+  "autodrive_arrived": [
+    "We're here. Try to make a dramatic exit.",
+    "Destination reached. You're welcome."
+  ],
+  "combat_assist": [
+    "Combat assist on. I'll read their wind-ups and counter for you, and call tactics. You just hit things.",
+    "Tactical mode. I'll handle the counters, you handle the punching."
+  ],
+  "assist_off": [
+    "Assists off. Good luck. You'll need it.",
+    "Fine, all manual. I'll just watch. Judgingly."
+  ],
+  "tactic_smoke": [
+    "Gunmen. Popping smoke, get in close.",
+    "Smoke's down. They can't shoot what they can't see."
+  ],
+  "tactic_sonic": [
+    "Too many of them. Sonic burst, they're stunned. Go.",
+    "Crowd control: sonic pulse. Clean up."
   ]
 }

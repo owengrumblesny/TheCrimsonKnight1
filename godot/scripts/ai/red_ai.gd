@@ -60,8 +60,93 @@ func _ready() -> void:
 	voice.heard.connect(_on_heard)
 
 
+var _tactic_t := 0.0
+const TACTICS := ["none", "overdrive", "armor_boost", "smoke", "sonic", "shield", "scan"]
+
+
+## Combat assist: every few seconds R.E.D. reads the fight and calls a tactic. With the LLM she picks it (from a
+## fixed list, JSON-constrained) and explains it in her voice; without it a rule picks. She then does it.
+func _combat_tactic() -> void:
+	var p: Vector3 = game.player.global_position
+	var near := 0
+	var armored := 0
+	var ranged := 0
+	for e in game.director.enemies:
+		if is_instance_valid(e) and not e.is_down() and e.global_position.distance_to(p) < 20.0:
+			near += 1
+			if e.cfg.get("armored", false):
+				armored += 1
+			if e.cfg.get("attack", "") == "ranged":
+				ranged += 1
+	if near == 0:
+		return
+	var rule := "none"
+	if game.vitals.health < 40 and cooldown.get("shield", 0) < Time.get_ticks_msec():
+		rule = "shield"
+	elif ranged >= 2:
+		rule = "smoke"
+	elif armored >= 1 and cooldown.get("overdrive", 0) < Time.get_ticks_msec():
+		rule = "overdrive"
+	elif near >= 4:
+		rule = "sonic"
+	if not brain_ready or thinking:
+		_apply_tactic(rule, "")
+		return
+	thinking = true
+	var prompt := state_line() + " Fight: %d enemies within 20 m, %d armored, %d with guns. Pick ONE tactic from: %s, and say it in one short sassy sentence." % [near, armored, ranged, ", ".join(TACTICS)]
+	var schema := {"type": "object", "properties": {"say": {"type": "string"}, "tactic": {"type": "string", "enum": TACTICS}}, "required": ["say", "tactic"]}
+	var http := HTTPRequest.new()
+	http.timeout = 8
+	add_child(http)
+	http.request_completed.connect(func(_r, code, _h, body):
+		thinking = false
+		http.queue_free()
+		var tac := rule
+		var say := ""
+		if code == 200:
+			var j = JSON.parse_string(body.get_string_from_utf8())
+			if j is Dictionary and j.get("choices") is Array:
+				var inner = JSON.parse_string(String(j["choices"][0]["message"]["content"]))
+				if inner is Dictionary:
+					tac = String(inner.get("tactic", rule)) if String(inner.get("tactic", "")) in TACTICS else rule
+					say = clean_reply(String(inner.get("say", "")))
+		_apply_tactic(tac, say), CONNECT_ONE_SHOT)
+	http.request("http://127.0.0.1:%d/v1/chat/completions" % LLM_PORT, ["Content-Type: application/json"], HTTPClient.METHOD_POST,
+		JSON.stringify({"messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}], "max_tokens": 60,
+			"temperature": 0.6, "cache_prompt": true, "response_format": {"type": "json_object", "schema": schema}}))
+
+
+func _apply_tactic(tac: String, say: String) -> void:
+	var line := say
+	match tac:
+		"overdrive", "armor_boost", "shield", "scan":
+			var r := run(tac)
+			if line == "":
+				line = r
+		"smoke", "sonic":
+			var at: Vector3 = game.player.global_position
+			if tac == "smoke":
+				game.director.add_smoke(at)
+				game.effects.burst("smoke", at + Vector3(0, 1, 0), 24, 2.0, 2.2, 3.0)
+			else:
+				for e in game.director.enemies:
+					if is_instance_valid(e) and not e.is_down() and e.global_position.distance_to(at) < 9.0:
+						e.stun(2.0)
+				game.effects.burst("electrical", at + Vector3(0, 1, 0), 14, 6.0, 0.6, 0.5)
+			game.audio.play("gadget.pulse")
+			if line == "":
+				line = _pick("tactic_" + tac)
+	if line != "":
+		speak(line)
+
+
 ## Hooked up by main once the director exists.
 func watch_director(d: Director) -> void:
+	game.drive.autodrive_ended.connect(func(arrived: bool):
+		if arrived:
+			speak(_pick("autodrive_arrived"))
+			if brain_ready:
+				chat("We just arrived at the scene. Brief me on it in one sentence."))
 	d.adapted_to.connect(func(kind): _say_event("adapt_" + kind, {}, 2000, 30000))
 
 
@@ -138,6 +223,11 @@ func _process(dt: float) -> void:
 		voice.stop_listening()
 		_status()
 	_update_abilities(now)
+	if game.melee.auto:
+		_tactic_t -= dt
+		if _tactic_t <= 0.0:
+			_tactic_t = 9.0
+			_combat_tactic()
 	_watch_t -= dt
 	if _watch_t <= 0.0:
 		_watch_t = 0.5
@@ -314,6 +404,43 @@ func run(act: String, arg := "") -> String:
 			return _pick("status", {"hp": int(v.health), "armor": int(v.armor), "energy": int(v.energy), "stars": d.stars(), "buffs": _buff_text()})
 		"help":
 			return _pick("help")
+		"autodrive":
+			if game.drive.driving == null or game.drive.driving.kind == "jet":
+				return _pick("autodrive_fail")
+			var dest = d.waypoint
+			var what := "your waypoint"
+			if dest == null:
+				var c := _nearest_crime()
+				if c.is_empty():
+					d.start_crime()
+					c = _nearest_crime()
+				if c.is_empty():
+					return _pick("autodrive_fail")
+				dest = c["pos"]
+				d.waypoint = dest
+				what = String(c["kind"]).to_lower()
+			game.drive.start_autodrive(dest)
+			return _pick("autodrive", {"what": what})
+		"combat_assist":
+			game.melee.auto = true
+			_tactic_t = 1.0
+			return _pick("combat_assist")
+		"assist_off":
+			game.melee.auto = false
+			if game.drive.driving:
+				game.drive.driving.autodrive = false
+				game.drive.driving.route = []
+			return _pick("assist_off")
+		"vision_knight", "vision_thermal", "vision_xray", "vision_off":
+			game.vision.set_mode({"vision_off": 0, "vision_knight": 1, "vision_thermal": 2, "vision_xray": 3}[act])
+			game.audio.play("gadget.pulse")
+			return _pick(act)
+		"time_day", "time_night":
+			game.stage.hour = 9.0 if act == "time_day" else 21.5
+			return _pick(act)
+		"helmet_view":
+			game.set_helmet(not game.cam.helmet)
+			return _pick("helmet_view")
 		"stop":
 			voice.shut_up()
 			line.emit("red", _pick("stop"))

@@ -385,6 +385,22 @@ func _check_mission() -> void:
 
 
 # ---------------- per frame ----------------
+## A fleeing enemy radioed for help: two reinforcements arrive from down the street (limited by heat).
+var _backup_at := -100000
+
+
+func call_backup(at: Vector3) -> void:
+	var now := Time.get_ticks_msec()
+	if now - _backup_at < 20000 or enemies.size() > 18:
+		return
+	_backup_at = now
+	var from := street_point(40, 70)
+	for e in squad(["npc_mercenary", "npc_criminal_thug"], from, 2):
+		e.alert(at)
+		e.state = "chase"
+	notify.emit("Enemy called for backup", "notification", "warn")
+
+
 func record(kind: String) -> void:
 	tactics[kind] = tactics.get(kind, 0.0) + 1.0
 

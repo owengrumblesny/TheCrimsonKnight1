@@ -25,6 +25,12 @@ R.E.D. is a sassy assistant in the Knight's helmet. She runs entirely on the pla
 | "equip the batarang / carbine / …" | Selects that belt item |
 | "eject", "change mode" | Launches the CR-B1 from the CR-X1, or switches vehicle mode |
 | "status", "help", "shut up" | Suit report, command list, stop talking |
+| "help me fight", "combat assist" | **Combat assist**: she counters every telegraphed blow for you. Every ~9 s she reads the fight and calls a tactic (overdrive, armor, shield, scan, smoke, sonic). With the LLM running, the model picks the tactic from that fixed list (JSON-constrained) and says why; without it, a rule picks. She then carries it out |
+| "autopilot", "drive me", "take the wheel" | **Autodrive**: she drives the car or Cycle along the street grid to your waypoint, or to the nearest crime. On arrival she briefs you on the scene (LLM). Touch the controls to take the wheel back |
+| "assist off", "I got this" | Turns combat assist and autodrive off |
+| "knight vision", "thermal", "x-ray", "normal vision" | Helmet vision modes (also N) |
+| "make it day", "make it night" | Skips the clock |
+| "helmet view", "first person" | Helmet camera (also H) |
 
 You can chain commands: "call the car and give me overdrive".
 

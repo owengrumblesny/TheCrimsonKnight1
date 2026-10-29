@@ -41,12 +41,17 @@ Legend: ✅ Have · 🟡 Partial · ❌ Missing
 | 12 | Roads, sidewalks, buildings, traffic, pedestrians, props, rain | ✅ | Sidewalks are on their own collision layer, so vehicles roll over curbs |
 | 12 | Stores, banks, parks, interiors you can fight in | ✅ | 36 procedural places (store, bank, diner, pawn shop, gym), each with a lit interior and a back room, and 4 parks with paths, a fountain, trees, benches and lamps. Bank robberies, store holdups and fight-club raids spawn inside |
 | 12 | Bridges, tunnels, industrial district | ❌ | Kit assets don't exist yet |
-| 12 | Day/night cycle, weather changes | ✅ | 24-minute day (it can be turned off). Weather drifts between clear, drizzle, rain and storm, with lightning and thunder. No rain falls indoors |
+| 12 | Day/night cycle, weather changes | ✅ | 24-minute day starting at 16:30 (it can be turned off). Weather drifts between clear, drizzle, rain and storm, with lightning and thunder. No rain falls indoors |
 | 12 | Traffic obeys signals | ❌ | Traffic follows lanes and turns |
 | 13 | IK foot placement / hand alignment | ❌ | The clips use baked leg IK; there is no runtime IK |
 | 14 | Audio: surfaces, servos, ambience, tunnel echo | 🟡 | Surfaces and servos are done. Ambience is the rain loop plus thunder. No echo zones |
 | 15 | Suit HUD | ✅ | Plus the R.E.D. comm panel, clock and weather, and the vehicle hull, heat and missiles readout |
 | 16 | Free sandbox | ✅ | |
 | 17 | Graphics presets + per-setting options | ✅ | Four presets, plus overrides for resolution scale, shadows, draw distance, reflections, post-processing, textures and effects |
-| — | R.E.D. suit AI | ✅ | Local LLM chat, voice commands and robotic voice (see `docs/RED_AI.md`) |
+| — | R.E.D. suit AI | ✅ | Local LLM chat, voice commands and robotic voice. Opt-in combat assist (auto-counters, LLM-picked tactics) and autodrive. See `docs/RED_AI.md` |
+| — | Helmet first person + visor HUD | ✅ | First person through the helmet is the default (H toggles third person). The HUD is drawn as R.E.D.'s visor projection: holographic tint, it lags slightly behind head turns, and a visor frame edges the view. A holographic info layer runs in every view: enemy brackets with health, place tags, a SYSTEMS readout and a tactical radar |
+| — | Vision modes | ✅ | N cycles Knight vision (hostiles orange, civilians blue, through walls), thermal (bodies glow hot in a cold world) and X-ray (scan look, hostiles tracked through buildings) |
+| 6 | Strike variety | ✅ | Combo chains punches, a front kick, an elbow and a close-range knee. Heavies rotate the hammer strike, a spinning roundhouse and an uppercut. Kicks reach further and knock enemies back |
+| 6 | Enemy AI | ✅ | Waiting attackers take spots on a turning ring around the Knight, so they surround rather than queue. Badly hurt enemies flee and radio for backup. Hits flash red. Gunmen carry rifles and brawlers carry pipes |
+| 8 | Handling assists | ✅ | Stability control, grip assist (the handbrake still drifts), light downforce, quick steering return, a lower centre of mass and auto-righting |
 | 20 | Acceptance run | 🟡 | All steps work through normal gameplay, except that the drive out of the Citadel is a lift launch rather than a tunnel |

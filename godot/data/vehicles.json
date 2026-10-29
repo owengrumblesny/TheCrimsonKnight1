@@ -1,34 +1,139 @@
 {
   "about": "Godot port vehicle tuning (arcade, metres/kg/seconds). Speeds are game-scale caps, not the fictional spec sheet (config/vehicle_specs.json). Per-mode model/material swaps can be added either here under modes.<mode>.model / .materials or in config/vehicle_assets.json as <id>.modes.<mode> (that file wins); see godot/scripts/vehicles/vehicle.gd.",
   "crx1_interceptor": {
-    "kind": "car", "label": "CR-X1 Interceptor", "mass": 1650, "engine": 13000, "reverse": 5000, "brake": 40, "steer": 0.5,
-    "wheel_radius": {"F": 0.6, "R": 0.76}, "suspension": {"rest": 0.22, "travel": 0.25, "stiffness": 55, "damping": 4.0, "friction": 3.2},
-    "com": [0, 0.45, 0], "cockpit_pitch": -0.05, "engine_hz": 55, "engine_noise": 0.35, "door_clip": "CRX1_DoorsOpen", "eject_clip": "CRX1_BikeEject",
+    "kind": "car",
+    "label": "CR-X1 Interceptor",
+    "mass": 1650,
+    "engine": 13000,
+    "reverse": 5000,
+    "brake": 55,
+    "steer": 0.55,
+    "wheel_radius": {
+      "F": 0.6,
+      "R": 0.76
+    },
+    "suspension": {
+      "rest": 0.22,
+      "travel": 0.25,
+      "stiffness": 55,
+      "damping": 4.0,
+      "friction": 3.2
+    },
+    "com": [
+      0,
+      0.15,
+      0
+    ],
+    "cockpit_pitch": -0.05,
+    "engine_hz": 55,
+    "engine_noise": 0.35,
+    "door_clip": "CRX1_DoorsOpen",
+    "eject_clip": "CRX1_BikeEject",
     "modes": {
-      "pursuit": {"top": 62, "emissive": 1.0, "engine_volume": 1.0},
-      "battle": {"top": 48, "emissive": 1.4, "engine_volume": 1.1, "clip": "CRX1_BattleMode"},
-      "stealth": {"top": 36, "emissive": 0.12, "engine_volume": 0.35}
+      "pursuit": {
+        "top": 62,
+        "emissive": 1.0,
+        "engine_volume": 1.0
+      },
+      "battle": {
+        "top": 48,
+        "emissive": 1.4,
+        "engine_volume": 1.1,
+        "clip": "CRX1_BattleMode"
+      },
+      "stealth": {
+        "top": 36,
+        "emissive": 0.12,
+        "engine_volume": 0.35
+      }
     }
   },
   "crb1_batcycle": {
-    "kind": "bike", "label": "CR-B1 Batcycle", "mass": 320, "engine": 3400, "reverse": 900, "brake": 12, "steer": 0.42,
-    "wheel_radius": {"F": 0.43, "R": 0.46}, "suspension": {"rest": 0.18, "travel": 0.2, "stiffness": 45, "damping": 3.0, "friction": 3.6},
-    "outrigger": 0.2, "lean": 0.55, "com": [0, 0.35, 0], "engine_hz": 80, "engine_noise": 0.25,
-    "cockpit": [0, 1.72, -0.12], "cockpit_pitch": -0.2,
+    "kind": "bike",
+    "label": "CR-B1 Batcycle",
+    "mass": 320,
+    "engine": 3400,
+    "reverse": 900,
+    "brake": 16,
+    "steer": 0.42,
+    "wheel_radius": {
+      "F": 0.43,
+      "R": 0.46
+    },
+    "suspension": {
+      "rest": 0.18,
+      "travel": 0.2,
+      "stiffness": 45,
+      "damping": 3.0,
+      "friction": 3.6
+    },
+    "outrigger": 0.2,
+    "lean": 0.55,
+    "com": [
+      0,
+      0.2,
+      0
+    ],
+    "engine_hz": 80,
+    "engine_noise": 0.25,
+    "cockpit": [
+      0,
+      1.72,
+      -0.12
+    ],
+    "cockpit_pitch": -0.2,
     "modes": {
-      "pursuit": {"top": 55, "emissive": 1.0, "engine_volume": 1.0},
-      "battle": {"top": 46, "emissive": 1.3, "engine_volume": 1.1},
-      "stealth": {"top": 34, "emissive": 0.12, "engine_volume": 0.3}
+      "pursuit": {
+        "top": 55,
+        "emissive": 1.0,
+        "engine_volume": 1.0
+      },
+      "battle": {
+        "top": 46,
+        "emissive": 1.3,
+        "engine_volume": 1.1
+      },
+      "stealth": {
+        "top": 34,
+        "emissive": 0.12,
+        "engine_volume": 0.3
+      }
     }
   },
   "cra1_specter": {
-    "kind": "jet", "label": "CR-A1 Specter", "mass": 9000, "takeoff": 32, "max": 140, "accel": 18, "pitch_rate": 1.1, "roll_rate": 2.0,
-    "yaw_rate": 0.5, "cockpit_pitch": -0.05, "vtol_speed": 16, "vtol_climb": 9, "engine_hz": 40, "engine_noise": 0.6, "door_clip": "CRA1_CanopyOpen",
+    "kind": "jet",
+    "label": "CR-A1 Specter",
+    "mass": 9000,
+    "takeoff": 32,
+    "max": 140,
+    "accel": 18,
+    "pitch_rate": 1.1,
+    "roll_rate": 2.0,
+    "yaw_rate": 0.5,
+    "cockpit_pitch": -0.05,
+    "vtol_speed": 16,
+    "vtol_climb": 9,
+    "engine_hz": 40,
+    "engine_noise": 0.6,
+    "door_clip": "CRA1_CanopyOpen",
     "gear_clip": "CRA1_GearRetract",
     "modes": {
-      "flight": {"top": 140, "emissive": 1.0, "engine_volume": 1.0},
-      "vtol": {"top": 16, "emissive": 1.0, "engine_volume": 0.9, "clip": "CRA1_VTOLTransition"},
-      "stealth": {"top": 95, "emissive": 0.1, "engine_volume": 0.3}
+      "flight": {
+        "top": 140,
+        "emissive": 1.0,
+        "engine_volume": 1.0
+      },
+      "vtol": {
+        "top": 16,
+        "emissive": 1.0,
+        "engine_volume": 0.9,
+        "clip": "CRA1_VTOLTransition"
+      },
+      "stealth": {
+        "top": 95,
+        "emissive": 0.1,
+        "engine_volume": 0.3
+      }
     }
   }
 }

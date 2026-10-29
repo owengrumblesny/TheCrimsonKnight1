@@ -50,6 +50,8 @@ var weapons: Weapons
 var drive: DriveController
 var anim_debug: AnimDebug
 var red: RedAI
+var vision: Vision
+var holo: HoloHUD
 ## the ten talking villains and the 20 landmarks (godot/scripts/villains/)
 var villains: VillainSystem
 var vweapons: VehicleWeapons
@@ -242,10 +244,31 @@ func _ready() -> void:
 	hud.weapons = weapons
 	hud.stage = stage
 	stage.thunder.connect(func(): if not underground: audio.play("explosion", 0.5))
+	vision = Vision.new()
+	add_child(vision)
+	vision.sources = func() -> Array:
+		var out: Array = []
+		var p: Vector3 = player.global_position
+		for e in director.enemies:
+			if is_instance_valid(e) and not e.is_down() and e.global_position.distance_to(p) < 90.0:
+				out.append([e, true])
+		for w in street.walkers:
+			if is_instance_valid(w["root"]) and w["root"].global_position.distance_to(p) < 60.0:
+				out.append([w["root"], false])
+		if villains:
+			for id in villains.villains:
+				var v = villains.villains[id]
+				if is_instance_valid(v) and v.global_position.distance_to(p) < 90.0:
+					out.append([v, true])
+		return out
 	red = RedAI.new()
 	red.game = self
 	add_child(red)
 	red.watch_director(director)
+	holo = HoloHUD.new()
+	holo.game = self
+	hud.widgets.add_child(holo)
+	hud.widgets.move_child(holo, 0) # under the HUD's own panels
 	red_panel = RedPanel.new()
 	CKUI.place(red_panel, Vector4(0, 0, 0, 0), Vector4(18, 124, 418, 330))
 	hud.widgets.add_child(red_panel)
@@ -267,6 +290,9 @@ func _ready() -> void:
 	if args.has("hold"):
 		for act in String(args["hold"]).split(","):
 			Input.action_press(act)
+	Vehicle.assists = not args.has("noassist")
+	if args.has("hour"):
+		stage.hour = float(args["hour"])
 	if args.has("vehicle"):
 		quick_vehicle = args["vehicle"]
 		(func():
@@ -290,6 +316,11 @@ func _ready() -> void:
 			anim_debug.select(args["animdebug"])).call_deferred()
 	if args.has("mission"):
 		director.mission_index = int(args["mission"])
+	if args.has("squad"): # test aid: an alerted squad 7 m ahead of the Knight
+		(func():
+			for e in director.squad(["npc_criminal_thug", "npc_enforcer", "npc_mercenary"], player.global_position + Vector3(0, 0, -7), int(args["squad"])):
+				e.alert(player.global_position)
+				e.state = "chase").call_deferred()
 	if args.has("crime"):
 		(func(): director.start_crime()).call_deferred()
 	if args.has("notify"):
@@ -340,6 +371,16 @@ func _build_ui() -> void:
 	layer.add_child(menus)
 
 
+## Helmet camera on/off: first person through the visor, body hidden, visor frame drawn. In the helmet the
+## whole HUD becomes R.E.D.'s visor projection: holographic tint, and it lags a touch behind head turns.
+func set_helmet(on: bool) -> void:
+	cam.helmet = on
+	player.hero.visible = not on
+	vision.set_helmet(on)
+	hud.visor = on
+	audio.play("armor.activate" if on else "ui.close")
+
+
 ## Typing to R.E.D. pauses the action (a comms moment) and frees the mouse for the text field.
 func _on_red_chat(open: bool) -> void:
 	get_tree().paused = open
@@ -378,6 +419,7 @@ func apply_settings() -> void:
 	CKInput.mouse_sensitivity = settings["mouseSensitivity"]
 	CKInput.invert_y = settings["invertY"]
 	weapons.aim_assist = settings.get("aimAssist", true)
+	holo.visible = settings["holoHud"]
 	stage.cycle = settings["dayNight"]
 	hud.hints_enabled = settings.get("controlHints", true)
 	red.chatter_enabled = settings["redChatter"]
@@ -411,6 +453,11 @@ func play() -> void:
 		director.start_mission(director.mission_index)
 	started = true
 	audio.start_ambience()
+	if (settings["helmetDefault"] and not args.has("frames")) or args.has("helmet"):
+		if not cam.helmet:
+			set_helmet(true)
+	if false:
+		set_helmet(true)
 	# R.E.D.'s local engines (voice, ears, LLM) start with play; scripted runs skip them unless --red
 	if red.ai_dir == "" and (not (args.has("frames") or args.has("bench")) or args.has("red")):
 		red.start_engines(settings["redVoice"], settings["redListen"], settings["redBrain"])
@@ -497,6 +544,12 @@ func _unhandled_input(e: InputEvent) -> void:
 		menus.show_screen("inventory")
 	elif e.is_action_pressed("map"):
 		menus.show_screen("map")
+	elif e.is_action_pressed("vision"):
+		var m := vision.cycle()
+		audio.play("gadget.pulse" if vision.mode > 0 else "ui.close")
+		hud.notify("Vision: " + m, "scanner", "info")
+	elif e.is_action_pressed("helmetView") and not drive.driving:
+		set_helmet(not cam.helmet)
 	elif e.is_action_pressed("chatRed") and not red_panel.is_chat_open():
 		red_panel.open_chat()
 	elif e.is_action_pressed("perfOverlay"):
@@ -787,6 +840,8 @@ func _gameplay_input(now: int) -> void:
 	cam.combat = fists
 	cam.shoulder = ranged or sel_id in ["batarang", "grapple"]
 	weapons.update_aim(get_process_delta_time(), Input.is_action_just_pressed("secondaryAction"), Input.is_action_pressed("secondaryAction"))
+	if fists and melee.auto and melee.counter_target():
+		melee.counter() # R.E.D. combat assist: she reads the telegraph for you
 	if fists:
 		if Input.is_action_just_pressed("primaryAction"):
 			melee.strike(false)

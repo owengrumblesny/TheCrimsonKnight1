@@ -81,6 +81,10 @@ func start_engines(tts: bool, stt: bool, brain: bool) -> void:
 	if ai_dir == "":
 		push_warning("R.E.D.: no ai/ folder; scripted lines only")
 		return
+	# a crashed earlier run can leave its voice engines behind: clear them before starting ours (Windows)
+	if OS.get_name() == "Windows":
+		for exe in ["piper.exe", "whisper-server.exe"]:
+			OS.execute("taskkill", ["/F", "/IM", exe], [], false, false)
 	voice.start(ai_dir)
 	if brain:
 		var exe := ai_dir.path_join("llama/llama-server" + (".exe" if OS.get_name() == "Windows" else ""))
@@ -522,7 +526,7 @@ func _messages(text: String) -> Array:
 
 func chat(text: String) -> void:
 	if not brain_ready:
-		speak(_pick("chat_fallback"))
+		speak(_pick("brain_booting" if _health_tries > 0 else "chat_fallback"))
 		return
 	if _asking:
 		_http.cancel_request()

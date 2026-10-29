@@ -21,6 +21,8 @@ func _ready() -> void:
 
 ## count sprites of `kind` at `at`, outward speed (m/s), size (m), life (s).
 func burst(kind: String, at: Vector3, count: int, speed: float, size: float, life: float) -> void:
+	if count <= 0:
+		return
 	if not _mats.has(kind):
 		return
 	var p := CPUParticles3D.new()

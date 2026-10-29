@@ -3438,7 +3438,7 @@
     {
       "id": "crx1_interceptor",
       "category": "vehicles",
-      "file": "assets/models/vehicles/crx1_interceptor.glb",
+      "file": "assets/models/vehicles/CRX1_interceptor.glb",
       "format": "glb",
       "stage": "prototype",
       "rigged": false,
@@ -3468,7 +3468,7 @@
     {
       "id": "crb1_batcycle",
       "category": "vehicles",
-      "file": "assets/models/vehicles/crb1_batcycle.glb",
+      "file": "assets/models/vehicles/CRB1_batcycle.glb",
       "format": "glb",
       "stage": "prototype",
       "rigged": false,
@@ -3498,7 +3498,7 @@
     {
       "id": "cra1_specter",
       "category": "vehicles",
-      "file": "assets/models/vehicles/cra1_specter.glb",
+      "file": "assets/models/vehicles/CRA1_specter.glb",
       "format": "glb",
       "stage": "prototype",
       "rigged": false,

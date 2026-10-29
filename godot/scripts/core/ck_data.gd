@@ -58,7 +58,9 @@ static func _disk_case(path: String) -> String:
 	if not _dir_files.has(dir):
 		var m := {}
 		for f in DirAccess.get_files_at(dir):
-			m[f.to_lower()] = f
+			# exported builds list "x.glb.import" / "x.png.remap" rather than the source file
+			var src: String = f.trim_suffix(".import").trim_suffix(".remap")
+			m[src.to_lower()] = src
 		_dir_files[dir] = m
 	return dir + "/" + _dir_files[dir].get(path.get_file().to_lower(), path.get_file())
 

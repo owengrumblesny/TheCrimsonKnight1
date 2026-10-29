@@ -11,8 +11,8 @@ extends Node3D
 const CARS := 14
 const WALKERS := 18
 const CAR_SPEED := 11.0
-const LANE := 1.6
-const WALK_OFF := 5.4
+const LANE := 2.2 # default; each car picks one of District.LANES
+const WALK_OFF := 12.0
 const CIVILIANS := ["npc_civilian_a", "npc_civilian_b", "npc_office_worker", "npc_scientist", "npc_mechanic", "npc_construction_worker"]
 
 var player: Node3D
@@ -82,7 +82,8 @@ func _lane_point(min_d: float, max_d: float, offset: float) -> Array:
 
 
 func _place_car(c: Dictionary, min_d: float, max_d: float) -> void:
-	var lp := _lane_point(min_d, max_d, LANE)
+	c["lane"] = District.LANES[randi() % District.LANES.size()]
+	var lp := _lane_point(min_d, max_d, c["lane"])
 	c["dir"] = lp[1]
 	c["speed"] = CAR_SPEED * randf_range(0.8, 1.15)
 	c["stall"] = 0.0
@@ -169,7 +170,7 @@ func update(dt: float) -> void:
 					nsgn = -nsgn
 				dir = ndir.normalized()
 				c["dir"] = dir
-				next = centre + dir.cross(Vector3.UP) * -LANE
+				next = centre + dir.cross(Vector3.UP) * -float(c["lane"])
 				c["cc"] = nalong + nsgn * District.SPACING
 		body.global_transform = Transform3D(Basis(Vector3.UP, atan2(dir.x, dir.z) - PI / 2), next)
 	for w in walkers:

@@ -51,7 +51,7 @@ func _layout() -> Array:
 	for i in 14:
 		var along := (-1.0 if _rand() < 0.5 else 1.0) * (12 + _rand() * 48)
 		var side := -1.0 if _rand() < 0.5 else 1.0
-		var off := side * (5.2 + _rand() * 1.2)
+		var off := side * (11.0 + _rand() * 1.6)
 		var x_axis := _rand() < 0.5
 		var x := along if x_axis else off
 		var z := off if x_axis else along
@@ -65,8 +65,8 @@ func _layout() -> Array:
 		else:
 			out.append(_spot(id, x, z, _rand() * TAU, "NPC_Idle"))
 	# law enforcement at the intersection corners and the Owen Enterprises frontage
-	out.append_array([_spot("npc_police_officer", 6.2, 5.6, -2.4, "NPC_Idle"), _spot("npc_police_officer", -6.0, -6.4, 0.7, "NPC_Idle"),
-		_spot("npc_security_guard", -18, -6.0, 0, "NPC_Idle"), _spot("npc_security_guard", -21, -6.0, 0, "NPC_Idle")])
+	out.append_array([_spot("npc_police_officer", 10.8, 10.4, -2.4, "NPC_Idle"), _spot("npc_police_officer", -10.6, -10.8, 0.7, "NPC_Idle"),
+		_spot("npc_security_guard", -18, -12.6, 0, "NPC_Idle"), _spot("npc_security_guard", -21, -12.6, 0, "NPC_Idle")])
 	# hostile factions are real enemies now (godot/scripts/actors/enemy.gd), spawned by the Director
 	return out
 

@@ -21,6 +21,8 @@ var glide_held := false
 var status := ""
 var crouched := false
 var aiming := false
+## seconds of "weapon up" after a shot: arm raised in the aim pose, facing the crosshair (no RMB needed)
+var combat_t := 0.0
 var walk_mode := false
 var gadget := ""
 var vel := Vector3.ZERO
@@ -45,6 +47,7 @@ func _ready() -> void:
 	col.shape = shape
 	col.position.y = P["height"] / 2.0
 	add_child(col)
+	collision_mask = 3 # world (1) + enemies (2)
 	floor_max_angle = deg_to_rad(50)
 	floor_snap_length = 0.35
 	safe_margin = 0.02
@@ -158,7 +161,7 @@ func _physics_process(dt: float) -> void:
 		vel.z *= 0.8
 
 	# facing
-	if aiming:
+	if aiming or (combat_t > 0.0 and mode == "ground"):
 		heading = cam_yaw + PI
 	elif Vector2(vel.x, vel.z).length() > 0.3 and mode != "action":
 		var want := atan2(vel.x, vel.z)
@@ -257,12 +260,13 @@ func _process(dt: float) -> void:
 	if frozen:
 		return
 	_land_time -= dt
+	combat_t = maxf(0.0, combat_t - dt)
 	if mode == "ground" and _jump_timer < 0 and not (_land_time > 0 and speed < 0.5):
 		var s := speed
 		var clip: String
 		if crouched:
 			clip = "CK_CrouchIdle" if s < 0.2 else "CK_CrouchWalk"
-		elif aiming:
+		elif aiming or combat_t > 0.0:
 			clip = "CK_GrappleAim" if s < 0.2 else _strafe_clip()
 		elif s < 0.2:
 			clip = "CK_Idle"

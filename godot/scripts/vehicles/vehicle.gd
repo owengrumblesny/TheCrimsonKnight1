@@ -22,6 +22,8 @@ var driver_in := false
 var first_person := true
 var fpv_cam := Camera3D.new()
 var chase_cam := Camera3D.new()
+## settings "Reduce motion": no cockpit head-bob
+static var reduce_motion := false
 var throttle := 0.0
 var steer_in := 0.0
 var handbrake := false
@@ -459,7 +461,7 @@ func _update_cameras(dt: float) -> void:
 		_free_look.y = clampf(_free_look.y, -0.7, 0.6)
 		look_basis = Basis(Vector3.UP, _free_look.x) * look_basis * Basis(Vector3.RIGHT, _free_look.y)
 	_bob += dt * (4.0 + 10.0 * k)
-	var bob := Vector3(sin(_bob * 0.5) * 0.008, sin(_bob) * 0.012, 0) * k * (2.0 if kind == "bike" else 1.0)
+	var bob := Vector3(sin(_bob * 0.5) * 0.008, sin(_bob) * 0.012, 0) * k * (2.0 if kind == "bike" else 1.0) * (0.0 if reduce_motion else 1.0)
 	fpv_cam.transform = Transform3D(base.basis * look_basis, base.origin + bob)
 	fpv_cam.fov = 72.0 + 16.0 * k + (6.0 if boost else 0.0)
 	# chase camera: eases toward camera_chase, looking at the vehicle

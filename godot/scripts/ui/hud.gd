@@ -32,6 +32,7 @@ var _rank: Label
 var _objective: Label
 var _flash: ColorRect
 var _compass_marks: Control
+var minimap: MiniMap
 
 
 func _ready() -> void:
@@ -46,6 +47,9 @@ func _ready() -> void:
 	_build_status()
 	_build_compass()
 	_build_world_widgets()
+	minimap = MiniMap.new()
+	CKUI.place(minimap, Vector4(0, 1, 0, 1), Vector4(18, -18 - MiniMap.SIZE, 18 + MiniMap.SIZE, -18))
+	widgets.add_child(minimap)
 	_build_selected()
 	_build_hotbar()
 	_crosshair = CKUI.image_rect(CKUI.icon("crosshair"), Vector2(36, 36))
@@ -289,7 +293,7 @@ func _draw_marks() -> void:
 		if absf(off) > 80.0:
 			continue
 		var x := 180.0 + off * 2.0 # the strip is 45 px per 45 degrees
-		var col := CKUI.BRIGHT if m["kind"] == "crime" else Color("#ffc040")
+		var col := CKUI.BRIGHT if m["kind"] == "crime" else Color("#ffc040") if m["kind"] == "mission" else Color.WHITE
 		_compass_marks.draw_colored_polygon(PackedVector2Array([Vector2(x, 26), Vector2(x - 6, 34), Vector2(x + 6, 34)]), col)
 		_compass_marks.draw_string(get_theme_default_font(), Vector2(x - 20, 46), "%d m" % roundi(d.length()),
 			HORIZONTAL_ALIGNMENT_CENTER, 40, 10, col)

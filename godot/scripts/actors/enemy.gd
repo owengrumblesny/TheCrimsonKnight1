@@ -45,8 +45,10 @@ func _ready() -> void:
 	cfg = CKData.data("enemies")[id]
 	health = cfg["health"]
 	name = "%s_%d" % [id, get_instance_id()]
-	collision_layer = 1
-	collision_mask = 1
+	# enemies live on layer 2 (world + player + vehicles are layer 1): sight rays test layer 1 only, so
+	# squadmates never block each other's view
+	collision_layer = 2
+	collision_mask = 3
 	floor_snap_length = 0.3
 	var shape := CapsuleShape3D.new()
 	shape.radius = 0.32
@@ -144,17 +146,22 @@ func alert(at: Vector3) -> void:
 
 
 func _sees_player() -> bool:
-	var p: Node3D = director.player
+	var p: Node3D = director.target_for(self)
 	var to := p.global_position - global_position
 	var d := to.length()
 	if d > SIGHT:
 		return false
+	if d < 2.5:
+		return true # point blank
 	if state == "idle" and global_basis.z.dot(to.normalized()) < FOV_DOT and d > 6.0:
 		return false # NPC models face +Z
 	if director.smoke_blocks(global_position, p.global_position):
 		return false
 	var q := PhysicsRayQueryParameters3D.create(global_position + Vector3(0, 1.6, 0), p.global_position + Vector3(0, 1.4, 0))
-	q.exclude = [get_rid(), p.get_rid()]
+	q.collision_mask = 1
+	q.exclude = [get_rid()]
+	if p is CollisionObject3D:
+		q.exclude.append(p.get_rid())
 	for v in director.vehicle_rids():
 		q.exclude.append(v)
 	return get_world_3d().direct_space_state.intersect_ray(q).is_empty()
@@ -166,7 +173,7 @@ func _physics_process(dt: float) -> void:
 		move_and_slide()
 		return
 	_state_t += dt
-	var p: Node3D = director.player
+	var p: Node3D = director.target_for(self)
 	var target: Vector3 = p.global_position
 	var sees := _sees_player()
 	if sees:
@@ -222,7 +229,7 @@ func _physics_process(dt: float) -> void:
 	# obstacle avoidance: a short probe ahead; slide sideways around blockers
 	if want.length() > 0.1:
 		var q := PhysicsRayQueryParameters3D.create(global_position + Vector3(0, 0.8, 0), global_position + Vector3(0, 0.8, 0) + want.normalized() * 1.6)
-		q.exclude = [get_rid(), p.get_rid()]
+		q.exclude = [get_rid(), director.player.get_rid()]
 		if not get_world_3d().direct_space_state.intersect_ray(q).is_empty():
 			_avoid = want.normalized().cross(Vector3.UP) * _strafe * cfg["speed"]
 			if randf() < 0.01:
@@ -249,14 +256,15 @@ func _attack(p: Node3D) -> void:
 		tw.tween_property(model, "position:z", 0.35, 0.12)
 		tw.tween_property(model, "position:z", 0.0, 0.2)
 		director.sound("weapon.swing")
-		if global_position.distance_to(p.global_position) <= cfg["range"] + 0.3:
-			director.damage_player(cfg["damage"], global_position, self)
+		if p == director.player and global_position.distance_to(p.global_position) <= cfg["range"] + 0.3:
+			director.damage_player(cfg["damage"], global_position, self) # striking the decoy hurts nobody
 		return
 	# ranged: an energy bolt from the hand, hits with `accuracy` (better up close and on a standing target)
 	var from: Vector3 = hand.global_position if hand else global_position + Vector3(0, 1.4, 0)
 	var aim: Vector3 = p.global_position + Vector3(0, 1.2, 0)
 	var dist := from.distance_to(aim)
-	var chance: float = cfg["accuracy"] * clampf(1.4 - dist / cfg["range"], 0.35, 1.2) * (0.6 if p.speed > 5.0 else 1.0)
+	var moving: bool = p is Player and p.speed > 5.0
+	var chance: float = cfg["accuracy"] * clampf(1.4 - dist / cfg["range"], 0.35, 1.2) * (0.6 if moving else 1.0)
 	var hits := randf() < chance
 	var end := aim if hits else aim + Vector3(randf_range(-1.5, 1.5), randf_range(-0.5, 1.2), randf_range(-1.5, 1.5))
 	var q := PhysicsRayQueryParameters3D.create(from, end + (end - from).normalized() * 3.0)

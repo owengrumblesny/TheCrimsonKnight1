@@ -599,7 +599,7 @@ func _screen_settings(body: VBoxContainer) -> void:
 		s["uiScale"] = sc.value
 		sc_pct.text = "%d%%" % roundi(sc.value * 100)
 		game.apply_settings())
-	for pair in [["hudVisible", "Show HUD"], ["reduceMotion", "Reduce motion"]]:
+	for pair in [["hudVisible", "Show HUD"], ["reduceMotion", "Reduce motion (no head-bob or recoil kick)"]]:
 		var cb := CheckBox.new()
 		cb.button_pressed = s[pair[0]]
 		var key: String = pair[0]

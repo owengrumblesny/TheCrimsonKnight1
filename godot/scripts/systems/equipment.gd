@@ -276,6 +276,110 @@ func _use_flashlight(_now: int) -> bool:
 	return true
 
 
+func _use_decoy(now: int) -> bool:
+	if director == null:
+		return false
+	var holo: Node3D = load(CKData.model_path("crimson_knight_CRX9_rigged")).instantiate()
+	add_child(holo)
+	var fwd := Vector3(sin(player.heading), 0, cos(player.heading))
+	holo.global_position = _feet() + fwd * 3.0
+	holo.rotation.y = player.heading
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.albedo_color = Color(1, 0.2, 0.3, 0.35)
+	m.emission_enabled = true
+	m.emission = Color(1, 0.15, 0.25)
+	for g in holo.find_children("*", "GeometryInstance3D", true, false):
+		g.material_override = m
+		g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		g.visible = String(g.name).ends_with("_LOD2") or not String(g.name).contains("_LOD") # cheap LOD
+	var ap: AnimationPlayer = holo.find_child("AnimationPlayer", true, false)
+	if ap:
+		ap.play("CK_GrappleAim")
+	director.decoy = holo
+	director.decoy_until = now + 8000
+	director.noise(holo.global_position, 30.0)
+	_add_timed(8000, now, func():
+		if director.decoy == holo:
+			director.decoy = null
+		holo.queue_free(), func(t, _dt): m.albedo_color.a = 0.25 + 0.12 * sin(t / 90.0))
+	sound.emit("gadget.deploy")
+	notify.emit("Hologram decoy active (8 s)", "decoy", "info")
+	return true
+
+
+func _use_holoprojector(now: int) -> bool:
+	if director == null:
+		return false
+	var glow := StandardMaterial3D.new()
+	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	glow.no_depth_test = true # seen through walls
+	glow.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	glow.albedo_color = Color(1, 0.25, 0.3, 0.45)
+	var marked := []
+	for e in director.enemies:
+		if is_instance_valid(e) and not e.is_down() and e.global_position.distance_to(_feet()) < 70:
+			for g in e.find_children("*", "GeometryInstance3D", true, false):
+				g.material_overlay = glow
+			marked.append(e)
+	_add_timed(12000, now, func():
+		for e in marked:
+			if is_instance_valid(e):
+				for g in e.find_children("*", "GeometryInstance3D", true, false):
+					g.material_overlay = null)
+	var ring := _ring(_feet(), Color("#ff405d"))
+	_add_timed(900, now, ring.queue_free, func(t, _dt): _grow(ring, t, now, 900, 70))
+	sound.emit("gadget.pulse")
+	notify.emit("Holoprojector: %d hostile%s marked through walls (12 s)" % [marked.size(), "" if marked.size() == 1 else "s"], "holoprojector", "info")
+	return true
+
+
+func _use_comms(_now: int) -> bool:
+	if director == null:
+		return false
+	var best = null
+	var label := ""
+	for m in director.markers:
+		if m["kind"] == "waypoint":
+			continue
+		if best == null or m["pos"].distance_to(_feet()) < best.distance_to(_feet()):
+			best = m["pos"]
+			label = m["label"]
+	var near := director.enemies.filter(func(e): return is_instance_valid(e) and not e.is_down() and e.global_position.distance_to(_feet()) < 80).size()
+	if best != null:
+		director.waypoint = best
+		notify.emit("Comms: %s marked, %d m. %d hostile%s within 80 m" % [label, roundi(best.distance_to(_feet())), near, "" if near == 1 else "s"], "comms", "info")
+	else:
+		notify.emit("Comms: all quiet. %d hostile%s within 80 m" % [near, "" if near == 1 else "s"], "comms", "info")
+	sound.emit("ui.select")
+	return true
+
+
+func _use_forensics(_now: int) -> bool:
+	if director == null:
+		return false
+	var found := 0
+	for e in director.enemies:
+		if is_instance_valid(e) and e.is_down() and not e.has_meta("scanned") and e.global_position.distance_to(_feet()) < 6:
+			e.set_meta("scanned", true)
+			found += 1
+			effects.burst("electrical", e.global_position + Vector3(0, 0.4, 0), 3, 0.5, 0.6, 0.4)
+	if found == 0:
+		notify.emit("Forensics: no unscanned suspects within 6 m. Knock some down first", "forensics", "warn")
+		return false
+	director.credits += found * 25
+	director.evidence += found
+	var msg := "Forensics: %d suspect%s scanned  +%d cr" % [found, "" if found == 1 else "s", found * 25]
+	if director.evidence >= 3:
+		director.evidence = 0
+		director.start_crime()
+		msg += ". Evidence points to a crime in progress"
+	notify.emit(msg, "forensics", "info")
+	sound.emit("gadget.pulse")
+	return true
+
+
 func _use_power_cell(_now: int) -> bool:
 	return _heal("energy", 60, "power_cell")
 

@@ -174,8 +174,8 @@ func _ready() -> void:
 	targets = TargetRange.new()
 	add_child(targets)
 	# training dummies on the north avenue sidewalks (facing the spawn) and in the industrial yard
-	targets.build([[Vector3(5.4, 0.15, -26), 0.0, "N1"], [Vector3(-5.4, 0.15, -30), 0.0, "N2"], [Vector3(5.4, 0.15, -38), 0.0, "N3"],
-		[Vector3(-5.4, 0.15, -44), 0.0, "N4"], [Vector3(86, 0, 3), -PI / 2, "Y1"], [Vector3(88, 0, 0.5), -PI / 2, "Y2"]])
+	targets.build([[Vector3(11.4, 0.15, -26), 0.0, "N1"], [Vector3(-11.4, 0.15, -30), 0.0, "N2"], [Vector3(11.4, 0.15, -38), 0.0, "N3"],
+		[Vector3(-11.4, 0.15, -44), 0.0, "N4"], [Vector3(30, 0.15, 11.6), PI, "E1"], [Vector3(36, 0.15, 11.6), PI, "E2"]])
 	add_child(equipment)
 	equipment.photo_mode_changed.connect(func(_on): _apply_hud_visibility())
 	_build_ui()
@@ -184,6 +184,7 @@ func _ready() -> void:
 		hud.damage_flash(amount, from, player.global_position, cam.yaw)
 		audio.play("weapon.impact"))
 	hud.director = director
+	hud.minimap.game = self
 	if args.has("log"):
 		weapons.hit_confirmed.connect(func(kill): print("[ck] f%d hit%s %s" % [frame, " KNOCKDOWN" if kill else "", weapons.status(Time.get_ticks_msec())]))
 	apply_settings()
@@ -283,6 +284,8 @@ func apply_settings() -> void:
 		citadel.set_light_pool(maxi(4, stage.preset["dynamic_lights"]))
 	get_tree().root.content_scale_factor = settings["uiScale"]
 	audio.apply_settings(settings)
+	Vehicle.reduce_motion = settings["reduceMotion"]
+	FollowCamera.reduce_motion = settings["reduceMotion"]
 	_apply_hud_visibility()
 	saves.write_settings(settings, CKInput.overrides)
 

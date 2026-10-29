@@ -28,7 +28,13 @@ var mission := {} # active mission def + progress
 var mission_index := 0
 var missions: Array = []
 var objective := "" # HUD objective line
-var markers: Array = [] # [{pos, kind: crime|mission|checkpoint, label}]
+var markers: Array = [] # [{pos, kind: crime|mission|waypoint, label}]
+## player-set waypoint from the map (null = none); cleared on arrival
+var waypoint = null
+## hologram decoy (Equipment): enemies within 30 m target it until decoy_until
+var decoy: Node3D
+var decoy_until := 0
+var evidence := 0
 var _crime_t := 25.0
 var _reinforce_t := 0.0
 var _cool_t := 0.0
@@ -57,6 +63,11 @@ func stars() -> int:
 
 
 # ---------------- services used by Enemy ----------------
+## What an enemy goes after: the decoy hologram when one is up nearby, else the Knight.
+func target_for(e: Node3D) -> Node3D:
+	if decoy and is_instance_valid(decoy) and Time.get_ticks_msec() < decoy_until and e.global_position.distance_to(decoy.global_position) < 30.0:
+		return decoy
+	return player
 func sound(id: String) -> void:
 	sound_event.emit(id)
 
@@ -173,9 +184,9 @@ func street_point(min_d: float, max_d: float) -> Vector3:
 		var sx := roundf(c.x / District.SPACING) * District.SPACING
 		var sz := roundf(c.z / District.SPACING) * District.SPACING
 		if absf(c.x - sx) < absf(c.z - sz):
-			c.x = sx + (5.5 if randf() < 0.5 else -5.5)
+			c.x = sx + (12.0 if randf() < 0.5 else -12.0)
 		else:
-			c.z = sz + (5.5 if randf() < 0.5 else -5.5)
+			c.z = sz + (12.0 if randf() < 0.5 else -12.0)
 		var lim := District.GRID * District.SPACING - 10
 		c.x = clampf(c.x, -lim, lim)
 		c.z = clampf(c.z, -lim, lim)
@@ -387,6 +398,12 @@ func update(dt: float, underground: bool) -> void:
 		markers.append({"pos": c["pos"], "kind": "crime", "label": c["kind"]})
 	if not mission.is_empty():
 		markers.append({"pos": mission.get("pos", player.global_position), "kind": "mission", "label": mission["title"]})
+	if waypoint != null:
+		if Vector2(waypoint.x - player.global_position.x, waypoint.z - player.global_position.z).length() < 12.0:
+			waypoint = null
+			notify.emit("Waypoint reached", "map", "info")
+		else:
+			markers.append({"pos": waypoint, "kind": "waypoint", "label": "Waypoint"})
 
 
 func _owned(e: Enemy) -> bool:

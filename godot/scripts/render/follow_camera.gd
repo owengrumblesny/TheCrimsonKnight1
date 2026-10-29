@@ -49,7 +49,13 @@ func _process(dt: float) -> void:
 
 
 ## Weapon recoil: lift the aim and nudge it sideways.
+## settings "Reduce motion": no recoil kick
+static var reduce_motion := false
+
+
 func kick(amount: float) -> void:
+	if reduce_motion:
+		return
 	pitch = clampf(pitch - amount, -0.5, 1.2)
 	yaw += randf_range(-amount, amount) * 0.35
 

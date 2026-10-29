@@ -102,6 +102,8 @@ func update(dt: float, now: int, fire_pressed: bool, fire_held: bool) -> void:
 func _fire(id: String, now: int) -> void:
 	var d: Dictionary = defs[id]
 	_next_shot[id] = now + int(d["interval"] * 1000)
+	if d["kind"] != "melee":
+		player.combat_t = 1.5 # raise the weapon for every shot, not just on equip
 	# turn to the camera so the shot (or swing) leaves the front of the Knight
 	player.heading = cam.yaw + PI
 	if d["kind"] == "melee":

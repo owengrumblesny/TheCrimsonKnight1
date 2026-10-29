@@ -23,6 +23,21 @@ const LOD_DIST := 110.0
 ## Citadel Square: open plaza around the portal (and the CR-A1 landing pad)
 const SQUARE := Vector2(0, -135)
 const SQUARE_RADIUS := 42.0
+## street cross-section (metres from an avenue's centre line): 4 lanes of road out to ROAD_HALF, a sidewalk
+## centred on WALK, building facades from FACADE. Two lanes each way at LANES (inner, outer).
+const ROAD_HALF := 9.0
+const WALK := 12.0
+const FACADE := 15.0
+const LANES := [2.2, 6.6]
+## open lots kept free of kit buildings: [centre, radius] (Citadel Square, the gang alley, the merc yard)
+const CLEAR := [[Vector2(0, -135), 42.0], [Vector2(-40, -26), 15.0], [Vector2(95, 31), 24.0]]
+
+
+static func clear_lot(at: Vector2) -> bool:
+	for z in CLEAR:
+		if at.distance_to(z[0]) < z[1]:
+			return true
+	return false
 ## Shared wet-street material: the ground and every surface that used png_wet_asphalt (road tiles).
 var wet: ShaderMaterial
 
@@ -46,15 +61,16 @@ func build() -> void:
 		var c := k * SPACING
 		for t in range(-int(half / 6), int(half / 6) + 1):
 			var a := t * 6.0
-			road_tiles.append_array([_p(a, c), _p(c, a)])
-			if _off_crossing(a):
-				for o in [-6, 6]:
+			for o in [-6, 0, 6]:
+				road_tiles.append_array([_p(a, c + o), _p(c + o, a)])
+			if _off_crossing(a, ROAD_HALF + 3.0):
+				for o in [-WALK, WALK]:
 					walks.append_array([_p(a, c + o), _p(c + o, a)])
 	instanced("road_tile_v01", road_tiles, {"collide": false, "shadow": false})
 	instanced("sidewalk_tile_v01", walks, {"collide": true, "shadow": false})
 	for k in range(-GRID, GRID + 1):
-		map_features.append({"kind": "road", "min": Vector2(-half, k * SPACING - 3), "max": Vector2(half, k * SPACING + 3)})
-		map_features.append({"kind": "road", "min": Vector2(k * SPACING - 3, -half), "max": Vector2(k * SPACING + 3, half)})
+		map_features.append({"kind": "road", "min": Vector2(-half, k * SPACING - ROAD_HALF), "max": Vector2(half, k * SPACING + ROAD_HALF)})
+		map_features.append({"kind": "road", "min": Vector2(k * SPACING - ROAD_HALF, -half), "max": Vector2(k * SPACING + ROAD_HALF, half)})
 
 	# ---- building rows: kit buildings facade-to-facade along every block face (config/citykit.json
 	# footprints), facades 11 m from the street centre; Citadel Square around the portal stays open ----
@@ -67,8 +83,8 @@ func build() -> void:
 			var c := k * SPACING
 			for side in [-1, 1]:
 				for blk in range(-GRID, GRID):
-					var cursor := blk * SPACING + 12.0
-					var stop := (blk + 1) * SPACING - 12.0
+					var cursor := blk * SPACING + FACADE + 1.0
+					var stop := (blk + 1) * SPACING - FACADE - 1.0
 					while cursor < stop:
 						var kind: String = kinds[int(_rand() * kinds.size())]
 						var w: float = foot[kind][0]
@@ -76,9 +92,9 @@ func build() -> void:
 						if cursor + w > stop:
 							break
 						var along := cursor + w / 2
-						var off: float = c + side * (11 + d / 2)
+						var off: float = c + side * (FACADE + d / 2)
 						var at := Vector2(along, off) if axis == "x" else Vector2(off, along)
-						if at.distance_to(SQUARE) > SQUARE_RADIUS:
+						if not clear_lot(at):
 							var rot: float = (PI if side > 0 else 0.0) if axis == "x" else (-PI / 2 if side > 0 else PI / 2)
 							_add(lots, kind, _p(at.x, at.y, rot))
 						cursor += w + 1.5
@@ -105,19 +121,19 @@ func build() -> void:
 		var c := k * SPACING
 		for t in range(-int(half / 12), int(half / 12)):
 			var a := t * 12.0 + 6.0
-			if not _off_crossing(a, 14.0):
+			if not _off_crossing(a, 20.0):
 				continue # keep crossings clear
 			if t % 2 == 0:
-				lamp_list.append_array([_p(a, c - 3.7, -PI / 2), _p(c + 3.7, a, PI)])
+				lamp_list.append_array([_p(a, c - 10.2, -PI / 2), _p(c + 10.2, a, PI)])
 			else:
-				lamp_list.append_array([_p(a, c + 3.7, PI / 2), _p(c - 3.7, a, 0)])
+				lamp_list.append_array([_p(a, c + 10.2, PI / 2), _p(c - 10.2, a, 0)])
 			if posmod(t, 3) == 0:
-				trees.append_array([_p(a + 3, c + 8.2, t), _p(c - 8.2, a + 3, t * 2)])
+				trees.append_array([_p(a + 3, c + 13.6, t), _p(c - 13.6, a + 3, t * 2)])
 			if posmod(t, 3) == 1:
-				covers.append_array([_p(a, c + 0.9), _p(c - 0.9, a)])
-				drains.append_array([_p(a + 2, c + 2.75), _p(c + 2.75, a + 2, PI / 2)])
-			if _rand() < 0.12 and Vector2(a, c).distance_to(SQUARE) > SQUARE_RADIUS and Vector2(c, a).distance_to(SQUARE) > SQUARE_RADIUS:
-				var lane := -1.6 if _rand() < 0.5 else 1.6
+				covers.append_array([_p(a, c + 4.4), _p(c - 4.4, a)])
+				drains.append_array([_p(a + 2, c + 8.7), _p(c + 8.7, a + 2, PI / 2)])
+			if _rand() < 0.1 and Vector2(a, c).distance_to(SQUARE) > SQUARE_RADIUS and Vector2(c, a).distance_to(SQUARE) > SQUARE_RADIUS:
+				var lane := -7.6 if _rand() < 0.5 else 7.6 # parked against the kerb, clear of both traffic lanes
 				cars.append(_p(a, c + lane) if _rand() < 0.5 else _p(c + lane, a, PI / 2))
 	var lights := []
 	var crossings := []
@@ -126,10 +142,12 @@ func build() -> void:
 		for kz in range(-GRID, GRID + 1):
 			var x := kx * SPACING
 			var z := kz * SPACING
-			lights.append_array([_p(x + 4.4, z + 4.4, PI), _p(x - 4.4, z - 4.4, 0), _p(x - 4.4, z + 4.4, PI / 2), _p(x + 4.4, z - 4.4, -PI / 2)])
-			crossings.append_array([_p(x + 7.5, z), _p(x - 7.5, z), _p(x, z + 7.5, PI / 2), _p(x, z - 7.5, PI / 2)])
+			var r := ROAD_HALF + 1.0
+			lights.append_array([_p(x + r, z + r, PI), _p(x - r, z - r, 0), _p(x - r, z + r, PI / 2), _p(x + r, z - r, -PI / 2)])
+			for o in [-6, 0, 6]: # three crosswalk tiles span the 18 m road
+				crossings.append_array([_p(x + 12.5, z + o), _p(x - 12.5, z + o), _p(x + o, z + 12.5, PI / 2), _p(x + o, z - 12.5, PI / 2)])
 			if posmod(kx + kz, 2) == 0:
-				signs.append_array([_p(x + 5.5, z - 5.5, 0.3), _p(x - 5.5, z + 5.5, PI + 0.3)])
+				signs.append_array([_p(x + 11.5, z - 11.5, 0.3), _p(x - 11.5, z + 11.5, PI + 0.3)])
 	instanced("kit_streetlight", lamp_list, {"collide": true})
 	for l in lamp_list:
 		var head := Vector3(1.75, 6.55, 0).rotated(Vector3.UP, l["rot"])
@@ -148,11 +166,12 @@ func build() -> void:
 	for id in props:
 		instanced(id, props[id], {"collide": id != "kit_garbage_bag" and id != "kit_bush"})
 	# dumpster alley + an industrial yard near the start (enemy hideouts)
-	instanced("kit_dumpster", [_p(-40, 9.4, PI), _p(-37.5, 9.4, PI)], {"collide": true})
-	instanced("kit_shipping_container", [_p(92, -7), _p(92, -7, 0, 2.6), _p(99, 7, 0.2)], {"collide": true})
-	instanced("kit_generator", [_p(84, 6.5)], {"collide": true})
-	instanced("kit_fence", [_p(88, 10.2), _p(94, 10.2)], {"collide": true})
-	instanced("kit_jersey_barrier", [_p(-30, -1.6), _p(-26.8, -1.6), _p(30, 1.6)], {"collide": true})
+	# (each in its own cleared lot beside the x avenue: see CLEAR)
+	instanced("kit_dumpster", [_p(-44, -28, 0), _p(-41.4, -28, 0), _p(-35, -31, 0.4)], {"collide": true})
+	instanced("kit_shipping_container", [_p(92, 30), _p(92, 30, 0, 2.6), _p(101, 37, 0.2), _p(84, 40, PI / 2)], {"collide": true})
+	instanced("kit_generator", [_p(84, 26)], {"collide": true})
+	instanced("kit_fence", [_p(88, 48), _p(94, 48), _p(100, 48)], {"collide": true})
+	instanced("kit_jersey_barrier", [_p(86, 17), _p(89.2, 17), _p(-46, -19)], {"collide": true})
 
 	# ---- physics playthings near the start ----
 	var loose := _scatter(["kit_cardboard_box", "barrel_v01", "kit_traffic_cone", "kit_pallet", "kit_toolbox"], 30, 34)
@@ -178,7 +197,7 @@ func _scatter_grid(ids: Array, per_block: int) -> Dictionary:
 			for blk in range(-GRID, GRID):
 				for i in per_block:
 					var along := blk * SPACING + 14 + _rand() * (SPACING - 28)
-					var off := k * SPACING + (-1.0 if _rand() < 0.5 else 1.0) * (4.9 + _rand() * 2.0)
+					var off := k * SPACING + (-1.0 if _rand() < 0.5 else 1.0) * (10.6 + _rand() * 2.6)
 					var p := _p(along, off) if axis == "x" else _p(off, along)
 					p["rot"] = _rand() * TAU
 					_add(out, ids[n % ids.size()], p)
@@ -251,7 +270,7 @@ func _scatter(ids: Array, n: int, r: float) -> Dictionary:
 	for i in n:
 		var along := (_rand() - 0.5) * 2 * r
 		var side := -1.0 if _rand() < 0.5 else 1.0
-		var off := side * (4.9 + _rand() * 2.0)
+		var off := side * (10.6 + _rand() * 2.4)
 		var p := _p(along, off) if _rand() < 0.5 else _p(off, along)
 		if Vector2(p["x"], p["z"]).length() < 9:
 			continue
@@ -450,8 +469,8 @@ func _dynamic_prop(id: String, p: Dictionary) -> void:
 func _billboards() -> void:
 	var art := ["vehicles/x1_crx1_showcase", "vehicles/b1_crb1_showcase", "vehicles/a1_cra1_showcase", "world/c_downtown_wide",
 		"vehicles/x1_crx1_pursuit", "world/c_citadel_main_hangar_wide", "vehicles/a1_cra1_flight", "world/c_rooftops_wide"]
-	var spots := [[-21, -10.4, 0], [21, 10.4, PI], [10.4, -27, -PI / 2], [-10.4, 27, PI / 2],
-		[-45, 10.4, PI], [45, -10.4, 0], [-10.4, -45, PI / 2], [10.4, 45, -PI / 2]]
+	var spots := [[-21, -14.2, 0], [21, 14.2, PI], [14.2, -27, -PI / 2], [-14.2, 27, PI / 2],
+		[-60, 14.2, PI], [60, -14.2, 0], [-14.2, -60, PI / 2], [14.2, 60, -PI / 2]]
 	var frame_mat: Material = load("res://godot/materials/png_gunmetal.tres")
 	var trim_mat: Material = load("res://godot/materials/png_red_emissive.tres")
 	for i in spots.size():

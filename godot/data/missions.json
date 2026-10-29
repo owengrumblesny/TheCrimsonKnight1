@@ -1,10 +1,10 @@
 {
   "about": "Godot port story missions, played in order (Director). type clear = knock down the squad at `at` [x, z]; type reach = get to `at`, optionally in a given vehicle, optionally within `time` seconds, `air` = a ring in the sky for the CR-A1.",
   "missions": [
-    {"title": "First Night", "type": "clear", "at": [-40, 7.4], "ids": ["npc_criminal_thug", "npc_criminal_thug", "npc_enforcer"], "n": 3, "reward": 150,
-     "objective": "Take down the Red Hand thugs in the dumpster alley west of the start"},
-    {"title": "Merc Yard", "type": "clear", "at": [90, -2], "ids": ["npc_mercenary", "npc_riot_trooper", "npc_mercenary", "npc_security_robot", "npc_enforcer", "npc_stealth_operative"], "n": 6, "reward": 400,
-     "objective": "Break up the Black Ledger weapons yard east of the start. Use cover, smoke and the shield"},
+    {"title": "First Night", "type": "clear", "at": [-40, -26], "ids": ["npc_criminal_thug", "npc_criminal_thug", "npc_enforcer"], "n": 3, "reward": 150,
+     "objective": "Take down the Red Hand thugs in the dumpster lot just north-west of the start"},
+    {"title": "Merc Yard", "type": "clear", "at": [95, 31], "ids": ["npc_mercenary", "npc_riot_trooper", "npc_mercenary", "npc_security_robot", "npc_enforcer", "npc_stealth_operative"], "n": 6, "reward": 400,
+     "objective": "Break up the Black Ledger weapons yard south-east of the start. Use cover, smoke and the shield"},
     {"title": "Interceptor Run", "type": "reach", "at": [420, -420], "vehicle": "crx1_interceptor", "time": 75, "reward": 300,
      "objective": "Call the CR-X1 (V) and reach the north-east corner of the city in 75 s"},
     {"title": "Bike Launch", "type": "reach", "at": [-420, 280], "vehicle": "crb1_batcycle", "time": 90, "reward": 350,

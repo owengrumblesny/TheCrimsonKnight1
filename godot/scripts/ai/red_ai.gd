@@ -83,7 +83,7 @@ func start_engines(tts: bool, stt: bool, brain: bool) -> void:
 		return
 	voice.start(ai_dir)
 	if brain:
-		var exe := ai_dir.path_join("llama/llama-server.exe")
+		var exe := ai_dir.path_join("llama/llama-server" + (".exe" if OS.get_name() == "Windows" else ""))
 		var model := ai_dir.path_join("models/qwen2.5-1.5b-instruct-q4_k_m.gguf")
 		if FileAccess.file_exists(exe) and FileAccess.file_exists(model):
 			_health_tries = 90
@@ -106,7 +106,7 @@ func _exit_tree() -> void:
 
 
 func _launch_llm() -> void:
-	var exe := ai_dir.path_join("llama/llama-server.exe")
+	var exe := ai_dir.path_join("llama/llama-server" + (".exe" if OS.get_name() == "Windows" else ""))
 	var model := ai_dir.path_join("models/qwen2.5-1.5b-instruct-q4_k_m.gguf")
 	# 3 CPU threads, small context, no GPU: the game keeps the GPU and at least one core
 	_llm_pid = OS.create_process(exe, ["-m", model, "--host", "127.0.0.1", "--port", str(LLM_PORT), "-c", "2048", "-t", "3",

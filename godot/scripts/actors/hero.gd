@@ -15,22 +15,27 @@ var lod_level := -1
 var _lods: Array = [[], [], []]
 var _held: Node3D
 var _socket_align := {}
-## procedural head look-at and cape motion on top of the clips
-var motion: HeroMotion
+## procedural layer after the clips: head look, lean, cape spring, foot IK (driven by the Player)
+var feel: HeroFeel
+# body lean springs (rad / rad per s): x = pitch about the feet, y = roll into turns
+var _lean := Vector2.ZERO
+var _lean_v := Vector2.ZERO
+var _model_basis := Basis.IDENTITY
 
 
 func _ready() -> void:
 	model = load(CKData.model_path(HERO_ID)).instantiate()
 	add_child(model)
+	_model_basis = model.basis
 	anim = model.find_child("AnimationPlayer", true, false)
 	for n in model.find_children("*", "Skeleton3D", true, false):
 		skeleton = n
 	for n in model.find_children("*_LOD?", "MeshInstance3D", true, false):
 		_lods[int(String(n.name).right(1))].append(n)
+	feel = HeroFeel.new()
+	feel.name = "Feel"
+	skeleton.add_child(feel)
 	anim.animation_finished.connect(func(n: StringName): clip_finished.emit(String(n)))
-	if skeleton:
-		motion = HeroMotion.new()
-		skeleton.add_child(motion)
 	set_lod(0)
 	play("CK_Idle", 0.0)
 
@@ -69,6 +74,23 @@ func set_time_scale(s: float) -> void:
 func rate_for(name: String, speed: float) -> float:
 	var ref = CKData.hero_clip(name).get("refSpeed")
 	return clampf(speed / ref, 0.55, 1.8) if ref else 1.0
+
+
+## Weight on the move: lean forward with speed and acceleration, roll into turns (turn rate x speed), and
+## let a spring carry the settle when he stops (the deceleration rocks him back a touch, then upright).
+## Most of the pitch goes to the spine; the whole body takes a little, and all of the roll, about the feet.
+func update_lean(dt: float, on: bool, spd: float, accel: float, turn_rate: float) -> void:
+	var want := Vector2.ZERO
+	if on:
+		want.x = clampf(spd * 0.007 + clampf(accel, -14.0, 14.0) * 0.008, -0.07, 0.15)
+		want.y = clampf(-turn_rate * spd * 0.009, -0.15, 0.15)
+	var w := Vector2(9.0, 8.0)
+	var zeta := Vector2(0.5, 0.8)
+	var h := minf(dt, 0.05)
+	_lean_v += (w * w * (want - _lean) - 2.0 * zeta * w * _lean_v) * h
+	_lean += _lean_v * h
+	model.basis = Basis.from_euler(Vector3(_lean.x * 0.3, 0.0, _lean.y)) * _model_basis
+	feel.lean = _lean.x * 0.7
 
 
 func set_lod(level: int) -> void:

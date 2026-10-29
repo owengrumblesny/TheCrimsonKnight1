@@ -48,6 +48,11 @@ var _smoke: Array = [] # {pos, until}
 var _tracers: Array = []
 var _checkpoint_ring: MeshInstance3D
 var _mission_t := 0.0
+## How the Knight has been fighting lately (decays over ~20 s): light, heavy, counter, dodge, gun.
+## Enemies read it: light-hit spam -> everyone guards; counter spam -> feinted wind-ups; gun spam -> riot shields.
+var tactics := {"light": 0.0, "heavy": 0.0, "counter": 0.0, "dodge": 0.0, "gun": 0.0}
+var adapted := {} # kind -> true while that adaptation is active
+signal adapted_to(kind: String)
 var _spawn_ids := ["npc_criminal_thug", "npc_mercenary", "npc_enforcer", "npc_riot_trooper", "npc_stealth_operative", "npc_security_robot"]
 
 
@@ -125,6 +130,8 @@ func damage_player(amount: float, from: Vector3, _by: Node) -> void:
 	if vitals.shield_until > Time.get_ticks_msec():
 		effects.burst("electrical", player.global_position + Vector3(0, 1.2, 0), 2, 0.6, 0.6, 0.3)
 		return
+	if melee and melee.blocks(from):
+		return # blocked: the strike glances off the gauntlets (the attacker is staggered by melee)
 	amount *= 0.65 * armor_mult # CR-X9 plating: street weapons barely scratch it
 	var absorbed := minf(vitals.armor, amount * 0.5)
 	vitals.armor -= absorbed
@@ -365,8 +372,30 @@ func _check_mission() -> void:
 
 
 # ---------------- per frame ----------------
+func record(kind: String) -> void:
+	tactics[kind] = tactics.get(kind, 0.0) + 1.0
+
+
+func adapting(kind: String) -> bool:
+	return adapted.get(kind, false)
+
+
+func _update_tactics(dt: float) -> void:
+	for k in tactics:
+		tactics[k] = maxf(0.0, tactics[k] - dt * 0.05 * maxf(1.0, tactics[k]))
+	for pair in [["light", 9.0], ["counter", 4.0], ["gun", 18.0]]:
+		var on: bool = tactics[pair[0]] >= pair[1]
+		var was: bool = adapted.get(pair[0], false)
+		if on and not was:
+			adapted[pair[0]] = true
+			adapted_to.emit(pair[0])
+		elif was and tactics[pair[0]] < pair[1] * 0.4:
+			adapted[pair[0]] = false
+
+
 func update(dt: float, underground: bool) -> void:
 	var now := Time.get_ticks_msec()
+	_update_tactics(dt)
 	_smoke = _smoke.filter(func(s): return s["until"] > now)
 	# heat: rises while enemies see the Knight, cools after he breaks contact
 	var seen := false
@@ -388,6 +417,8 @@ func update(dt: float, underground: bool) -> void:
 			_reinforce_t = 26.0 - stars() * 3.0
 			var n := 1 + stars()
 			var ids: Array = _spawn_ids.slice(0, mini(_spawn_ids.size(), 2 + stars()))
+			if adapting("gun"):
+				ids = ["npc_riot_trooper", "npc_riot_trooper", "npc_enforcer"] # shields for a trigger-happy Knight
 			for e in squad(ids, street_point(60, 110), n):
 				e.alert(player.global_position)
 				e.state = "chase"

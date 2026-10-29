@@ -179,5 +179,17 @@
   ],
   "brain_ready": [
     "Conversation core loaded. Go on, say something clever."
+  ],
+  "adapt_light": [
+    "They're reading your jabs. Mix in heavy strikes to break their guard.",
+    "Same punch, same punch, same punch. They've noticed. Use a heavy."
+  ],
+  "adapt_counter": [
+    "They're faking wind-ups now. Wait for the strike, don't just mash counter.",
+    "Feints incoming. They learned your counter. Be patient."
+  ],
+  "adapt_gun": [
+    "You're shooting a lot, so they've brought riot shields. Get in close.",
+    "Riot shields inbound. Guns won't cut it. Hands, boss."
   ]
 }

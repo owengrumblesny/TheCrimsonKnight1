@@ -20,6 +20,18 @@ var modes: Array = []
 var driver_in := false
 ## first-person by default; V toggles the chase camera
 var first_person := true
+## driving camera: chase, close (tighter chase), hood, cockpit. first_person follows (hood/cockpit hide the Knight)
+const VIEWS := ["chase", "close", "hood", "cockpit"]
+var view := "cockpit":
+	set(v):
+		view = v
+		first_person = v in ["hood", "cockpit"]
+## 0..1 accumulated crash damage (car / bike): smoke, sparks, less power and grip; nanites repair it slowly
+var damage := 0.0
+signal crashed(strength: float, at: Vector3)
+var _prev_vel := Vector3.ZERO
+var _smoke_t := 0.0
+var _hood := Vector3.ZERO
 var fpv_cam := Camera3D.new()
 var chase_cam := Camera3D.new()
 ## settings "Reduce motion": no cockpit head-bob
@@ -45,6 +57,11 @@ var _free_look := Vector2.ZERO
 var _gear_up := false
 var _jet_speed := 0.0
 var _jet_attitude := Vector3.ZERO # pitch, yaw, roll (radians, world yaw)
+## jet summon: fly in and set down on this spot (null = none). Cruise to a hover point above it, then a slow
+## vertical descent, yawing to land_heading. Cleared on touchdown (emits arrived) or when someone gets in.
+var land_at = null
+var land_heading := 0.0
+var _land_phase := ""
 
 
 static func create(vehicle_id: String) -> Vehicle:
@@ -83,6 +100,20 @@ func _ready() -> void:
 	fpv_cam.fov = 72
 	chase_cam.fov = 65
 	set_mode(modes[0], true)
+	_hood = _hood_point()
+
+
+## Hood camera spot from the model's bounds: front third, just above the bodywork.
+func _hood_point() -> Vector3:
+	var box := AABB()
+	var first := true
+	for mi in model.find_children("*", "MeshInstance3D", true, false):
+		var b: AABB = (model.global_transform.affine_inverse() * mi.global_transform) * mi.get_aabb()
+		box = b if first else box.merge(b)
+		first = false
+	if first:
+		return Vector3(0, 1.4, 1.5)
+	return Vector3(0, box.end.y * 0.92 + 0.15, box.position.z + box.size.z * 0.68)
 
 
 func set_engine_stream(stream: AudioStream) -> void:
@@ -306,6 +337,7 @@ func speed() -> float:
 func _physics_process(dt: float) -> void:
 	if kind == "jet":
 		return
+	_crash_check(dt)
 	if not route.is_empty() and not driver_in:
 		_autopilot(dt)
 	var fwd_speed := linear_velocity.dot(global_basis.z)
@@ -314,7 +346,7 @@ func _physics_process(dt: float) -> void:
 	var force := 0.0
 	var brk := 0.0
 	if throttle > 0.05:
-		force = cfg["engine"] * throttle * (1.35 if boost else 1.0) if fwd_speed < top_speed else 0.0
+		force = cfg["engine"] * throttle * (1.35 if boost else 1.0) * (1.0 - 0.45 * damage) if fwd_speed < top_speed * (1.0 - 0.3 * damage) else 0.0
 	elif throttle < -0.05:
 		if fwd_speed > 1.5:
 			brk = cfg["brake"] * -throttle
@@ -328,7 +360,7 @@ func _physics_process(dt: float) -> void:
 	brake = brk
 	for w in _wheels:
 		var wh: VehicleWheel3D = w["wheel"]
-		wh.wheel_friction_slip = cfg["suspension"]["friction"] * (0.45 if handbrake and not w["front"] else 1.0)
+		wh.wheel_friction_slip = cfg["suspension"]["friction"] * (0.45 if handbrake and not w["front"] else 1.0) * (1.0 - 0.25 * damage)
 		if handbrake and not w["front"]:
 			wh.brake = cfg["brake"] * 0.6
 	# auto-balance / anti-roll: torque the body back upright (the bike's lean is visual only)
@@ -372,6 +404,11 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if kind != "jet":
 		return
 	var dt := state.step
+	if land_at != null and not driver_in:
+		_guided_landing(state, dt)
+		return
+	land_at = null
+	_land_phase = ""
 	var basis := Basis.from_euler(Vector3(_jet_attitude.x, _jet_attitude.y, _jet_attitude.z), EULER_ORDER_YXZ)
 	var ground := _ground_distance(state)
 	var vel := state.linear_velocity
@@ -422,6 +459,62 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			anim.play(cfg["gear_clip"])
 		else:
 			anim.play_backwards(cfg["gear_clip"])
+
+
+## Summon arrival: a banking cruise to 18 m above the landing spot, easing off as it gets close, then a
+## hover-and-settle straight down (gear out), turning to face land_heading. Kinematic on purpose: it is an
+## autopilot, not the player's flight model, so the approach is smooth and predictable.
+func _guided_landing(state: PhysicsDirectBodyState3D, dt: float) -> void:
+	var p := state.transform.origin
+	var target: Vector3 = land_at
+	var hover := target + Vector3(0, 18, 0)
+	var vel := state.linear_velocity
+	if _land_phase == "":
+		_land_phase = "cruise"
+	if _land_phase == "cruise":
+		var to := hover - p
+		var d := to.length()
+		var spd := clampf(d * 0.7, 6.0, 38.0)
+		vel = vel.lerp(to.normalized() * spd, minf(1.0, dt * 1.6))
+		var flat := Vector2(vel.x, vel.z)
+		if flat.length() > 2.0:
+			var yaw := atan2(vel.x, vel.z)
+			var turn := wrapf(yaw - _jet_attitude.y, -PI, PI)
+			_jet_attitude.y = lerp_angle(_jet_attitude.y, yaw, minf(1.0, dt * 1.5))
+			_jet_attitude.z = lerpf(_jet_attitude.z, clampf(-turn * 1.5, -0.6, 0.6), minf(1.0, dt * 2.0))
+		_jet_attitude.x = lerpf(_jet_attitude.x, clampf(-vel.y * 0.02, -0.25, 0.25) + clampf(flat.length() * 0.004, 0.0, 0.12), minf(1.0, dt * 2.0))
+		if d < 2.5:
+			_land_phase = "descend"
+	else:
+		var dy := p.y - target.y
+		var want := Vector3(target.x - p.x, 0, target.z - p.z) * 1.5
+		want.y = -clampf(dy * 0.45, 0.6, 5.0)
+		vel = vel.lerp(want, minf(1.0, dt * 2.5))
+		_jet_attitude.y = lerp_angle(_jet_attitude.y, land_heading, minf(1.0, dt * 1.2))
+		_jet_attitude.x = lerpf(_jet_attitude.x, 0.0, minf(1.0, dt * 3.0))
+		_jet_attitude.z = lerpf(_jet_attitude.z, 0.0, minf(1.0, dt * 3.0))
+		if _gear_up and anim and anim.has_animation(cfg["gear_clip"]):
+			_gear_up = false
+			anim.play_backwards(cfg["gear_clip"])
+		if dy < 0.25:
+			state.transform = Transform3D(Basis.from_euler(Vector3(0, _jet_attitude.y, 0), EULER_ORDER_YXZ), Vector3(p.x, target.y + 0.05, p.z))
+			state.linear_velocity = Vector3.ZERO
+			state.angular_velocity = Vector3.ZERO
+			_jet_attitude = Vector3(0, _jet_attitude.y, 0)
+			_jet_speed = 0.0
+			land_at = null
+			_land_phase = ""
+			arrived.emit.call_deferred()
+			return
+	_jet_speed = Vector2(vel.x, vel.z).length()
+	look = Vector2.ZERO
+	state.linear_velocity = vel
+	state.angular_velocity = Vector3.ZERO
+	state.transform = Transform3D(Basis.from_euler(_jet_attitude, EULER_ORDER_YXZ), state.transform.origin)
+	var want_up := _land_phase == "cruise" and p.y - target.y > 12.0
+	if want_up and not _gear_up and anim and anim.has_animation(cfg["gear_clip"]):
+		_gear_up = true
+		anim.play(cfg["gear_clip"])
 
 
 func _ground_distance(state: PhysicsDirectBodyState3D) -> float:
@@ -483,6 +576,8 @@ func _update_cameras(dt: float) -> void:
 	else:
 		var c: Array = cfg.get("cockpit", [0, 1.5, 0])
 		base = Transform3D(Basis(), Vector3(c[0], c[1], c[2]))
+	if view == "hood" and kind != "bike":
+		base = Transform3D(Basis(), _hood)
 	if kind == "bike":
 		base = Transform3D(Basis(Vector3.FORWARD, _lean), Vector3.ZERO) * base
 	# glTF cameras look down -Z; the vehicles drive toward +Z
@@ -499,12 +594,44 @@ func _update_cameras(dt: float) -> void:
 	fpv_cam.fov = 72.0 + 16.0 * k + (6.0 if boost else 0.0)
 	# chase camera: eases toward camera_chase, looking at the vehicle
 	var chase := model.find_child("camera_chase", true, true) as Node3D
-	var want := global_transform * (_rel(chase).origin if chase else Vector3(0, 2.5, -7))
+	var off: Vector3 = _rel(chase).origin if chase else Vector3(0, 2.5, -7)
+	if view == "close":
+		off = Vector3(off.x, off.y * 0.7, off.z * 0.62)
+	off.z -= 1.5 * k # pull back at speed
+	var want := global_transform * off
+	if _jolt > 0.0:
+		want += Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * _jolt * (0.0 if reduce_motion else 1.0)
+		_jolt = maxf(0.0, _jolt - dt)
 	chase_cam.global_position = want if dt == 0.0 else chase_cam.global_position.lerp(want, minf(1.0, dt * 6.0))
 	var aim := global_position + Vector3(0, 1.2 if kind != "jet" else 2.5, 0)
 	if chase_cam.global_position.distance_to(aim) > 0.1:
 		chase_cam.look_at(aim, Vector3.UP)
 	chase_cam.fov = 65.0 + 12.0 * k
+
+
+## A sudden change in velocity is a crash: damage, sparks, a camera jolt (chase views) and a signal for sound.
+func _crash_check(dt: float) -> void:
+	var dv := (linear_velocity - _prev_vel).length()
+	_prev_vel = linear_velocity
+	if dv > 9.0 and dt > 0.0:
+		var strength := clampf((dv - 9.0) / 25.0, 0.0, 1.0)
+		damage = minf(1.0, damage + strength * (0.35 if kind == "car" else 0.5))
+		crashed.emit(strength, global_position + linear_velocity.normalized() * 2.0 + Vector3.UP)
+		_jolt = 0.25 * strength
+	# nanite repair while parked; smoke from the engine bay when badly hurt
+	if not driver_in:
+		damage = maxf(0.0, damage - dt * 0.01)
+	_smoke_t -= dt
+	if damage > 0.45 and _smoke_t <= 0.0 and _fx != null:
+		_smoke_t = 0.25 - damage * 0.15
+		_fx.burst("smoke", global_transform * (_hood + Vector3(0, -0.2, 0.3)), 1, 0.6, 0.35 + damage * 0.4, 1.4)
+		if damage > 0.8 and randf() < 0.3:
+			_fx.burst("sparks", global_transform * _hood, 2, 1.5, 0.2, 0.2)
+
+
+var _jolt := 0.0
+## effects node for damage smoke (set by the drive controller)
+var _fx: Effects
 
 
 func active_camera() -> Camera3D:

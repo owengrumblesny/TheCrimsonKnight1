@@ -43,6 +43,7 @@ var _hints_key := ""
 var hints_enabled := true
 ## reticle state, set by the game: weapons (bloom / under_crosshair / locked) and the camera for projection
 var weapons: Weapons
+var stage: Stage
 var minimap: MiniMap
 
 
@@ -490,7 +491,8 @@ func update_hud(now: int, heading: float, show_crosshair: bool) -> void:
 	_bar.visible = vehicle_text.is_empty()
 	if not vehicle_text.is_empty():
 		_sel_title.text = vehicle_text[0]
-		_sel_sub.text = vehicle_text[1]
+		_sel_sub.text = "
+".join(vehicle_text.slice(1))
 	elif d.is_empty():
 		_sel_title.text = "No item selected"
 		_sel_sub.text = "Press 1-8 or open the inventory"
@@ -514,7 +516,7 @@ func update_hud(now: int, heading: float, show_crosshair: bool) -> void:
 		_heading = heading
 		var st := director.stars()
 		_stars.text = "★".repeat(st) + "☆".repeat(5 - st) if st > 0 else ""
-		_rank.text = "%s · %d cr" % [director.rank(), director.credits]
+		_rank.text = "%s · %d cr" % [director.rank(), director.credits] + (" · %s · %s" % [stage.clock(), stage.weather_name] if stage else "")
 		_objective.get_parent().visible = director.objective != ""
 		_objective.text = director.objective
 		_compass_marks.queue_redraw()

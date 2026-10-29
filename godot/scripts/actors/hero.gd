@@ -39,6 +39,10 @@ func clip_names() -> PackedStringArray:
 
 
 ## Cross-fade to a clip (fade in seconds). Same clip is kept unless restart.
+func has_clip(name: String) -> bool:
+	return anim != null and anim.has_animation(name)
+
+
 func play(name: String, fade := 0.22, time_scale := 1.0, restart := false) -> void:
 	if not anim.has_animation(name):
 		return

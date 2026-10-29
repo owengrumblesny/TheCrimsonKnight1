@@ -850,6 +850,18 @@ def clip_table():
                   capelift=82, capewave=5, capeph=2 * w, capespread=46)
 
     drive = breathing(60, seated, 0.6)
+    # CR-B1: Batpod-style prone ride. Authored upright; the game pitches the hero ~72 deg forward on the seat,
+    # so the head tilts back to keep the eyes on the road, arms reach forward to the low grips and the shins
+    # fold back onto the rear pegs.
+    ride_prone_base = fk(hz=-0.43, sp=6, cp=4, np=-20, hdp=-58, th_L=40, kn_L=100, th_R=40, kn_R=100, ank_L=-10, ank_R=-10,
+                         sw_L=84, sw_R=84, ad_L=24, ad_R=24, elb_L=44, elb_R=44, wr_L=-12, wr_R=-12, tw_L=-8, tw_R=-8,
+                         capelift=-10, capespread=4)
+    ride_prone = breathing(60, ride_prone_base, 0.4)
+    # CR-X1: reclined cockpit (driver lies back ~35 deg, legs out forward to the pedals, hands on the yoke).
+    # The game pitches the hero back on the seat; the head tips forward to look through the canopy.
+    drive_recline_base = fk(hz=-0.43, sp=-6, cp=-4, np=12, hdp=26, th_L=62, kn_L=26, th_R=62, kn_R=26, ank_L=12, ank_R=12,
+                            sw_L=30, sw_R=30, ad_L=30, ad_R=30, elb_L=78, elb_R=78, capelift=-6)
+    drive_recline = breathing(60, drive_recline_base, 0.5)
 
     # name, frames, loop, ref_speed (m/s, None = stationary), pose function, description
     return [
@@ -890,6 +902,8 @@ def clip_table():
         ("CK_VehicleExit", 36, False, None, keyed([(0, seated), (12, sink), (24, step_in), (36, idle)]),
          "generic stand-up and step-out"),
         ("CK_Drive", 60, True, None, drive, "seated driving loop"),
+        ("CK_RideProne", 60, True, None, ride_prone, "CR-B1 prone ride; game pitches the root forward on the seat"),
+        ("CK_DriveRecline", 60, True, None, drive_recline, "CR-X1 reclined drive; game pitches the root back on the seat"),
         ("CK_Interact", 24, False, None, keyed([(0, idle), (9, press), (14, press), (24, idle)]), "reach and press"),
         # ---- melee (Godot port combat): fast strikes that start and end in the guard, so they chain ----
         ("CK_Guard", 30, True, None, breathing(30, guard, 0.6), "fighting guard, both fists up"),

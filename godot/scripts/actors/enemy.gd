@@ -29,6 +29,7 @@ var _strafe := 1.0
 var _avoid := Vector3.ZERO
 var _anim_pending := 0.0
 var _windup_t := 0.0
+var _feint := false
 var _mark: Label3D
 
 
@@ -228,7 +229,14 @@ func _physics_process(dt: float) -> void:
 		_windup_t -= dt
 		_face(to, dt)
 		_play("NPC_Alert")
-		if _windup_t <= 0.0:
+		if _feint and _windup_t <= 0.32:
+			# feint: the "!" drops early and no blow comes; a real strike follows soon after
+			_feint = false
+			_mark.visible = false
+			state = "attack"
+			director.release_token(self)
+			_attack_t = 0.35
+		elif _windup_t <= 0.0:
 			_mark.visible = false
 			state = "attack"
 			_attack(p)
@@ -278,6 +286,7 @@ func _physics_process(dt: float) -> void:
 						if director.take_token(self):
 							state = "windup" # telegraphed: the Knight can counter (E) until it lands
 							_windup_t = 0.6
+							_feint = director.adapting("counter") and randf() < 0.35
 							_mark.visible = true
 					else:
 						_attack_t = cfg["interval"] * randf_range(0.8, 1.25)

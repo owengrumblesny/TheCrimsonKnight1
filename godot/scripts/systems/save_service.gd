@@ -10,7 +10,7 @@ const DEFAULT_SETTINGS := {
 	"uiScale": 1.0, "hudVisible": true, "reduceMotion": false, "quality": "high",
 	"volumes": {"master": 0.8, "music": 0.6, "ambience": 0.6, "sfx": 0.8, "vehicles": 0.8, "ui": 0.6}, "muted": false,
 	"mouseSensitivity": 1.0, "invertY": false, "aimAssist": true, "controlHints": true,
-	"redVoice": true, "redListen": true, "redBrain": true, "redChatter": true,
+	"redVoice": true, "redListen": true, "redBrain": true, "redChatter": true, "dayNight": true,
 }
 
 

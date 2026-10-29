@@ -125,6 +125,8 @@ func _fire(id: String, now: int) -> void:
 		return
 	_ammo[id] -= 1
 	_last_shot = now
+	if director:
+		director.record("gun")
 	bloom = minf(1.0, bloom + 0.35)
 	_point_gun(now)
 	var muzzle := _muzzle()

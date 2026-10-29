@@ -23,6 +23,8 @@ var combo := 0
 var reduce_motion := false
 ## strike damage / knockback multiplier (R.E.D. overdrive sets 2 for a while)
 var power := 1.0
+## hold E in a fight (with nothing to counter) to block: frontal strikes glance off and stagger the attacker
+var blocking := false
 var _combo_t := 0.0
 var _left := false
 var _busy_t := 0.0
@@ -83,9 +85,43 @@ func _pick_target() -> Enemy:
 	return best
 
 
+## True if a blow from `from` is blocked (the Knight is guarding and facing it). Staggers the nearest attacker.
+func blocks(from: Vector3) -> bool:
+	if not blocking:
+		return false
+	var to := from - player.global_position
+	to.y = 0
+	var fwd := Vector3(sin(player.heading), 0, cos(player.heading))
+	if to.length() > 0.01 and to.normalized().dot(fwd) < 0.2:
+		return false # from behind or the side: the guard doesn't cover it
+	effects.burst("sparks", player.global_position + Vector3(0, 1.4, 0) + fwd * 0.5, 8, 2.5, 0.4, 0.25)
+	audio.play("weapon.impact")
+	if not reduce_motion:
+		cam.kick(0.006)
+	var best: Enemy = null
+	var bd := 3.5
+	for e in director.enemies:
+		if is_instance_valid(e) and not e.is_down() and e.global_position.distance_to(from) < bd:
+			bd = e.global_position.distance_to(from)
+			best = e
+	if best:
+		best.stun(0.7)
+	return true
+
+
+func set_block(on: bool) -> void:
+	if on == blocking:
+		return
+	blocking = on
+	if on:
+		player.act("CK_Guard", 0.12)
+
+
 func strike(heavy: bool) -> void:
 	if _busy_t > 0.0:
 		return
+	if director:
+		director.record("heavy" if heavy else "light")
 	var t := _pick_target()
 	_busy_t = 0.5 if heavy else 0.26
 	var clip := "CK_HeavyStrike" if heavy else ("CK_PunchL" if _left else "CK_PunchR")
@@ -115,6 +151,8 @@ func counter() -> bool:
 	if to.length() > 1.6:
 		player.lunge(to.normalized() * 10.0, (to.length() - 1.3) / 10.0)
 	player.act("CK_Counter", 0.45)
+	if director:
+		director.record("counter")
 	t.countered()
 	_land_hit(t, 35.0, true, to.normalized())
 	audio.play("armor.activate")
@@ -127,6 +165,8 @@ func dodge(dir: Vector3) -> void:
 	if dir.length() < 0.1:
 		dir = -Vector3(sin(player.heading), 0, cos(player.heading)) # back-step
 	player.act("CK_Dodge", 0.35)
+	if director:
+		director.record("dodge")
 	player.lunge(dir.normalized() * 8.0, 0.28)
 	_invuln_t = 0.45
 	_busy_t = 0.3
@@ -158,7 +198,8 @@ func update(dt: float) -> void:
 				# armoured / guarded enemies block a third light hit in a row on them: heavy strikes break guards
 				_same_target = _same_target + 1 if t == _last_target else 1
 				_last_target = t
-				if not heavy and (t.cfg.get("armored", false) or t.id == "npc_enforcer") and _same_target >= 3 and randf() < 0.6:
+				var guards: bool = t.cfg.get("armored", false) or t.id == "npc_enforcer" or director.adapting("light")
+				if not heavy and guards and _same_target >= (3 if not director.adapting("light") else 2) and randf() < 0.6:
 					t.block()
 					effects.burst("sparks", t.global_position + Vector3(0, 1.3, 0), 6, 2.0, 0.4, 0.25)
 					audio.play("weapon.impact")

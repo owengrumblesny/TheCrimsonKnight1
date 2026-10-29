@@ -60,6 +60,11 @@ func _ready() -> void:
 	voice.heard.connect(_on_heard)
 
 
+## Hooked up by main once the director exists.
+func watch_director(d: Director) -> void:
+	d.adapted_to.connect(func(kind): _say_event("adapt_" + kind, {}, 2000, 30000))
+
+
 static func find_ai_dir() -> String:
 	for d in [ProjectSettings.globalize_path("res://ai"), OS.get_executable_path().get_base_dir().path_join("ai")]:
 		if DirAccess.dir_exists_absolute(d):
@@ -490,6 +495,7 @@ func state_line() -> String:
 	var where := "in the Red Citadel" if game.underground else "in the streets of New Gotham"
 	var doing := "driving the %s" % game.drive.label(game.drive.driving) if game.drive.driving else String(game.player.mode).replace("ground", "on foot")
 	var s := "[health %d, armor %d, heat %d stars, %d enemies close, %s, %s" % [int(v.health), int(v.armor), d.stars(), near, doing, where]
+	s += ", %s, %s" % [game.stage.clock(), game.stage.weather_name.to_lower()]
 	var c := _nearest_crime()
 	if not c.is_empty():
 		var cv := _crime_vars(c)

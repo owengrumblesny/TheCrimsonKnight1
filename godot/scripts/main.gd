@@ -50,6 +50,7 @@ var weapons: Weapons
 var drive: DriveController
 var anim_debug: AnimDebug
 var red: RedAI
+var vweapons: VehicleWeapons
 var red_panel: RedPanel
 var director: Director
 var street: StreetLife
@@ -62,6 +63,24 @@ var spawn := Vector3.ZERO
 var prompt: Array = []
 var args := {}
 var frame := 0
+var _block_hold := 0.0
+var _last_speed := 0.0
+var _servo_at := 0
+
+
+## Footstep sound for what the Knight is standing on: Citadel decks are metal, roofs are gravel, roads asphalt,
+## and any street surface splashes while it's raining.
+func _step_sound() -> String:
+	if underground:
+		return "armor.step.metal"
+	var p := player.global_position
+	if p.y > 4.0:
+		return "armor.step.gravel"
+	if stage.weather > 0.3:
+		return "armor.step.wet"
+	var S := District.SPACING
+	var off := minf(absf(p.x - roundf(p.x / S) * S), absf(p.z - roundf(p.z / S) * S))
+	return "armor.step.asphalt" if off < District.ROAD_HALF else "armor.step"
 
 
 func _ready() -> void:
@@ -156,6 +175,7 @@ func _ready() -> void:
 	drive.player = player
 	drive.cam = cam
 	drive.audio = audio
+	drive.effects = effects
 	drive.sound.connect(audio.play)
 	drive.notify.connect(notify)
 	add_child(drive)
@@ -185,6 +205,12 @@ func _ready() -> void:
 	weapons.noise.connect(func(at, r): street.panic(at, r * 0.6))
 	weapons.noise.connect(director.noise)
 	weapons.director = director
+	vweapons = VehicleWeapons.new()
+	vweapons.weapons = weapons
+	vweapons.director = director
+	vweapons.sound.connect(audio.play)
+	vweapons.notify.connect(notify)
+	add_child(vweapons)
 	targets = TargetRange.new()
 	add_child(targets)
 	# training dummies on the north avenue sidewalks (facing the spawn) and in the industrial yard
@@ -192,6 +218,11 @@ func _ready() -> void:
 		[Vector3(-11.4, 0.15, -44), 0.0, "N4"], [Vector3(30, 0.15, 11.6), PI, "E1"], [Vector3(36, 0.15, 11.6), PI, "E2"]])
 	add_child(equipment)
 	equipment.photo_mode_changed.connect(func(_on): _apply_hud_visibility())
+	equipment.drone_view.connect(func(on):
+		cam.active = not on
+		player.frozen = on
+		if on:
+			player.velocity = Vector3.ZERO)
 	_build_ui()
 	weapons.hit_confirmed.connect(hud.hit_marker)
 	director.player_hurt.connect(func(amount, from):
@@ -199,9 +230,12 @@ func _ready() -> void:
 		audio.play("weapon.impact"))
 	hud.director = director
 	hud.weapons = weapons
+	hud.stage = stage
+	stage.thunder.connect(func(): if not underground: audio.play("explosion", 0.5))
 	red = RedAI.new()
 	red.game = self
 	add_child(red)
+	red.watch_director(director)
 	red_panel = RedPanel.new()
 	CKUI.place(red_panel, Vector4(0, 0, 0, 0), Vector4(18, 124, 418, 330))
 	hud.widgets.add_child(red_panel)
@@ -226,7 +260,7 @@ func _ready() -> void:
 			drive.summon(quick_vehicle, false)
 			drive.enter(drive.vehicles[quick_vehicle])
 			if args.has("chase"):
-				drive.driving.first_person = false
+				drive.driving.view = "chase"
 				drive._apply_camera()).call_deferred()
 	if args.has("equip"):
 		inventory.assign(args["equip"], 0)
@@ -326,6 +360,7 @@ func apply_settings() -> void:
 	CKInput.mouse_sensitivity = settings["mouseSensitivity"]
 	CKInput.invert_y = settings["invertY"]
 	weapons.aim_assist = settings.get("aimAssist", true)
+	stage.cycle = settings["dayNight"]
 	hud.hints_enabled = settings.get("controlHints", true)
 	red.chatter_enabled = settings["redChatter"]
 	if red.ai_dir != "" and [red.voice.tts_enabled, red.voice.stt_enabled, red.brain_enabled] != [settings["redVoice"], settings["redListen"], settings["redBrain"]]:
@@ -476,6 +511,16 @@ func _process(dt: float) -> void:
 		var at := say.rsplit("@", true, 1)
 		if at.size() == 2 and int(at[1]) == frame:
 			red.hear(at[0])
+	if args.has("sidecam") and drive.driving and frame > 60: # test aid: look at the vehicle from its right side
+		var sc: Camera3D = get_node_or_null("SideCam")
+		if sc == null:
+			sc = Camera3D.new()
+			sc.name = "SideCam"
+			add_child(sc)
+			sc.make_current()
+		var dv: Vehicle = drive.driving
+		sc.global_position = dv.global_transform * Vector3(-float(args["sidecam"]), 1.3, 0.3)
+		sc.look_at(dv.global_position + Vector3(0, 0.9, 0), Vector3.UP)
 	hud.visible = menus.top() != "main"
 	if get_tree().paused:
 		_finish_check()
@@ -483,9 +528,18 @@ func _process(dt: float) -> void:
 	if drive.driving:
 		drive.drive(dt, CKInput.take_look())
 		prompt = []
+	elif equipment.piloting():
+		equipment.pilot(dt, CKInput.take_look())
+		prompt = []
 	else:
 		_on_foot(now)
+	vweapons.update(dt, drive.driving, drive.driving != null and Input.is_action_pressed("primaryAction"),
+		drive.driving != null and Input.is_action_just_pressed("secondaryAction"))
 	hud.vehicle_text = drive.hud_text() if drive.driving else []
+	if drive.driving and vweapons.armed(drive.driving):
+		var mr: float = vweapons.secondary_ready_in(drive.driving)
+		hud.vehicle_text = hud.vehicle_text + ["Guns %s%s" % ["OVERHEATED" if vweapons.overheated else "%d%% heat" % roundi(vweapons.heat * 100),
+			"" if mr < 0 else (" · missiles ready" if mr == 0 else " · missiles %.0f s" % ceilf(mr))]]
 	hud.set_hints(_control_hints())
 	hud.camera = cam.camera
 	hud.grapple_point = player.grapple_target.get("point") if not drive.driving and not player.grapple_target.is_empty() else null
@@ -530,6 +584,8 @@ func _process(dt: float) -> void:
 		district.update_lights(player.global_position, now, dt)
 		npcs.update(player.global_position, dt)
 	stage.follow(player.global_position)
+	stage.update_sky(dt)
+	district.wet.set_shader_parameter("ripples", 0.0 if stage.quality == "low" else clampf(stage.weather * 1.4 - 0.2, 0.0, 1.0))
 	player.hero.update_lod(cam.camera.global_position.distance_to(player.global_position),
 		stage.preset["lod_scale"], stage.preset["hero_min_lod"])
 	if args.has("log") and frame % 30 == 0:
@@ -573,7 +629,8 @@ func _process(dt: float) -> void:
 			var c := player.get_slide_collision(i)
 			print("    hit ", c.get_collider().name if c.get_collider() else "?", " n=", c.get_normal().snapped(Vector3.ONE * 0.01))
 	var sel := inventory.selected_item()
-	hud.update_hud(now, player.heading, player.aiming or ((sel == "grapple" or sel == "batarang" or weapons.is_weapon(sel)) and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED))
+	var armed_vehicle: bool = drive.driving != null and vweapons.armed(drive.driving)
+	hud.update_hud(now, player.heading, armed_vehicle or player.aiming or (not drive.driving and (sel == "grapple" or sel == "batarang" or weapons.is_weapon(sel)) and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED))
 	hud.set_prompt("interact" if prompt and not hud.hints_enabled else "", prompt[1] if prompt else "")
 	if perf.visible:
 		perf.text = "%d fps · %.1f ms · %d draws · %dk prims · %s · %s
@@ -589,7 +646,13 @@ func _process(dt: float) -> void:
 		_step_dist += moved
 		if _step_dist > (1.6 if player.speed > 6 else 1.25 if player.speed > 3 else 0.8):
 			_step_dist = 0
-			audio.play("armor.step")
+			audio.play(_step_sound(), 1.0 if player.speed > 3 else 0.6)
+	# suit servos: starting off or pulling up hard
+	var spd_now: float = player.speed
+	if player.mode == "ground" and absf(spd_now - _last_speed) > 3.5 * maxf(dt, 0.001) * 10.0 and now - _servo_at > 700:
+		_servo_at = now
+		audio.play("armor.servo", 0.5)
+	_last_speed = spd_now
 	_autosave += dt
 	if started and _autosave > 30:
 		_autosave = 0
@@ -618,6 +681,11 @@ func _control_hints() -> Array:
 				out.insert(2, ["crouch", "Down"])
 		elif v.id == "crx1_interceptor":
 			out.insert(3, ["eject", "Launch bike"])
+		if vweapons.armed(v):
+			var lo: Dictionary = vweapons.loadout(v)
+			out.insert(1, ["primaryAction", "Fire"])
+			if lo.has("secondary"):
+				out.insert(2, ["secondaryAction", "Missiles"])
 		return out
 	match player.mode:
 		"glide":
@@ -629,7 +697,7 @@ func _control_hints() -> Array:
 		"air":
 			return [["jump", "Hold: glide"], ["grapple", "Grapple"]] if not player.grapple_target.is_empty() else [["jump", "Hold: glide"]]
 	if player.melee_engaged:
-		var out := [["primaryAction", "Strike"], ["secondaryAction", "Heavy"], ["crouch", "Dodge"]]
+		var out := [["primaryAction", "Strike"], ["secondaryAction", "Heavy"], ["crouch", "Dodge"], ["interact", "Hold: block"]]
 		if melee.counter_target():
 			out.push_front(["interact", "COUNTER!"])
 		return out
@@ -727,6 +795,12 @@ func _nearest_prop() -> RigidBody3D:
 
 ## Real interactables: shove loose props, Citadel entrance (keycard) and exit elevator.
 func _interact() -> void:
+	# hold E in a fight to block (a tap still counters / takes down)
+	if player.melee_engaged and not drive.driving and Input.is_action_pressed("interact") and not melee.counter_target():
+		_block_hold += get_process_delta_time()
+	else:
+		_block_hold = 0.0
+	melee.set_block(_block_hold > 0.15)
 	var p := player.global_position
 	var prop := _nearest_prop() if not underground else null
 	var near_portal := not underground and p.distance_to(portal) < 9

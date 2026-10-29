@@ -15,6 +15,23 @@ var rain: GPUParticles3D
 var camera: Camera3D
 const NIGHT := Color("#0b0d16")
 const CAVE := Color("#070405")
+const DAY := Color("#8a96a8") # overcast New Gotham day
+const DUSK := Color("#5a3a44")
+
+## Day/night: hours 0..24, advancing `day_speed` game hours per real minute (1 = a 24-minute day).
+var hour := 21.5
+var day_speed := 1.0
+var cycle := true
+## Weather: 0 = dry, 1 = storm. Drifts toward `weather_target`, which changes every few minutes.
+var weather := 0.7
+var weather_target := 0.7
+var weather_name := "Rain"
+var _weather_t := 180.0
+var _thunder_t := 0.0
+var _flash := 0.0
+var _sky_mat: ProceduralSkyMaterial
+var _rng := RandomNumberGenerator.new()
+signal thunder
 
 
 func _ready() -> void:
@@ -28,6 +45,7 @@ func _ready() -> void:
 	sky_mat.energy_multiplier = 0.6
 	var sky := Sky.new()
 	sky.sky_material = sky_mat
+	_sky_mat = sky_mat
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = NIGHT
 	env.sky = sky
@@ -94,6 +112,61 @@ func _make_rain() -> void:
 	rain.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	rain.position.y = 26
 	add_child(rain)
+
+
+## Daylight 0..1 for an hour (0 at night, 1 at midday; smooth dawn 5-8 and dusk 17-20).
+static func daylight(h: float) -> float:
+	return smoothstep(5.0, 8.0, h) * (1.0 - smoothstep(17.0, 20.0, h))
+
+
+## Advance time and weather, then light the city for them (not underground: the Citadel has its own lights).
+func update_sky(dt: float) -> void:
+	if cycle:
+		hour = fposmod(hour + dt * day_speed / 60.0, 24.0)
+	_weather_t -= dt
+	if _weather_t <= 0.0:
+		_weather_t = _rng.randf_range(150.0, 360.0)
+		weather_target = [0.0, 0.25, 0.55, 0.8, 1.0][_rng.randi() % 5]
+	weather = move_toward(weather, weather_target, dt / 40.0)
+	weather_name = "Clear" if weather < 0.12 else "Drizzle" if weather < 0.4 else "Rain" if weather < 0.75 else "Storm"
+	if underground:
+		return
+	var d := daylight(hour)
+	var dusk := clampf(1.0 - absf(d - 0.35) / 0.35, 0.0, 1.0) * (1.0 - d) # warm band at dawn/dusk
+	var overcast := weather
+	var bg := NIGHT.lerp(DAY.darkened(overcast * 0.45), d).lerp(DUSK, dusk * 0.5)
+	env.background_color = bg
+	env.fog_light_color = bg
+	env.fog_density = preset["fog_density"] * (1.0 + overcast * 1.2) * (1.0 - d * 0.45)
+	_sky_mat.sky_top_color = Color(0.05, 0.06, 0.1).lerp(Color(0.36, 0.45, 0.6).darkened(overcast * 0.4), d)
+	_sky_mat.sky_horizon_color = Color(0.11, 0.1, 0.12).lerp(Color(0.6, 0.62, 0.66), d).lerp(Color(0.7, 0.42, 0.36), dusk * 0.6)
+	_sky_mat.energy_multiplier = 0.6 + d * 0.8
+	env.ambient_light_energy = 1.4 + d * 1.2
+	# the directional light is the moon at night and the (cloud-softened) sun by day
+	var sun_angle := (hour - 6.0) / 12.0 * PI # 0 at 06:00, PI at 18:00
+	var elev := sin(sun_angle) if d > 0.0 else 0.85
+	moon.rotation = Vector3(-clampf(elev, 0.25, 1.2), deg_to_rad(-56) + (hour - 12.0) * 0.12, 0)
+	moon.light_color = Color("#b8c4ff").lerp(Color("#fff1dc"), d).lerp(Color("#ffb080"), dusk * 0.6)
+	moon.light_energy = lerpf(0.55, 1.5 * (1.0 - overcast * 0.55), d)
+	env.tonemap_exposure = 1.1 - d * 0.2
+	rain.amount_ratio = clampf((weather - 0.12) / 0.88, 0.0, 1.0)
+	rain.visible = preset["rain"] > 0 and weather >= 0.12
+	# storms: lightning flashes now and then (the game plays thunder a moment later)
+	if weather > 0.75:
+		_thunder_t -= dt
+		if _thunder_t <= 0.0:
+			_thunder_t = _rng.randf_range(9.0, 28.0)
+			_flash = 1.0
+			get_tree().create_timer(_rng.randf_range(0.4, 1.6)).timeout.connect(func(): thunder.emit())
+	if _flash > 0.0:
+		_flash = maxf(0.0, _flash - dt * 4.0)
+		env.background_color = bg.lerp(Color(0.75, 0.78, 0.9), _flash * 0.7)
+		env.ambient_light_energy += _flash * 3.0
+
+
+## "21:30"
+func clock() -> String:
+	return "%02d:%02d" % [int(hour), int(fmod(hour, 1.0) * 60.0)]
 
 
 ## Keep the shadow, key light and rain centred on the player.

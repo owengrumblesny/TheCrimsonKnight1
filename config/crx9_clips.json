@@ -219,6 +219,24 @@
       "description": "seated driving loop"
     },
     {
+      "name": "CK_RideProne",
+      "frames": 60,
+      "fps": 30,
+      "duration": 2.0,
+      "loop": true,
+      "refSpeed": null,
+      "description": "CR-B1 prone ride; game pitches the root forward on the seat"
+    },
+    {
+      "name": "CK_DriveRecline",
+      "frames": 60,
+      "fps": 30,
+      "duration": 2.0,
+      "loop": true,
+      "refSpeed": null,
+      "description": "CR-X1 reclined drive; game pitches the root back on the seat"
+    },
+    {
       "name": "CK_Interact",
       "frames": 24,
       "fps": 30,

@@ -84,6 +84,24 @@ func _render_all() -> void:
 	_streams["armor.step"] = []
 	for i in 4: # the web build randomises the step hiss per play; four pre-rendered variants
 		_streams["armor.step"].append(_mix([_hiss(900 + _rng.randf() * 300, 1.2, 0.09, 0.35), _tone("sine", 90, 60, 0.07, 0.25)]))
+	# surface variants (Godot port): metal decks ring, gravel roofs crunch, asphalt thuds low, wet streets splash
+	for surf in ["metal", "gravel", "asphalt", "wet"]:
+		_streams["armor.step." + surf] = []
+		for i in 4:
+			var j := _rng.randf()
+			match surf:
+				"metal":
+					_streams["armor.step.metal"].append(_mix([_tone("triangle", 520 + j * 80, 480, 0.18, 0.12), _tone("sine", 1310 + j * 120, 1250, 0.22, 0.05),
+						_hiss(2600, 2.0, 0.05, 0.25), _tone("sine", 95, 60, 0.08, 0.3)]))
+				"gravel":
+					_streams["armor.step.gravel"].append(_mix([_hiss(2200 + j * 600, 0.6, 0.16, 0.45), _hiss(700, 0.9, 0.1, 0.25), _tone("sine", 85, 55, 0.07, 0.22)]))
+				"asphalt":
+					_streams["armor.step.asphalt"].append(_mix([_hiss(600 + j * 200, 1.0, 0.08, 0.3), _tone("sine", 75, 50, 0.09, 0.32)]))
+				"wet":
+					_streams["armor.step.wet"].append(_mix([_hiss(1600 + j * 500, 0.7, 0.14, 0.4, "highpass"), _hiss(500, 1.2, 0.09, 0.2), _tone("sine", 80, 55, 0.08, 0.25)]))
+	# CR-X9 servos: a short soft whine when the suit starts or stops hard, kept quiet
+	_streams["armor.servo"] = [_mix([_tone("sawtooth", 180, 340, 0.22, 0.035), _tone("sine", 900, 1400, 0.18, 0.03)]),
+		_mix([_tone("sawtooth", 320, 170, 0.2, 0.035), _tone("sine", 1300, 850, 0.16, 0.03)])]
 	_streams["armor.jump"] = [_mix([_hiss(1400, 0.8, 0.18, 0.25), _tone("sawtooth", 220, 440, 0.12, 0.05)])]
 	_streams["armor.land"] = [_mix([_hiss(500, 0.7, 0.55, 0.9), _tone("sine", 110, 40, 0.6, 0.7)])]
 	_streams["armor.activate"] = [_mix([_tone("sawtooth", 300, 900, 0.25, 0.08), _tone("sine", 900, 1200, 0.15, 0.12, 0.2)])]

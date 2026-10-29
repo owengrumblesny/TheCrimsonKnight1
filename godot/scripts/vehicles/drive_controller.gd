@@ -17,6 +17,7 @@ const JET_PAD := Vector3(0, 0, -150)
 var player: Player
 var cam: FollowCamera
 var audio: CKAudio
+var effects: Effects
 var driving: Vehicle
 var vehicles := {} # id -> Vehicle (one of each, re-summoning moves it)
 var _enter_time := 0.0
@@ -44,16 +45,32 @@ func summon(id: String, underground: bool) -> void:
 		get_parent().add_child(v)
 		v.set_engine_stream(audio.engine_loop(v.cfg["engine_hz"], v.cfg["engine_noise"]))
 		vehicles[id] = v
+		v._fx = effects
+		v.crashed.connect(func(s, at):
+			if effects:
+				effects.burst("sparks", at, int(4 + s * 12), 3.0 + s * 4.0, 0.4, 0.4)
+				effects.burst("debris", at, int(s * 8), 2.5, 0.4, 0.7)
+			sound.emit("explosion" if s > 0.6 else "weapon.impact")
+			if v.damage > 0.75 and v == driving:
+				notify.emit("%s heavily damaged: %d%% hull" % [label(v), roundi((1.0 - v.damage) * 100)], "interceptor", "warn"))
 	player.act("CK_Summon")
 	sound.emit("vehicle.summon")
 	if v.kind == "jet":
-		# the Specter flies in: it starts high above Citadel Square and settles onto the pad in VTOL
-		v.place(JET_PAD + Vector3(0, 70, 0), PI)
-		if v.mode != "vtol":
-			v.set_mode("vtol", true)
-		v.vtol_up = -1.0
-		notify.emit("%s inbound: landing on Citadel Square (north plaza)" % label(v), "specter", "info")
-		_land_jet(v)
+		# the Specter comes in dark: stealth mode, from high above and behind the camera, and sets down on the
+		# nearest flat rooftop the Knight can see (a short grapple away), or on the street beside him
+		var roof := find_landing_roof(player.global_position)
+		var spot: Vector3 = roof if roof != Vector3.INF else _street_spot()
+		var back := Vector3(sin(cam.yaw), 0, cos(cam.yaw)) # behind the camera
+		v.place(player.global_position + back * 160.0 + Vector3(0, 90, 0), atan2(-back.x, -back.z))
+		v.set_mode("stealth", true)
+		v.land_at = spot
+		var face := player.global_position - spot
+		v.land_heading = atan2(face.x, face.z) if Vector2(face.x, face.z).length() > 1.0 else cam.yaw
+		v.vtol_up = 0.0
+		if not v.arrived.is_connected(_on_arrived):
+			v.arrived.connect(_on_arrived.bind(v))
+		var where := "on the rooftop %d m away (grapple up)" % roundi(spot.distance_to(player.global_position)) if roof != Vector3.INF else "beside you"
+		notify.emit("%s inbound in stealth: landing %s" % [label(v), where], "specter", "info")
 		return
 	# car / bike: start out of sight two blocks back along the Knight's own avenue and drive up the lane to him
 	# (no teleporting next to him, no tight turns)
@@ -86,6 +103,63 @@ func _on_arrived(v: Vehicle) -> void:
 	sound.emit("vehicle.summon")
 
 
+## Nearest flat rooftop (room for the Specter: a 13 m square within 0.6 m of level) that the Knight can see,
+## 16-90 m away and at least 6 m up. Ring raycasts against the real collision geometry; Vector3.INF if none.
+func find_landing_roof(from: Vector3) -> Vector3:
+	var space := player.get_world_3d().direct_space_state
+	var eye := from + Vector3(0, 1.7, 0)
+	var best := Vector3.INF
+	var best_score := 1e9
+	for r in [16.0, 26.0, 38.0, 52.0, 70.0, 90.0]:
+		for k in 20:
+			var a := TAU * k / 20.0
+			var c: Vector3 = from + Vector3(sin(a), 0, cos(a)) * r
+			var top := _roof_height(space, c)
+			if top == -INF or top - from.y < 6.0:
+				continue
+			var flat := true
+			for o in [Vector3(6.5, 0, 0), Vector3(-6.5, 0, 0), Vector3(0, 0, 6.5), Vector3(0, 0, -6.5), Vector3(4.6, 0, 4.6), Vector3(-4.6, 0, -4.6)]:
+				if absf(_roof_height(space, c + o) - top) > 0.6:
+					flat = false
+					break
+			if not flat:
+				continue
+			var spot := Vector3(c.x, top, c.z)
+			# line of sight from the Knight's eyes to just above the roof edge he would look at
+			var q := PhysicsRayQueryParameters3D.create(eye, spot + Vector3(0, 1.5, 0))
+			q.collision_mask = 1
+			q.exclude = [player.get_rid()]
+			if not space.intersect_ray(q).is_empty():
+				continue
+			var score: float = r + (top - from.y) * 0.4 # nearest first; lower roofs slightly preferred (easier to reach)
+			if score < best_score:
+				best_score = score
+				best = spot
+		if best != Vector3.INF:
+			break # the nearest ring with a usable roof wins
+	return best
+
+
+static func _roof_height(space: PhysicsDirectSpaceState3D, at: Vector3) -> float:
+	var q := PhysicsRayQueryParameters3D.create(Vector3(at.x, 160, at.z), Vector3(at.x, -5, at.z))
+	q.collision_mask = 1
+	var hit := space.intersect_ray(q)
+	if hit.is_empty() or hit["normal"].y < 0.95 or hit["collider"] is RigidBody3D or hit["collider"] is VehicleBody3D:
+		return -INF
+	return hit["position"].y
+
+
+## Open street beside the Knight (no roof found): the middle of his avenue, a few metres ahead.
+func _street_spot() -> Vector3:
+	var p := player.global_position
+	var S := District.SPACING
+	var ax := roundf(p.x / S) * S
+	var az := roundf(p.z / S) * S
+	var spot := Vector3(ax, 0, p.z + 14.0) if absf(p.x - ax) < absf(p.z - az) else Vector3(p.x + 14.0, 0, az)
+	spot.y = _ground(spot)
+	return spot
+
+
 func _land_jet(v: Vehicle) -> void:
 	while is_instance_valid(v) and v.global_position.y > JET_PAD.y + 0.6 and not v.driver_in:
 		await get_tree().physics_frame
@@ -113,6 +187,30 @@ func nearby() -> Vehicle:
 	return null
 
 
+## Riding posture per vehicle: [clip, pitch (deg, + = forward), pivot height (m above the seat, the hips),
+## offset along the seat (m: x right, y up, z forward)]. The Cycle is ridden prone like a Batpod; the
+## Interceptor's driver lies back in a reclined cockpit. Other vehicles sit upright (CK_Drive).
+const RIDER := {
+	"crb1_batcycle": ["CK_RideProne", 72.0, 0.55, Vector3(0, 0.05, 0.10)],
+	"crx1_interceptor": ["CK_DriveRecline", -38.0, 0.55, Vector3(0, -0.12, -0.15)],
+}
+
+
+func rider_clip(v: Vehicle) -> String:
+	var r: Array = RIDER.get(v.id, [])
+	return r[0] if not r.is_empty() and player.hero.has_clip(r[0]) else "CK_Drive"
+
+
+## Seat-relative transform for the hero: pitched about the hips so the pose reads as lying, not standing.
+func rider_transform(v: Vehicle) -> Transform3D:
+	var r: Array = RIDER.get(v.id, [])
+	if r.is_empty() or not player.hero.has_clip(r[0]):
+		return Transform3D()
+	var pivot := Vector3(0, r[2], 0)
+	var rot := Basis(Vector3.RIGHT, deg_to_rad(r[1]))
+	return Transform3D(Basis(), r[3] + pivot) * Transform3D(rot, Vector3.ZERO) * Transform3D(Basis(), -pivot)
+
+
 func enter(v: Vehicle, quick := false) -> void:
 	driving = v
 	v.driver_in = true
@@ -127,7 +225,9 @@ func enter(v: Vehicle, quick := false) -> void:
 	hero.reparent(v.seat(), false)
 	hero.transform = Transform3D()
 	hero.set_lod(0)
-	hero.play("CK_Drive" if quick else "CK_VehicleEnter", 0.1, 1.0, true)
+	if quick:
+		hero.transform = rider_transform(v)
+	hero.play(rider_clip(v) if quick else "CK_VehicleEnter", 0.1, 1.0, true)
 	_enter_time = 0.0 if quick else 0.9
 	if not quick:
 		v.play_door(true)
@@ -214,9 +314,9 @@ func eject() -> void:
 	car.driver_in = false
 	car.throttle = 0
 	car.steer_in = 0
-	var first := car.first_person
+	var first: String = car.view
 	driving = null
-	bike.first_person = first
+	bike.view = first
 	enter(bike, true)
 	get_tree().create_timer(1.2).timeout.connect(func(): car.anim.play_backwards(clip))
 	_ejecting = false
@@ -242,14 +342,17 @@ func drive(dt: float, look: Vector2) -> void:
 		sound.emit("vehicle.mode")
 		notify.emit("%s: %s mode" % [label(v), v.mode.capitalize()], "interceptor", "info")
 	if Input.is_action_just_pressed("summonMenu"):
-		v.first_person = not v.first_person
+		v.view = Vehicle.VIEWS[(Vehicle.VIEWS.find(v.view) + 1) % Vehicle.VIEWS.size()]
 		_apply_camera()
+		notify.emit("Camera: %s" % v.view.capitalize(), "interceptor", "info")
 	if Input.is_action_just_pressed("eject"):
 		eject()
 	if _enter_time > 0:
 		_enter_time -= dt
 		if _enter_time <= 0:
-			player.hero.play("CK_Drive", 0.3)
+			player.hero.play(rider_clip(driving), 0.3)
+			var tw := player.hero.create_tween()
+			tw.tween_property(player.hero, "transform", rider_transform(driving), 0.35).set_trans(Tween.TRANS_SINE)
 	elif Input.is_action_just_pressed("interact") or Input.is_action_just_pressed("vehicleExit"):
 		exit()
 		return
@@ -265,4 +368,4 @@ func hud_text() -> Array:
 	if v.kind == "jet":
 		extra = " · alt %d m" % roundi(v.global_position.y)
 	return [label(v), "%s · %d km/h%s · %s" % [v.mode.capitalize(), roundi(absf(v.speed()) * 3.6), extra,
-		"first person" if v.first_person else "chase cam"]]
+		v.view + " cam"]] + ([] if v.kind == "jet" else ["Hull %d%%" % roundi((1.0 - v.damage) * 100)])

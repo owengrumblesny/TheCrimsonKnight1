@@ -7,6 +7,8 @@ extends Node3D
 signal notify(text: String, icon: String, kind: String)
 signal sound(id: String)
 signal photo_mode_changed(on: bool)
+## recon drone piloting started / ended (the game hands the camera and input over)
+signal drone_view(on: bool)
 
 var player: Player
 var camera: Camera3D
@@ -21,6 +23,15 @@ var _beacons: Array = []
 var _lamp: SpotLight3D
 var _line: MeshInstance3D
 var director: Director
+## piloted recon drone (null when not flying)
+var drone: Node3D
+var drone_cam: Camera3D
+var _drone_until := 0
+var _drone_yaw := 0.0
+var _drone_pitch := -0.5
+var _drone_vel := Vector3.ZERO
+var _tag_t := 0.0
+const DRONE_MS := 40000
 
 
 func _ready() -> void:
@@ -138,21 +149,102 @@ func _use_scanner(now: int) -> bool:
 	return true
 
 
+## Recon drone: launches from the Knight and hands you its camera. WASD fly, Space/C climb/descend, mouse looks;
+## hostiles within 45 m of it are tagged through walls (tags last 10 s). LMB or E recalls it (40 s battery).
 func _use_drone(now: int) -> bool:
-	var drone := _gear("gear_drone")
+	if drone:
+		recall_drone()
+		return true
+	drone = _gear("gear_drone")
+	drone.global_position = _feet() + Vector3(0, 2.2, 0)
 	var light := SpotLight3D.new()
 	light.light_energy = 4
-	light.spot_range = 25
-	light.spot_angle = 28
+	light.spot_range = 30
+	light.spot_angle = 30
 	light.rotation.x = -PI / 2
 	drone.add_child(light)
-	_add_timed(20000, now, drone.queue_free, func(t, _dt):
-		var a: float = t / 1200.0
-		drone.global_position = _feet() + Vector3(cos(a) * 3.5, 4.2 + sin(a * 2) * 0.3, sin(a) * 3.5)
-		drone.rotation.y = -a)
+	drone_cam = Camera3D.new()
+	drone_cam.fov = 70
+	drone_cam.near = 0.05
+	drone_cam.far = 700
+	drone_cam.top_level = true
+	drone.add_child(drone_cam)
+	drone_cam.make_current()
+	_drone_yaw = player.heading + PI
+	_drone_pitch = -0.45
+	_drone_vel = Vector3(0, 6, 0)
+	_drone_until = now + DRONE_MS
 	sound.emit("gadget.deploy")
-	notify.emit("Recon drone launched (20 s)", "drone", "info")
+	notify.emit("Recon drone: WASD fly, Space/C up/down, LMB or E to return", "drone", "info")
+	drone_view.emit(true)
 	return true
+
+
+func piloting() -> bool:
+	return drone != null
+
+
+## Per frame while piloting: fly, look, tag hostiles; returns to the Knight on LMB / E or a flat battery.
+func pilot(dt: float, look: Vector2) -> void:
+	var now := Time.get_ticks_msec()
+	if Input.is_action_just_pressed("primaryAction") or Input.is_action_just_pressed("interact") or now > _drone_until:
+		recall_drone()
+		return
+	_drone_yaw -= look.x
+	_drone_pitch = clampf(_drone_pitch + look.y, -1.4, 0.6)
+	var m: Vector2 = CKInput.move()
+	var fwd := Vector3(-sin(_drone_yaw), 0, -cos(_drone_yaw))
+	var right := Vector3(-fwd.z, 0, fwd.x)
+	var want := (fwd * m.y + right * m.x) * (22.0 if Input.is_action_pressed("sprint") else 12.0)
+	want.y = (8.0 if Input.is_action_pressed("jump") else 0.0) - (8.0 if Input.is_action_pressed("crouch") else 0.0)
+	_drone_vel = _drone_vel.lerp(want, minf(1.0, dt * 3.0))
+	var p := drone.global_position
+	var to := p + _drone_vel * dt
+	# don't fly through buildings, and stay within 120 m of the Knight
+	var q := PhysicsRayQueryParameters3D.create(p, to + _drone_vel.normalized() * 0.6)
+	q.collision_mask = 1
+	if get_world_3d().direct_space_state.intersect_ray(q).is_empty():
+		p = to
+	var leash := p - _feet()
+	if leash.length() > 120.0:
+		p = _feet() + leash.normalized() * 120.0
+	p.y = clampf(p.y, _feet().y + 1.0, _feet().y + 90.0)
+	drone.global_position = p
+	drone.rotation = Vector3(0, _drone_yaw + PI, 0)
+	drone_cam.global_transform = Transform3D(Basis.from_euler(Vector3(_drone_pitch, _drone_yaw, 0)), p + Vector3(0, -0.2, 0))
+	_tag_t -= dt
+	if _tag_t <= 0.0 and director:
+		_tag_t = 0.5
+		for e in director.enemies:
+			if is_instance_valid(e) and not e.is_down() and e.global_position.distance_to(p) < 45.0 and not e.has_meta("drone_tag"):
+				var l := Label3D.new()
+				l.text = "◆"
+				l.font_size = 64
+				l.modulate = Color("#ff405d")
+				l.outline_size = 10
+				l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+				l.no_depth_test = true
+				l.fixed_size = true
+				l.pixel_size = 0.0006
+				l.position = Vector3(0, 2.4, 0)
+				e.add_child(l)
+				e.set_meta("drone_tag", true)
+				get_tree().create_timer(10.0, false).timeout.connect(func():
+					if is_instance_valid(e):
+						e.remove_meta("drone_tag")
+					if is_instance_valid(l):
+						l.queue_free())
+
+
+func recall_drone() -> void:
+	if drone == null:
+		return
+	drone.queue_free()
+	drone = null
+	drone_cam = null
+	camera.make_current()
+	sound.emit("gadget.deploy")
+	drone_view.emit(false)
 
 
 func _use_smoke(_now: int) -> bool:

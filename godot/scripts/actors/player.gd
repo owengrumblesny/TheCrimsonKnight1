@@ -20,6 +20,10 @@ var cam_yaw := PI
 var glide_held := false
 var status := ""
 var crouched := false
+## sprint + C: a knee slide that carries momentum under low obstacles (the capsule shrinks while sliding)
+var _slide_t := 0.0
+var _shape: CapsuleShape3D
+var _col: CollisionShape3D
 var aiming := false
 ## seconds of "weapon up" after a shot: arm raised in the aim pose, facing the crosshair (no RMB needed)
 var combat_t := 0.0
@@ -74,6 +78,8 @@ func _ready() -> void:
 	col.shape = shape
 	col.position.y = P["height"] / 2.0
 	add_child(col)
+	_shape = shape
+	_col = col
 	collision_mask = 3 # world (1) + enemies (2)
 	floor_max_angle = deg_to_rad(50)
 	floor_snap_length = 0.35
@@ -87,7 +93,9 @@ func _ready() -> void:
 func handle_input() -> void:
 	if Input.is_action_just_pressed("walkToggle"):
 		walk_mode = not walk_mode
-	if Input.is_action_just_pressed("crouch") and mode == "ground" and not melee_engaged:
+	if Input.is_action_just_pressed("crouch") and mode == "ground" and not melee_engaged and sprinting():
+		_start_slide()
+	elif Input.is_action_just_pressed("crouch") and mode == "ground" and not melee_engaged:
 		crouched = not crouched
 	aiming = Input.is_action_pressed("secondaryAction") and mode == "ground" and not melee_engaged
 	if Input.is_action_just_pressed("grapple") and not grapple_target.is_empty() and mode in ["ground", "air", "glide", "ledge"]:
@@ -255,7 +263,17 @@ func _physics_process(dt: float) -> void:
 	if mode == "air":
 		target = Vector2(vel.x, vel.z).length()
 
-	if mode == "ground" or mode == "glide" or (mode == "air" and moving):
+	if mode == "slide":
+		_slide_t -= dt
+		var flat := Vector2(vel.x, vel.z)
+		var spd := maxf(0.0, flat.length() - 9.0 * dt) # sliding friction
+		if flat.length() > 0.01:
+			flat = flat.normalized() * spd
+		vel.x = flat.x
+		vel.z = flat.y
+		if (_slide_t <= 0.0 or spd < 3.0) and not _low_ceiling():
+			_end_slide()
+	elif mode == "ground" or mode == "glide" or (mode == "air" and moving):
 		var accel := 14.0 if mode == "ground" else 3.0
 		var desired := Vector3.ZERO
 		if moving:
@@ -357,10 +375,12 @@ func _physics_process(dt: float) -> void:
 			if mode in ["air", "glide", "grapple", "vault"]:
 				_land(vy_before)
 			vel.y = -0.5
-	elif mode == "ground" and _jump_timer < 0:
+	elif mode in ["ground", "slide"] and _jump_timer < 0:
 		# walked off a ledge: short grace period before switching to the air state
 		_coyote += dt
 		if _coyote > 0.2:
+			if mode == "slide":
+				_set_height(P["height"])
 			mode = "air"
 			hero.play("CK_Airborne", 0.3)
 	if global_position.y < -260:
@@ -502,6 +522,35 @@ func _try_vault() -> void:
 	vel.y = sqrt(2.0 * -gravity * (h + 0.35))
 	vel += fwd * 1.0
 	hero.play("CK_Vault", 0.06, 1.3, true)
+
+
+func _start_slide() -> void:
+	mode = "slide"
+	_slide_t = 0.75
+	var flat := Vector2(vel.x, vel.z)
+	var d := flat.normalized() if flat.length() > 0.1 else Vector2(sin(heading), cos(heading))
+	var spd := maxf(flat.length(), P["sprintSpeed"]) * 1.15
+	vel.x = d.x * spd
+	vel.z = d.y * spd
+	_set_height(P["height"] * 0.5)
+	hero.play("CK_Slide", 0.08, 1.0, true)
+
+
+func _end_slide() -> void:
+	mode = "ground"
+	_set_height(P["height"])
+
+
+func _set_height(h: float) -> void:
+	_shape.height = maxf(h, _shape.radius * 2.0)
+	_col.position.y = _shape.height / 2.0
+
+
+## Something solid within standing height overhead (keep sliding / stay low under it).
+func _low_ceiling() -> bool:
+	var q := PhysicsRayQueryParameters3D.create(global_position + Vector3(0, 0.5, 0), global_position + Vector3(0, P["height"] + 0.1, 0))
+	q.exclude = [get_rid()]
+	return not get_world_3d().direct_space_state.intersect_ray(q).is_empty()
 
 
 func _land(vy: float) -> void:

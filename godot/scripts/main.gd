@@ -129,6 +129,7 @@ func _ready() -> void:
 	if args.has("pitch"):
 		cam.pitch = float(args["pitch"])
 	stage.camera = cam.camera
+	player.camera = cam.camera
 	cam.camera.make_current()
 	equipment = Equipment.new()
 	equipment.player = player
@@ -408,6 +409,11 @@ func _process(dt: float) -> void:
 	var now := Time.get_ticks_msec()
 	# --press=jump@60,crouch@200: tap an action on a frame (scripted tests)
 	for tap in String(args.get("press", "")).split(",", false):
+		if tap.begins_with("+"): # +action@frame: press and keep holding
+			var hold := tap.substr(1).split("@")
+			if hold.size() == 2 and int(hold[1]) == frame:
+				Input.action_press(hold[0])
+			continue
 		var at := tap.split("@")
 		if at.size() == 2 and int(at[1]) in [frame, frame - 1]:
 			# a real input event, so menu hotkeys (_unhandled_input) see it too; it lands next frame
@@ -425,6 +431,8 @@ func _process(dt: float) -> void:
 	else:
 		_on_foot(now)
 	hud.vehicle_text = drive.hud_text() if drive.driving else []
+	hud.camera = cam.camera
+	hud.grapple_point = player.grapple_target.get("point") if not drive.driving and not player.grapple_target.is_empty() else null
 	player.can_exert = vitals.energy > 1
 	var aim_at = _vec(args["aimat"], Vector3.ZERO) if args.has("aimat") else null
 	if args.has("autoaim"): # test aid: keep the crosshair on the nearest upright enemy
@@ -531,6 +539,7 @@ func _finish_check() -> void:
 
 
 func _on_foot(now: int) -> void:
+	player.grapple_target = player.find_grapple_target() if not underground else {}
 	_gameplay_input(now)
 	if Input.is_action_just_pressed("jump") and player.mode == "ground":
 		audio.play("armor.jump")

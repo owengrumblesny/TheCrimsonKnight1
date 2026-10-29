@@ -35,6 +35,28 @@ var _grapple_point = null
 var _grapple_time := 0.0
 ## Freeze locomotion (animation debug / benchmark camera).
 var frozen := false
+## the main camera (grapple targeting looks along it)
+var camera: Camera3D
+## best grapple point under the crosshair this frame: {point, ledge (bool), normal} or {}
+var grapple_target := {}
+var _boosted := false
+# glide flight model
+var _glide_speed := 0.0
+var _glide_pitch := 0.0
+# ledge hang / climb
+var _ledge_top := Vector3.ZERO # point on the ledge edge (top surface)
+var _ledge_normal := Vector3.ZERO # wall normal, pointing out toward the Knight
+var _climb_t := 0.0
+var _climb_from := Vector3.ZERO
+var _vault_t := 0.0
+var _regrab_t := 0.0
+
+const GRAPPLE_RANGE := 70.0
+const GRAPPLE_MAX_SPEED := 30.0
+const GRAPPLE_ACCEL := 38.0
+const GLIDE_MIN := 7.0
+const GLIDE_MAX := 40.0
+const HANG_DROP := 2.05 # feet below the ledge top while hanging
 
 
 func _ready() -> void:
@@ -62,7 +84,26 @@ func handle_input() -> void:
 		walk_mode = not walk_mode
 	if Input.is_action_just_pressed("crouch") and mode == "ground":
 		crouched = not crouched
-	aiming = (Input.is_action_pressed("grapple") or Input.is_action_pressed("secondaryAction")) and mode == "ground"
+	aiming = Input.is_action_pressed("secondaryAction") and mode == "ground"
+	if Input.is_action_just_pressed("grapple") and not grapple_target.is_empty() and mode in ["ground", "air", "glide", "ledge"]:
+		grapple_to(grapple_target["point"], grapple_target["ledge"], grapple_target.get("normal", Vector3.ZERO))
+		return
+	match mode:
+		"grapple":
+			if Input.is_action_just_pressed("crouch"):
+				_end_grapple(false) # cancel: let go and fall / glide
+			elif Input.is_action_just_pressed("jump") and _grapple_point != null and global_position.distance_to(_grapple_point) < 14.0:
+				_end_grapple(true) # grapple boost: launch over the edge
+			return
+		"ledge":
+			if Input.is_action_just_pressed("jump") or Input.is_action_pressed("moveForward"):
+				_start_climb()
+			elif Input.is_action_just_pressed("crouch") or Input.is_action_pressed("moveBack"):
+				mode = "air"
+				_regrab_t = 0.6
+				vel = _ledge_normal * 1.5
+				hero.play("CK_Airborne", 0.2)
+			return
 	if mode != "ground":
 		return
 	if Input.is_action_just_pressed("jump") and _jump_timer < 0:
@@ -93,13 +134,69 @@ func act(clip: String, lock := -1.0) -> bool:
 	return true
 
 
-func grapple_to(point: Vector3) -> void:
+## Fire the grapnel at a world point. ledge = the point is a rooftop edge (the reel ends in a climb-up or,
+## with Space near the top, a boost launch); normal = the wall's outward normal there.
+func grapple_to(point: Vector3, ledge := false, normal := Vector3.ZERO) -> void:
 	_grapple_point = point
 	_grapple_time = 0.0
+	_grapple_ledge = ledge
+	_ledge_normal = normal
+	_boosted = false
 	mode = "grapple"
 	crouched = false
 	_jump_timer = -1.0
+	heading = atan2(point.x - global_position.x, point.z - global_position.z)
 	hero.play("CK_GrapplePull", 0.12, 1.0, true)
+
+
+var _grapple_ledge := false
+
+
+## Leave the reel. boost = the grapnel's motor flings the Knight up and over the edge into the air.
+func _end_grapple(boost: bool) -> void:
+	mode = "air"
+	if boost:
+		_boosted = true
+		var flat := Vector3(vel.x, 0, vel.z).normalized() if Vector2(vel.x, vel.z).length() > 1 else Vector3(sin(heading), 0, cos(heading))
+		vel = flat * 14.0 + Vector3.UP * 15.0
+		_regrab_t = 0.8
+	else:
+		vel *= 0.6
+	hero.play("CK_Airborne", 0.2)
+
+
+## Grapple targeting: a rooftop edge (or any high surface) along the camera ray, within range and above
+## the Knight. Walls are traced up to their roof line so the grapnel bites the edge.
+func find_grapple_target() -> Dictionary:
+	if camera == null:
+		return {}
+	var space := get_world_3d().direct_space_state
+	var from := camera.global_position
+	var dir := -camera.global_basis.z
+	var q := PhysicsRayQueryParameters3D.create(from, from + dir * (GRAPPLE_RANGE + 10.0))
+	q.exclude = [get_rid()]
+	q.collision_mask = 1
+	var hit := space.intersect_ray(q)
+	if hit.is_empty():
+		return {}
+	var p: Vector3 = hit["position"]
+	var n: Vector3 = hit["normal"]
+	if p.distance_to(global_position) > GRAPPLE_RANGE or p.y < global_position.y + 2.0:
+		return {}
+	if n.y > 0.7:
+		return {"point": p, "ledge": false, "normal": Vector3.ZERO} # a rooftop: land on it
+	# a wall: find the roof line above the hit point (probe down from above, just inside the wall)
+	var inside := p - Vector3(n.x, 0, n.z).normalized() * 0.4
+	var dq := PhysicsRayQueryParameters3D.create(inside + Vector3.UP * 45.0, inside + Vector3.DOWN * 0.5)
+	dq.collision_mask = 1
+	var top := space.intersect_ray(dq)
+	if top.is_empty() or top["normal"].y < 0.7:
+		return {}
+	var edge: Vector3 = top["position"]
+	if edge.y - global_position.y > 60.0:
+		return {}
+	var wall_n := Vector3(n.x, 0, n.z).normalized()
+	return {"point": Vector3(p.x, edge.y, p.z) + wall_n * 0.35, "ledge": true, "normal": wall_n}
 
 
 func grapple_anchor():
@@ -176,25 +273,59 @@ func _physics_process(dt: float) -> void:
 			_grounded = false
 			hero.play("CK_Airborne", 0.25)
 	vel.y += gravity * dt
+	_regrab_t -= dt
 	if mode == "grapple" and _grapple_point != null:
-		var to: Vector3 = _grapple_point - global_position
+		# reel: the line pulls with a strong but finite force; the Knight keeps his momentum (swings a little
+		# when he was moving sideways) and accelerates up to the motor's top speed
+		var to: Vector3 = _grapple_point - (global_position + Vector3.UP * (1.0 if _grapple_ledge else 0.0))
 		_grapple_time += dt
-		if to.length() < 1.6 or _grapple_time > 3.0:
-			mode = "air"
-			vel *= 0.5
-			vel.y = maxf(vel.y, 4.0)
-			hero.play("CK_Airborne", 0.2)
-		else:
-			vel = to.normalized() * 20.0
-			if Vector2(vel.x, vel.z).length() > 0.5:
-				heading = atan2(vel.x, vel.z)
+		var d := to.length()
+		var pull := to.normalized() * GRAPPLE_ACCEL
+		vel += pull * dt
+		vel.y += -gravity * dt * 0.85 # line tension carries most of his weight
+		if vel.length() > GRAPPLE_MAX_SPEED:
+			vel = vel.normalized() * GRAPPLE_MAX_SPEED
+		# damp sideways drift so he converges on the anchor
+		var along := to.normalized() * vel.dot(to.normalized())
+		vel = along + (vel - along) * maxf(0.0, 1.0 - 3.0 * dt)
+		if Vector2(vel.x, vel.z).length() > 0.5:
+			heading = lerp_angle(heading, atan2(vel.x, vel.z), minf(1.0, 8.0 * dt))
+		if d < 1.8 or _grapple_time > 4.0:
+			if _grapple_ledge and _grapple_time <= 4.0:
+				# arrive at the edge: hang for a beat, then climb straight up (Space during the reel boosts instead)
+				_grab_ledge(_grapple_point - _ledge_normal * 0.35, _ledge_normal)
+				_start_climb()
+			else:
+				_end_grapple(false)
 	if mode == "air" and glide_held and vel.y < -2 and can_exert:
 		mode = "glide"
+		_glide_speed = maxf(GLIDE_MIN + 3.0, Vector2(vel.x, vel.z).length())
+		_glide_pitch = -0.15
 	if mode == "glide":
 		if not glide_held or not can_exert:
 			mode = "air"
 		else:
-			vel.y = maxf(vel.y, -P["glideFallSpeed"])
+			_glide(dt, wish)
+	if mode == "air" and _regrab_t <= 0.0 and vel.y < 2.0:
+		_try_ledge_grab()
+	if mode == "ground" and Vector2(vel.x, vel.z).length() > P["runSpeed"] - 1.0 and moving and _vault_t <= 0.0:
+		_try_vault()
+	_vault_t -= dt
+	if mode == "ledge":
+		vel = Vector3.ZERO
+		# shimmy along the ledge
+		var tangent := _ledge_normal.cross(Vector3.UP)
+		var side: float = wish.x if absf(wish.x) > 0.3 else 0.0
+		if side != 0.0:
+			var step := tangent * -side * 1.2 * dt
+			if _ledge_continues(_ledge_top + step * 6.0):
+				global_position += step
+				_ledge_top += step
+		heading = atan2(-_ledge_normal.x, -_ledge_normal.z)
+		return
+	if mode == "climb":
+		_climb(dt)
+		return
 
 	# snapping would cancel a jump on its first frames, so only snap while not rising
 	floor_snap_length = 0.0 if vel.y > 0 else 0.35
@@ -208,7 +339,7 @@ func _physics_process(dt: float) -> void:
 	if _grounded:
 		_coyote = 0.0
 		if vy_before <= 0:
-			if mode in ["air", "glide", "grapple"]:
+			if mode in ["air", "glide", "grapple", "vault"]:
 				_land(vy_before)
 			vel.y = -0.5
 	elif mode == "ground" and _jump_timer < 0:
@@ -225,6 +356,137 @@ func _physics_process(dt: float) -> void:
 		if _lock_time <= 0:
 			mode = "ground"
 	speed = Vector2(vel.x, vel.z).length()
+
+
+## Glide flight model: W dives (trades height for speed), S pulls up (trades speed for height), A/D bank.
+## Below GLIDE_MIN the cape stalls and the nose drops. Speed-dependent turning; air drag caps the dive.
+func _glide(dt: float, wish: Vector2) -> void:
+	var want_pitch := -0.15 - wish.y * 0.5 # W (wish.y +1) -> -0.65 dive, S -> +0.35 pull-up
+	if _glide_speed < GLIDE_MIN:
+		want_pitch = -0.7 # stall: nose drops until airspeed returns
+	_glide_pitch = lerpf(_glide_pitch, want_pitch, minf(1.0, dt * 2.5))
+	var g := -gravity
+	_glide_speed += (-g * sin(_glide_pitch) - 0.0016 * _glide_speed * _glide_speed * 9.0 - 0.6) * dt
+	_glide_speed = clampf(_glide_speed, 3.0, GLIDE_MAX)
+	heading -= wish.x * (0.5 + _glide_speed * 0.035) * dt
+	var fwd := Vector3(sin(heading), 0, cos(heading))
+	# lift keeps the sink rate low at speed; slow gliding sinks faster
+	var sink := lerpf(4.5, 1.6, clampf((_glide_speed - GLIDE_MIN) / 15.0, 0.0, 1.0))
+	var target := fwd * _glide_speed * cos(_glide_pitch)
+	target.y = _glide_speed * sin(_glide_pitch) - sink
+	vel = vel.lerp(target, minf(1.0, dt * 4.0))
+
+
+## A ledge in reach while falling or jumping: wall ahead at chest height, open space above it, a top surface
+## within reach of the hands.
+func _try_ledge_grab() -> void:
+	var space := get_world_3d().direct_space_state
+	var fwd := Vector3(sin(heading), 0, cos(heading))
+	if Vector2(vel.x, vel.z).length() > 0.5:
+		fwd = Vector3(vel.x, 0, vel.z).normalized()
+	var chest := global_position + Vector3.UP * 1.4
+	var q := PhysicsRayQueryParameters3D.create(chest, chest + fwd * 0.9)
+	q.exclude = [get_rid()]
+	q.collision_mask = 1
+	var wall := space.intersect_ray(q)
+	if wall.is_empty() or absf(wall["normal"].y) > 0.3:
+		return
+	var n := Vector3(wall["normal"].x, 0, wall["normal"].z).normalized()
+	var probe: Vector3 = wall["position"] - n * 0.3
+	var dq := PhysicsRayQueryParameters3D.create(probe + Vector3.UP * 1.3, probe + Vector3.DOWN * 0.6)
+	dq.collision_mask = 1
+	var top := space.intersect_ray(dq)
+	if top.is_empty() or top["normal"].y < 0.7:
+		return
+	var h: float = top["position"].y - global_position.y
+	if h < 1.6 or h > 2.6:
+		return
+	# headroom on top for the climb
+	var hq := PhysicsRayQueryParameters3D.create(top["position"] + Vector3.UP * 0.1, top["position"] + Vector3.UP * 1.9)
+	hq.collision_mask = 1
+	if not space.intersect_ray(hq).is_empty():
+		return
+	_grab_ledge(top["position"], n)
+
+
+func _grab_ledge(top: Vector3, n: Vector3) -> void:
+	mode = "ledge"
+	_ledge_top = top
+	_ledge_normal = n
+	vel = Vector3.ZERO
+	global_position = Vector3(top.x, top.y - HANG_DROP, top.z) + n * 0.45
+	reset_physics_interpolation()
+	heading = atan2(-n.x, -n.z)
+	hero.play("CK_LedgeHang", 0.12)
+
+
+func _ledge_continues(top: Vector3) -> bool:
+	var dq := PhysicsRayQueryParameters3D.create(top + Vector3.UP * 0.4 - _ledge_normal * 0.3, top + Vector3.DOWN * 0.3 - _ledge_normal * 0.3)
+	dq.collision_mask = 1
+	return not get_world_3d().direct_space_state.intersect_ray(dq).is_empty()
+
+
+func _start_climb() -> void:
+	mode = "climb"
+	_climb_t = 0.0
+	_climb_from = global_position
+	hero.play("CK_LedgeClimb", 0.08, 1.0, true)
+
+
+## Climb-up over 0.9 s: rise to the ledge, then step forward onto it (moved with collision, wall disabled
+## only for the body's own sweep as it rolls over the lip).
+func _climb(dt: float) -> void:
+	_climb_t += dt
+	var up_end := _ledge_top.y + 0.05
+	var k := clampf(_climb_t / 0.55, 0.0, 1.0)
+	var target: Vector3
+	if _climb_t < 0.55:
+		target = Vector3(_climb_from.x, lerpf(_climb_from.y, up_end, k * k * (3.0 - 2.0 * k)), _climb_from.z)
+	else:
+		var k2 := clampf((_climb_t - 0.55) / 0.35, 0.0, 1.0)
+		target = Vector3(_climb_from.x, up_end, _climb_from.z) - _ledge_normal * (0.45 + 0.75 * k2)
+	var motion := target - global_position
+	var col := move_and_collide(motion, true)
+	if col == null or _climb_t < 0.55:
+		global_position = target # the rise hugs the wall face; its own contact is expected
+	else:
+		move_and_collide(motion)
+	if _climb_t >= 0.9:
+		mode = "ground"
+		vel = Vector3.ZERO
+		hero.play("CK_Idle", 0.2)
+
+
+## Running at a waist-high obstacle (0.5-1.3 m, shallow enough to clear): hop over it with a real arc.
+func _try_vault() -> void:
+	var space := get_world_3d().direct_space_state
+	var fwd := Vector3(vel.x, 0, vel.z).normalized()
+	var knee := global_position + Vector3.UP * 0.6
+	var q := PhysicsRayQueryParameters3D.create(knee, knee + fwd * 1.4)
+	q.exclude = [get_rid()]
+	q.collision_mask = 1
+	var low := space.intersect_ray(q)
+	if low.is_empty() or absf(low["normal"].y) > 0.3:
+		return
+	var head := global_position + Vector3.UP * 1.55
+	var hq := PhysicsRayQueryParameters3D.create(head, head + fwd * 2.2)
+	hq.exclude = [get_rid()]
+	hq.collision_mask = 1
+	if not space.intersect_ray(hq).is_empty():
+		return # too tall: that's a wall, not a barrier
+	# top of the obstacle
+	var over: Vector3 = low["position"] + fwd * 0.3
+	var tq := PhysicsRayQueryParameters3D.create(over + Vector3.UP * 1.6, over)
+	tq.collision_mask = 1
+	var top := space.intersect_ray(tq)
+	var h: float = (top["position"].y - global_position.y) if not top.is_empty() else 1.0
+	if h < 0.45 or h > 1.35:
+		return
+	mode = "air"
+	_vault_t = 0.8
+	vel.y = sqrt(2.0 * -gravity * (h + 0.35))
+	vel += fwd * 1.0
+	hero.play("CK_Vault", 0.06, 1.3, true)
 
 
 func _land(vy: float) -> void:
@@ -280,9 +542,11 @@ func _process(dt: float) -> void:
 		hero.set_time_scale(hero.rate_for(clip, maxf(s, 0.3)) * (-1.0 if _backpedal() else 1.0))
 	elif mode == "glide":
 		hero.play("CK_Glide", 0.35)
+	elif mode == "ledge":
+		hero.play("CK_LedgeHang", 0.15)
 	hero.rotation.y = heading
 	# glide: pitch the whole body toward horizontal flight
-	var pitch := 0.9 if mode == "glide" else 0.0
+	var pitch := (0.9 - _glide_pitch * 0.8) if mode == "glide" else 0.0
 	hero.rotation.x += (pitch - hero.rotation.x) * minf(1.0, 5.0 * dt)
 	status = "%s%s%s%s | %s | %.1f m/s" % [mode, " crouch" if crouched else "", " aim" if aiming else "",
 		" walk" if walk_mode else "", hero.current, speed]

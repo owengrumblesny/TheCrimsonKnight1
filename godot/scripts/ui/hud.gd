@@ -32,6 +32,10 @@ var _rank: Label
 var _objective: Label
 var _flash: ColorRect
 var _compass_marks: Control
+## grapple target indicator: world point to mark (null = none) and the camera to project it
+var grapple_point = null
+var camera: Camera3D
+var _grapple_mark: Control
 var minimap: MiniMap
 
 
@@ -47,6 +51,11 @@ func _ready() -> void:
 	_build_status()
 	_build_compass()
 	_build_world_widgets()
+	_grapple_mark = Control.new()
+	_grapple_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_grapple_mark.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_grapple_mark.draw.connect(_draw_grapple_mark)
+	widgets.add_child(_grapple_mark)
 	minimap = MiniMap.new()
 	CKUI.place(minimap, Vector4(0, 1, 0, 1), Vector4(18, -18 - MiniMap.SIZE, 18 + MiniMap.SIZE, -18))
 	widgets.add_child(minimap)
@@ -299,6 +308,17 @@ func _draw_marks() -> void:
 			HORIZONTAL_ALIGNMENT_CENTER, 40, 10, col)
 
 
+func _draw_grapple_mark() -> void:
+	if grapple_point == null or camera == null or camera.is_position_behind(grapple_point):
+		return
+	var p := camera.unproject_position(grapple_point)
+	var col := Color("#ffc040")
+	var r := 11.0
+	_grapple_mark.draw_polyline(PackedVector2Array([p + Vector2(0, -r), p + Vector2(r, 0), p + Vector2(0, r), p + Vector2(-r, 0), p + Vector2(0, -r)]), col, 2.5, true)
+	_grapple_mark.draw_circle(p, 2.5, col)
+	_grapple_mark.draw_string(get_theme_default_font(), p + Vector2(14, 5), CKUI.key_label(CKInput.code("grapple")), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
+
+
 ## Red vignette when the Knight takes a hit.
 func damage_flash(amount: float, _from: Vector3, _at: Vector3, _yaw: float) -> void:
 	_flash.color.a = clampf(0.12 + amount / 60.0, 0.12, 0.4)
@@ -411,6 +431,7 @@ func update_hud(now: int, heading: float, show_crosshair: bool) -> void:
 		_sel_title.text = d["displayName"]
 		_sel_sub.text = " · ".join(parts)
 	_crosshair.visible = show_crosshair
+	_grapple_mark.queue_redraw()
 	if director:
 		_heading = heading
 		var st := director.stars()

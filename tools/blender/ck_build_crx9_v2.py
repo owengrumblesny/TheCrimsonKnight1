@@ -616,6 +616,9 @@ GRIP = {
     "CK_Run": (0.85, 0.85), "CK_Sprint": (0.95, 0.95), "CK_GrappleAim": (0.6, 1.0), "CK_GrapplePull": (1.0, 1.0),
     "CK_LandHard": (0.4, 1.0), "CK_Glide": (0.05, 0.05), "CK_Interact": (0.3, 0.15), "CK_Drive": (0.85, 0.85),
     "CK_GadgetDraw": (0.3, 0.9), "CK_GadgetStow": (0.3, 0.9), "CK_Summon": (0.6, 0.2), "CK_Airborne": (0.55, 0.55),
+    "CK_Guard": (1.0, 1.0), "CK_PunchR": (1.0, 1.0), "CK_PunchL": (1.0, 1.0), "CK_HeavyStrike": (1.0, 1.0),
+    "CK_Counter": (1.0, 1.0), "CK_Dodge": (0.9, 0.9), "CK_Vault": (0.4, 0.4), "CK_LedgeHang": (1.0, 1.0),
+    "CK_LedgeClimb": (0.9, 0.9), "CK_Slide": (0.3, 0.3),
 }
 
 

@@ -116,7 +116,11 @@ func _use_grapple(_now: int) -> bool:
 		notify.emit("Grapnel: aim higher. The anchor must be above you", "grapple", "warn")
 		sound.emit("ui.deny")
 		return false
-	player.grapple_to(hit["position"])
+	var t := player.find_grapple_target()
+	if not t.is_empty():
+		player.grapple_to(t["point"], t["ledge"], t.get("normal", Vector3.ZERO))
+	else:
+		player.grapple_to(hit["position"])
 	sound.emit("gadget.throw")
 	return true
 

@@ -226,6 +226,96 @@
       "loop": false,
       "refSpeed": null,
       "description": "reach and press"
+    },
+    {
+      "name": "CK_Guard",
+      "frames": 30,
+      "fps": 30,
+      "duration": 1.0,
+      "loop": true,
+      "refSpeed": null,
+      "description": "fighting guard, both fists up"
+    },
+    {
+      "name": "CK_PunchR",
+      "frames": 14,
+      "fps": 30,
+      "duration": 0.4667,
+      "loop": false,
+      "refSpeed": null,
+      "description": "right straight, steps in"
+    },
+    {
+      "name": "CK_PunchL",
+      "frames": 14,
+      "fps": 30,
+      "duration": 0.4667,
+      "loop": false,
+      "refSpeed": null,
+      "description": "left hook"
+    },
+    {
+      "name": "CK_HeavyStrike",
+      "frames": 26,
+      "fps": 30,
+      "duration": 0.8667,
+      "loop": false,
+      "refSpeed": null,
+      "description": "two-handed hammer strike; impact at frame 14"
+    },
+    {
+      "name": "CK_Counter",
+      "frames": 18,
+      "fps": 30,
+      "duration": 0.6,
+      "loop": false,
+      "refSpeed": null,
+      "description": "parry with the left forearm, answer with the right"
+    },
+    {
+      "name": "CK_Dodge",
+      "frames": 16,
+      "fps": 30,
+      "duration": 0.5333,
+      "loop": false,
+      "refSpeed": null,
+      "description": "low evasive duck; the game moves the root sideways"
+    },
+    {
+      "name": "CK_Vault",
+      "frames": 22,
+      "fps": 30,
+      "duration": 0.7333,
+      "loop": false,
+      "refSpeed": null,
+      "description": "hands on the obstacle, legs tucked over; the game carries the root across"
+    },
+    {
+      "name": "CK_LedgeHang",
+      "frames": 40,
+      "fps": 30,
+      "duration": 1.3333,
+      "loop": true,
+      "refSpeed": null,
+      "description": "hanging from a ledge by both hands"
+    },
+    {
+      "name": "CK_LedgeClimb",
+      "frames": 30,
+      "fps": 30,
+      "duration": 1.0,
+      "loop": false,
+      "refSpeed": null,
+      "description": "pull up and step onto the ledge; the game lifts the root"
+    },
+    {
+      "name": "CK_Slide",
+      "frames": 24,
+      "fps": 30,
+      "duration": 0.8,
+      "loop": false,
+      "refSpeed": null,
+      "description": "low slide under obstacles"
     }
   ]
 }

@@ -11,7 +11,7 @@ const ACTIONS := [
 	["moveLeft", "Move left", "Movement", false], ["moveRight", "Move right", "Movement", false],
 	["sprint", "Sprint", "Movement", false], ["jump", "Jump / glide (hold in air)", "Movement", false],
 	["crouch", "Crouch", "Movement", false], ["walkToggle", "Walk / run toggle", "Movement", false],
-	["primaryAction", "Use selected item", "Actions", false], ["grapple", "Aim", "Actions", false],
+	["primaryAction", "Use selected item", "Actions", false], ["grapple", "Grapnel: fire at the marked rooftop", "Traversal", false],
 	["interact", "Interact / enter vehicle", "Actions", false], ["summonMenu", "Call vehicle / driving camera", "Actions", false],
 	["secondaryAction", "Aim weapon (hold)", "Actions", false], ["reload", "Reload weapon", "Actions", false],
 	["vehicleMode", "Vehicle mode", "Vehicle", false], ["vehicleExit", "Exit vehicle", "Vehicle", false],

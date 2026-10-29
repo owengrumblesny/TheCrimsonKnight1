@@ -804,6 +804,34 @@ def clip_table():
     def fk(**kw):
         return P_(legik=0.0, **kw)
 
+    # combat poses (Godot port): guard high, short strikes with a step and a chest twist
+    guard = P_(hz=-0.08, sp=6, cp=4, hdp=-4, fy_L=0.10, fy_R=-0.12, fyaw_L=-8, fyaw_R=14, cyaw=8,
+               sw_L=62, ad_L=30, elb_L=112, sw_R=56, ad_R=34, elb_R=118, capelift=4)
+    wind_r = dict(guard, cyaw=22, sw_R=34, elb_R=128, hz=-0.1)
+    jab_r = dict(guard, cyaw=-26, syaw=-8, sw_R=92, ad_R=16, elb_R=4, fy_R=0.02, hz=-0.12, sp=10, capelift=14)
+    wind_l = dict(guard, cyaw=-6, sw_L=40, elb_L=124)
+    jab_l = dict(guard, cyaw=24, syaw=8, sw_L=88, ad_L=48, elb_L=36, fy_L=0.16, hz=-0.12, sp=10, capelift=12)
+    heavy_wind = dict(guard, hz=-0.04, sp=-10, cp=-8, hdp=-10, sw_L=150, sw_R=150, ad_L=20, ad_R=20, elb_L=60, elb_R=60, cyaw=0)
+    heavy_hit = dict(guard, hz=-0.34, sp=34, cp=16, hdp=8, sw_L=70, sw_R=70, ad_L=12, ad_R=12, elb_L=10, elb_R=10, cyaw=0,
+                     fy_L=0.22, capelift=26, capewave=4)
+    parry = dict(guard, cyaw=26, sw_L=104, ad_L=58, elb_L=96, tw_L=30, hdyaw=8)
+    dodge_low = P_(hz=-0.42, hy=0.08, sp=30, cp=12, hdp=-20, syaw=18, fx_L=0.10, fx_R=-0.18, fy_L=0.06, fy_R=-0.16,
+                   sw_L=40, ad_L=34, elb_L=100, sw_R=36, ad_R=34, elb_R=104, capelift=34, capespread=10)
+    vault_plant = P_(hz=-0.12, sp=26, cp=12, hdp=-10, sw_L=78, sw_R=78, ad_L=16, ad_R=16, elb_L=8, elb_R=8, capelift=20)
+    vault_over = fk(sp=34, cp=14, hdp=-14, th_L=86, kn_L=118, th_R=74, kn_R=104, ank_L=20, ank_R=20,
+                    sw_L=70, sw_R=70, ad_L=18, ad_R=18, elb_L=4, elb_R=4, capelift=60, capewave=6)
+    climb_pull = fk(sp=-4, cp=-2, hdp=-16, th_L=12, kn_L=28, th_R=4, kn_R=18, ank_L=14, ank_R=14,
+                    sw_L=118, sw_R=118, ad_L=26, ad_R=26, elb_L=104, elb_R=104, capelift=8)
+    climb_knee = fk(sp=30, cp=12, hdp=-8, th_L=96, kn_L=112, th_R=8, kn_R=24, ank_L=20, ank_R=10,
+                    sw_L=56, sw_R=56, ad_L=24, ad_R=24, elb_L=22, elb_R=22, capelift=22)
+    slide_low = fk(sp=-20, cp=-10, hdp=10, th_L=78, kn_L=20, th_R=40, kn_R=96, ank_L=10, ank_R=30,
+                   sw_L=-20, ad_L=40, elb_L=20, sw_R=40, ad_R=30, elb_R=30, capelift=-8, capespread=6)
+
+    def ledge_hang(frame):
+        w = 2 * pi * frame / 40
+        return fk(sp=-2, cp=-2, hdp=-12, th_L=8 + 3 * sin(w), kn_L=18, th_R=2 - 3 * sin(w), kn_R=12, ank_L=20, ank_R=24,
+                  sw_L=168, sw_R=168, ad_L=18, ad_R=18, elb_L=16, elb_R=16, capelift=-2, capewave=2, capeph=w)
+
     def airborne(frame):
         w = 2 * pi * frame / 30
         return fk(th_L=36 + 4 * sin(w), kn_L=62, th_R=14 - 4 * sin(w), kn_R=48, ank_L=18, ank_R=24,
@@ -863,6 +891,23 @@ def clip_table():
          "generic stand-up and step-out"),
         ("CK_Drive", 60, True, None, drive, "seated driving loop"),
         ("CK_Interact", 24, False, None, keyed([(0, idle), (9, press), (14, press), (24, idle)]), "reach and press"),
+        # ---- melee (Godot port combat): fast strikes that start and end in the guard, so they chain ----
+        ("CK_Guard", 30, True, None, breathing(30, guard, 0.6), "fighting guard, both fists up"),
+        ("CK_PunchR", 14, False, None, keyed([(0, guard), (4, wind_r), (7, jab_r), (14, guard)]), "right straight, steps in"),
+        ("CK_PunchL", 14, False, None, keyed([(0, guard), (4, wind_l), (7, jab_l), (14, guard)]), "left hook"),
+        ("CK_HeavyStrike", 26, False, None, keyed([(0, guard), (9, heavy_wind), (14, heavy_hit), (18, heavy_hit), (26, guard)]),
+         "two-handed hammer strike; impact at frame 14"),
+        ("CK_Counter", 18, False, None, keyed([(0, guard), (4, parry), (9, jab_r), (18, guard)]),
+         "parry with the left forearm, answer with the right"),
+        ("CK_Dodge", 16, False, None, keyed([(0, guard), (5, dodge_low), (11, dodge_low), (16, guard)]),
+         "low evasive duck; the game moves the root sideways"),
+        # ---- traversal ----
+        ("CK_Vault", 22, False, None, keyed([(0, idle), (5, vault_plant), (11, vault_over), (16, vault_plant), (22, idle)]),
+         "hands on the obstacle, legs tucked over; the game carries the root across"),
+        ("CK_LedgeHang", 40, True, None, ledge_hang, "hanging from a ledge by both hands"),
+        ("CK_LedgeClimb", 30, False, None, keyed([(0, ledge_hang(0)), (10, climb_pull), (20, climb_knee), (30, idle)]),
+         "pull up and step onto the ledge; the game lifts the root"),
+        ("CK_Slide", 24, False, None, keyed([(0, idle), (5, slide_low), (18, slide_low), (24, idle)]), "low slide under obstacles"),
     ]
 
 

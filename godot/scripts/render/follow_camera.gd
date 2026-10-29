@@ -19,6 +19,12 @@ var _dist := 4.2
 var _fov := 60.0
 ## set by the game while a hand-to-hand fight is on (wider framing to show the crowd)
 var combat := false
+## set by the game while a ranged weapon / throwable is out: over-the-right-shoulder framing so the Knight
+## never covers the centre crosshair
+var shoulder := false
+## aim lock: a world point the camera turns to (null = free look); mouse flicks still move it
+var lock_point = null
+var _shoulder_blend := 0.0
 
 
 func _ready() -> void:
@@ -43,10 +49,16 @@ func _process(dt: float) -> void:
 	var l := CKInput.take_look()
 	yaw -= l.x
 	pitch = clampf(pitch + l.y, -0.5, 1.2)
+	if lock_point != null:
+		# ease the view onto the locked target (from the camera's current position)
+		var d: Vector3 = (lock_point - camera.global_position).normalized()
+		yaw = lerp_angle(yaw, atan2(-d.x, -d.z), minf(1.0, dt * 10.0))
+		pitch = lerpf(pitch, clampf(asin(-d.y), -0.5, 1.2), minf(1.0, dt * 10.0))
 	_aim_blend += ((1.0 if aiming else 0.0) - _aim_blend) * minf(1.0, 8.0 * dt)
 	_focus = _focus.lerp(target.global_position + Vector3(0, 1.55, 0), minf(1.0, 12.0 * dt))
-	# shoulder offset to the camera's right while aiming
-	var right := Vector3(cos(yaw), 0, -sin(yaw)) * 0.55 * _aim_blend
+	# shoulder offset to the camera's right while aiming or with a ranged item out
+	_shoulder_blend += ((1.0 if shoulder else 0.0) - _shoulder_blend) * minf(1.0, 6.0 * dt)
+	var right := Vector3(cos(yaw), 0, -sin(yaw)) * (0.55 * _aim_blend + 0.7 * _shoulder_blend * (1.0 - _aim_blend))
 	global_position = _focus + right
 	arm.basis = Basis.from_euler(Vector3(-pitch, yaw, 0))
 	# framing by activity: close when walking (armour detail), pulled back for sprint / air, far for gliding

@@ -182,6 +182,7 @@ func _ready() -> void:
 	street.build()
 	weapons.noise.connect(func(at, r): street.panic(at, r * 0.6))
 	weapons.noise.connect(director.noise)
+	weapons.director = director
 	targets = TargetRange.new()
 	add_child(targets)
 	# training dummies on the north avenue sidewalks (facing the spawn) and in the industrial yard
@@ -195,6 +196,7 @@ func _ready() -> void:
 		hud.damage_flash(amount, from, player.global_position, cam.yaw)
 		audio.play("weapon.impact"))
 	hud.director = director
+	hud.weapons = weapons
 	melee.combo_changed.connect(hud.show_combo)
 	hud.minimap.game = self
 	if args.has("log"):
@@ -299,6 +301,8 @@ func apply_settings() -> void:
 	Vehicle.reduce_motion = settings["reduceMotion"]
 	CKInput.mouse_sensitivity = settings["mouseSensitivity"]
 	CKInput.invert_y = settings["invertY"]
+	weapons.aim_assist = settings.get("aimAssist", true)
+	hud.hints_enabled = settings.get("controlHints", true)
 	melee.reduce_motion = settings["reduceMotion"]
 	FollowCamera.reduce_motion = settings["reduceMotion"]
 	_apply_hud_visibility()
@@ -445,6 +449,7 @@ func _process(dt: float) -> void:
 	else:
 		_on_foot(now)
 	hud.vehicle_text = drive.hud_text() if drive.driving else []
+	hud.set_hints(_control_hints())
 	hud.camera = cam.camera
 	hud.grapple_point = player.grapple_target.get("point") if not drive.driving and not player.grapple_target.is_empty() else null
 	player.can_exert = vitals.energy > 1
@@ -532,7 +537,7 @@ func _process(dt: float) -> void:
 			print("    hit ", c.get_collider().name if c.get_collider() else "?", " n=", c.get_normal().snapped(Vector3.ONE * 0.01))
 	var sel := inventory.selected_item()
 	hud.update_hud(now, player.heading, player.aiming or ((sel == "grapple" or sel == "batarang" or weapons.is_weapon(sel)) and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED))
-	hud.set_prompt("interact" if prompt else "", prompt[1] if prompt else "")
+	hud.set_prompt("interact" if prompt and not hud.hints_enabled else "", prompt[1] if prompt else "")
 	if perf.visible:
 		perf.text = "%d fps · %.1f ms · %d draws · %dk prims · %s · %s
 (readout only, not a benchmark)" % [
@@ -562,6 +567,49 @@ func _finish_check() -> void:
 		_finish()
 
 
+## What the Knight can do right now, for the HUD hint bar (keeps the controls discoverable).
+func _control_hints() -> Array:
+	if drive.driving:
+		var v: Vehicle = drive.driving
+		var out := [["moveForward", "Throttle"], ["moveBack", "Brake"], ["vehicleMode", "Mode: " + v.mode.capitalize()],
+			["summonMenu", "Camera"], ["interact", "Exit"]]
+		if v.kind == "jet":
+			out = [["moveForward", "Throttle"], ["=Mouse", "Pitch / turn"], ["moveLeft", "Roll"], ["vehicleMode", "Mode: " + v.mode.capitalize()],
+				["summonMenu", "Camera"], ["interact", "Exit"]]
+			if v.mode == "vtol":
+				out[1] = ["jump", "Up"]
+				out.insert(2, ["crouch", "Down"])
+		elif v.id == "crx1_interceptor":
+			out.insert(3, ["eject", "Launch bike"])
+		return out
+	match player.mode:
+		"glide":
+			return [["moveForward", "Dive"], ["moveBack", "Pull up"], ["moveLeft", "Turn"], ["grapple", "Grapple"] if not player.grapple_target.is_empty() else ["jump", "Release: drop"]]
+		"grapple":
+			return [["jump", "Boost over the edge"], ["crouch", "Let go"]]
+		"ledge":
+			return [["jump", "Climb up"], ["moveLeft", "Shimmy"], ["crouch", "Drop"]]
+		"air":
+			return [["jump", "Hold: glide"], ["grapple", "Grapple"]] if not player.grapple_target.is_empty() else [["jump", "Hold: glide"]]
+	if player.melee_engaged:
+		var out := [["primaryAction", "Strike"], ["secondaryAction", "Heavy"], ["crouch", "Dodge"]]
+		if melee.counter_target():
+			out.push_front(["interact", "COUNTER!"])
+		return out
+	var sel := inventory.selected_item()
+	var out := []
+	if weapons.is_weapon(sel) and weapons.defs[sel]["kind"] != "melee":
+		out = [["secondaryAction", "Aim / lock on"], ["primaryAction", "Fire"], ["reload", "Reload"]]
+	elif sel != "":
+		out = [["primaryAction", "Use " + String(inventory.def(sel)["displayName"])]]
+	if not player.grapple_target.is_empty():
+		out.append(["grapple", "Grapple"])
+	out.append(["summonMenu", "Call vehicle"])
+	if prompt:
+		out.push_front([prompt[0], prompt[1]])
+	return out
+
+
 func _on_foot(now: int) -> void:
 	player.grapple_target = player.find_grapple_target() if not underground else {}
 	_gameplay_input(now)
@@ -576,7 +624,7 @@ func _on_foot(now: int) -> void:
 
 ## Hotbar: 1-8 select (never use), Q/R or wheel cycle, primary action uses; vehicle call.
 func _gameplay_input(now: int) -> void:
-	for i in 8:
+	for i in Inventory.KEYED:
 		if Input.is_action_just_pressed("slot%d" % (i + 1)):
 			select_slot(i)
 	var wheel := CKInput.take_wheel()
@@ -594,6 +642,8 @@ func _gameplay_input(now: int) -> void:
 	var fists := melee.engaged(ranged) and not weapons.is_weapon(sel_id)
 	player.melee_engaged = fists
 	cam.combat = fists
+	cam.shoulder = ranged or sel_id in ["batarang", "grapple"]
+	weapons.update_aim(get_process_delta_time(), Input.is_action_just_pressed("secondaryAction"), Input.is_action_pressed("secondaryAction"))
 	if fists:
 		if Input.is_action_just_pressed("primaryAction"):
 			melee.strike(false)

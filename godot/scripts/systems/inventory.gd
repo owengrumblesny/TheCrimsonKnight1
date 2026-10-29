@@ -9,7 +9,14 @@ signal changed
 var items := {} # id -> definition
 var order: Array = [] # catalog order
 var owned := {} # id -> quantity
-var hotbar: Array = [] # 8 item ids (or "")
+## the utility belt: every equippable item, always on the bar (no inventory juggling). The first
+## KEYED positions have number keys (1-9, 0); the wheel / Q / R cycle the whole belt.
+var hotbar: Array = []
+const KEYED := 10
+const BELT_ORDER := ["batarang", "grapple", "phantom_sidearm", "crimson_carbine", "energy_launcher", "energy_cannon",
+	"smoke", "shield", "scanner", "energy_blade",
+	"drone", "decoy", "emp", "sonic", "cloak", "beacon", "holoprojector", "flashlight",
+	"first_aid", "power_cell", "repair", "comms", "forensics", "photo_camera"]
 var selected_slot := 0
 var _cooldown_until := {}
 var _restock_at := {}
@@ -33,10 +40,12 @@ func reset() -> void:
 	for id in order:
 		owned[id] = int(items[id]["maxStack"])
 	hotbar.clear()
-	for s in CKData.data("items")["defaultHotbar"]:
-		hotbar.append(s["itemId"])
-	while hotbar.size() < 8:
-		hotbar.append("")
+	for id in BELT_ORDER:
+		if def(id).get("canEquip", false):
+			hotbar.append(id)
+	for id in order: # anything equippable not in the list goes on the end
+		if def(id).get("canEquip", false) and not id in hotbar:
+			hotbar.append(id)
 	selected_slot = 0
 	_cooldown_until.clear()
 	_restock_at.clear()
@@ -61,7 +70,7 @@ func selected_item() -> String:
 
 ## Select a slot (never uses the item). Returns a reason when it can't be selected, else "".
 func select_slot(i: int) -> String:
-	if i < 0 or i > 7:
+	if i < 0 or i >= hotbar.size():
 		return "No such slot"
 	var id: String = hotbar[i]
 	if id == "":
@@ -76,27 +85,29 @@ func select_slot(i: int) -> String:
 
 ## Step to the next/previous non-empty slot.
 func cycle(dir: int) -> void:
-	for k in range(1, 9):
-		var idx := posmod(selected_slot + dir * k, 8)
+	for k in range(1, hotbar.size() + 1):
+		var idx := posmod(selected_slot + dir * k, hotbar.size())
 		if hotbar[idx] != "":
 			select_slot(idx)
 			return
 
 
-## Put an item in a slot (an item lives in at most one slot).
+## Move an item to belt position i (swapping with whatever was there): how you put an item on a number key.
 func assign(id: String, i: int) -> String:
-	if i < 0 or i > 7:
+	if i < 0 or i >= hotbar.size():
 		return "No such slot"
-	if id != "":
-		var d := def(id)
-		if d.is_empty():
-			return "Unknown item"
-		if not d.get("canEquip", false):
-			return "%s cannot be placed on the hotbar" % d["displayName"]
-		for k in 8:
-			if hotbar[k] == id:
-				hotbar[k] = ""
+	var d := def(id)
+	if d.is_empty():
+		return "Unknown item"
+	if not d.get("canEquip", false):
+		return "%s can't go on the belt" % d["displayName"]
+	var from := hotbar.find(id)
+	if from < 0:
+		return "Not on the belt"
+	var sel_id: String = hotbar[selected_slot]
+	hotbar[from] = hotbar[i]
 	hotbar[i] = id
+	selected_slot = hotbar.find(sel_id)
 	changed.emit()
 	return ""
 
@@ -151,8 +162,8 @@ func snapshot() -> Dictionary:
 	for id in owned:
 		o[id] = {"itemId": id, "quantity": owned[id]}
 	var hb := []
-	for i in 8:
-		hb.append({"index": i, "itemId": hotbar[i] if hotbar[i] != "" else null, "keyCode": "Digit%d" % (i + 1)})
+	for i in hotbar.size():
+		hb.append({"index": i, "itemId": hotbar[i], "keyCode": "Digit%d" % ((i + 1) % 10) if i < KEYED else ""})
 	return {"owned": o, "hotbar": hb, "selectedSlot": selected_slot}
 
 
@@ -164,11 +175,18 @@ func load_state(saved: Dictionary) -> void:
 		if d.is_empty() or not st is Dictionary:
 			continue
 		owned[id] = clampi(int(st.get("quantity", 0)), 0, int(d["maxStack"]))
+	# a saved belt order is kept only if it holds exactly the current belt (older 8-slot saves are ignored)
 	var hb = saved.get("hotbar", [])
-	for i in mini(8, hb.size()):
-		var id = hb[i].get("itemId") if hb[i] is Dictionary else null
-		hotbar[i] = id if id is String and def(id).get("canEquip", false) else ""
+	var ids := []
+	for e in hb:
+		if e is Dictionary and e.get("itemId") is String:
+			ids.append(e["itemId"])
+	var same := ids.size() == hotbar.size()
+	for id in ids:
+		same = same and id in hotbar
+	if same:
+		hotbar = ids
 	var sel = saved.get("selectedSlot", 0)
-	if (sel is float or sel is int) and sel >= 0 and sel < 8:
+	if (sel is float or sel is int) and sel >= 0 and sel < hotbar.size():
 		selected_slot = int(sel)
 	changed.emit()

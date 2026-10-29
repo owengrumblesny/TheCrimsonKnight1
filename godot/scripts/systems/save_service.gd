@@ -9,7 +9,7 @@ const SETTINGS_PATH := "user://crimson-knight.settings.json"
 const DEFAULT_SETTINGS := {
 	"uiScale": 1.0, "hudVisible": true, "reduceMotion": false, "quality": "high",
 	"volumes": {"master": 0.8, "music": 0.6, "ambience": 0.6, "sfx": 0.8, "vehicles": 0.8, "ui": 0.6}, "muted": false,
-	"mouseSensitivity": 1.0, "invertY": false,
+	"mouseSensitivity": 1.0, "invertY": false, "aimAssist": true, "controlHints": true,
 }
 
 

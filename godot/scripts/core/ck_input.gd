@@ -17,10 +17,11 @@ const ACTIONS := [
 	["vehicleMode", "Vehicle mode", "Vehicle", false], ["vehicleExit", "Exit vehicle", "Vehicle", false],
 	["eject", "Eject CR-B1 from the CR-X1", "Vehicle", false],
 	["slotPrev", "Previous hotbar slot", "Hotbar", false], ["slotNext", "Next hotbar slot", "Hotbar", false],
-	["slot1", "Hotbar slot 1", "Hotbar", false], ["slot2", "Hotbar slot 2", "Hotbar", false],
-	["slot3", "Hotbar slot 3", "Hotbar", false], ["slot4", "Hotbar slot 4", "Hotbar", false],
-	["slot5", "Hotbar slot 5", "Hotbar", false], ["slot6", "Hotbar slot 6", "Hotbar", false],
-	["slot7", "Hotbar slot 7", "Hotbar", false], ["slot8", "Hotbar slot 8", "Hotbar", false],
+	["slot1", "Belt key 1", "Hotbar", false], ["slot2", "Belt key 2", "Hotbar", false],
+	["slot3", "Belt key 3", "Hotbar", false], ["slot4", "Belt key 4", "Hotbar", false],
+	["slot5", "Belt key 5", "Hotbar", false], ["slot6", "Belt key 6", "Hotbar", false],
+	["slot7", "Belt key 7", "Hotbar", false], ["slot8", "Belt key 8", "Hotbar", false],
+	["slot9", "Belt key 9", "Hotbar", false], ["slot10", "Belt key 10", "Hotbar", false],
 	["inventory", "Inventory", "Menus", false], ["map", "Map", "Menus", false],
 	["pause", "Pause / back", "Menus", true], ["sandboxMenu", "Animation debug", "Menus", false],
 	["perfOverlay", "Performance overlay", "Menus", false],
@@ -35,6 +36,8 @@ var overrides := {}
 var look := Vector2.ZERO
 var wheel := 0
 var mouse_sensitivity := 1.0
+## aim assist friction: look speed multiplier while the crosshair is on an enemy (1 = none)
+var aim_friction := 1.0
 var invert_y := false
 
 
@@ -45,8 +48,8 @@ func _ready() -> void:
 		defaults[a[0]] = c.get(a[0], "")
 	defaults.merge({"slotPrev": "KeyQ", "slotNext": "KeyR", "inventory": "Tab", "map": "KeyM", "perfOverlay": "F3",
 		"reload": "KeyT", "vehicleMode": "KeyB", "eject": "KeyX"}, true)
-	for i in 8:
-		defaults["slot%d" % (i + 1)] = "Digit%d" % (i + 1)
+	for i in 10:
+		defaults["slot%d" % (i + 1)] = "Digit%d" % ((i + 1) % 10)
 	apply()
 
 
@@ -180,7 +183,7 @@ func _process(_dt: float) -> void:
 
 ## Consume and return the look delta in radians: x = yaw, y = pitch.
 func take_look() -> Vector2:
-	var l := Vector2(look.x * MOUSE_SENS_X, look.y * MOUSE_SENS_Y * (-1.0 if invert_y else 1.0))
+	var l := Vector2(look.x * MOUSE_SENS_X, look.y * MOUSE_SENS_Y * (-1.0 if invert_y else 1.0)) * aim_friction
 	look = Vector2.ZERO
 	return l
 

@@ -37,6 +37,12 @@ var grapple_point = null
 var camera: Camera3D
 var _grapple_mark: Control
 var _combo: Label
+var _reticle: Control
+var _hints: HBoxContainer
+var _hints_key := ""
+var hints_enabled := true
+## reticle state, set by the game: weapons (bloom / under_crosshair / locked) and the camera for projection
+var weapons: Weapons
 var minimap: MiniMap
 
 
@@ -61,6 +67,12 @@ func _ready() -> void:
 	_combo.add_theme_color_override("font_shadow_color", Color.BLACK)
 	CKUI.place(_combo, Vector4(.5, .5, .5, .5), Vector4(70, -60, 260, -20))
 	widgets.add_child(_combo)
+	_hints = HBoxContainer.new()
+	_hints.alignment = BoxContainer.ALIGNMENT_CENTER
+	_hints.add_theme_constant_override("separation", 16)
+	_hints.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	CKUI.place(_hints, Vector4(.5, 1, .5, 1), Vector4(-420, -164, 420, -134))
+	widgets.add_child(_hints)
 	minimap = MiniMap.new()
 	CKUI.place(minimap, Vector4(0, 1, 0, 1), Vector4(18, -18 - MiniMap.SIZE, 18 + MiniMap.SIZE, -18))
 	widgets.add_child(minimap)
@@ -69,7 +81,13 @@ func _ready() -> void:
 	_crosshair = CKUI.image_rect(CKUI.icon("crosshair"), Vector2(36, 36))
 	CKUI.place(_crosshair, Vector4(.5, .5, .5, .5), Vector4(-18, -18, 18, 18))
 	_crosshair.visible = false
+	_crosshair.modulate.a = 0.0 # kept for layout; the reticle below is drawn live
 	widgets.add_child(_crosshair)
+	_reticle = Control.new()
+	_reticle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_reticle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_reticle.draw.connect(_draw_reticle)
+	widgets.add_child(_reticle)
 	_marker = HitMarker.new()
 	CKUI.place(_marker, Vector4(.5, .5, .5, .5), Vector4(-20, -20, 20, 20))
 	_marker.modulate.a = 0.0
@@ -184,8 +202,10 @@ func _build_hotbar() -> void:
 	_bar.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	CKUI.place(_bar, Vector4(.5, 1, .5, 1), Vector4(0, -14, 0, -14))
 	widgets.add_child(_bar)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 9)
+	var row := GridContainer.new()
+	row.columns = 12
+	row.add_theme_constant_override("h_separation", 4)
+	row.add_theme_constant_override("v_separation", 4)
 	_bar.add_child(row)
 	var disc := GradientTexture2D.new()
 	var g := Gradient.new()
@@ -196,17 +216,17 @@ func _build_hotbar() -> void:
 	disc.fill = GradientTexture2D.FILL_RADIAL
 	disc.fill_from = Vector2(0.5, 0.5)
 	disc.fill_to = Vector2(1.0, 0.5)
-	disc.width = 56
-	disc.height = 56
-	for i in 8:
+	disc.width = 40
+	disc.height = 40
+	for i in inventory.hotbar.size():
 		var b := Button.new()
-		b.custom_minimum_size = Vector2(68, 75)
+		b.custom_minimum_size = Vector2(48, 48)
 		b.focus_mode = Control.FOCUS_NONE # digits and Space keep going to the game
 		b.add_theme_stylebox_override("normal", CKUI.box(Color("#17111a"), Color("#57313b"), 14, 1, 0))
 		b.add_theme_stylebox_override("hover", CKUI.box(Color("#211923"), CKUI.BRIGHT, 14, 1, 0))
 		b.pressed.connect(func(): slot_clicked.emit(i))
-		var ic := CKUI.image_rect(null, Vector2(48, 48))
-		CKUI.place(ic, Vector4(.5, .5, .5, .5), Vector4(-24, -24, 24, 24))
+		var ic := CKUI.image_rect(null, Vector2(34, 34))
+		CKUI.place(ic, Vector4(.5, .5, .5, .5), Vector4(-17, -17, 17, 17))
 		b.add_child(ic)
 		var cd := TextureProgressBar.new()
 		cd.texture_progress = disc
@@ -214,20 +234,20 @@ func _build_hotbar() -> void:
 		cd.max_value = 1.0
 		cd.step = 0.001
 		cd.nine_patch_stretch = true
-		CKUI.place(cd, Vector4(.5, .5, .5, .5), Vector4(-28, -28, 28, 28))
+		CKUI.place(cd, Vector4(.5, .5, .5, .5), Vector4(-20, -20, 20, 20))
 		cd.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(cd)
-		var key := CKUI.label("", 11, Color.WHITE, true)
-		key.position = Vector2(6, 2)
+		var key := CKUI.label("", 10, Color.WHITE, true)
+		key.position = Vector2(2, 1)
 		var kb := CKUI.box(Color("#3d1823"), Color("#3d1823"), 5, 0, 3)
 		key.add_theme_stylebox_override("normal", kb)
 		b.add_child(key)
-		var qty := CKUI.label("", 11, Color.WHITE, true)
+		var qty := CKUI.label("", 10, Color.WHITE, true)
 		qty.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		CKUI.place(qty, Vector4(1, 1, 1, 1), Vector4(-30, -19, -6, -3))
+		CKUI.place(qty, Vector4(1, 1, 1, 1), Vector4(-26, -16, -3, -1))
 		b.add_child(qty)
-		var badge := CKUI.label("N/A", 9, Color("#ffd0d6"))
-		CKUI.place(badge, Vector4(1, 0, 1, 0), Vector4(-26, 4, -4, 16))
+		var badge := CKUI.label("N/A", 8, Color("#ffd0d6"))
+		CKUI.place(badge, Vector4(1, 0, 1, 0), Vector4(-22, 2, -2, 12))
 		b.add_child(badge)
 		row.add_child(b)
 		_slots.append({"button": b, "icon": ic, "key": key, "qty": qty, "badge": badge, "cd": cd})
@@ -235,7 +255,7 @@ func _build_hotbar() -> void:
 
 ## Rebuild slot contents from the inventory and live bindings (rebinding updates the bar).
 func render_hotbar() -> void:
-	for i in 8:
+	for i in mini(_slots.size(), inventory.hotbar.size()):
 		var s: Dictionary = _slots[i]
 		var id: String = inventory.hotbar[i]
 		var d := inventory.def(id) if id != "" else {}
@@ -244,9 +264,10 @@ func render_hotbar() -> void:
 		var selected := i == inventory.selected_slot and not d.is_empty()
 		b.add_theme_stylebox_override("normal", CKUI.box(Color("#211923") if selected else Color("#17111a"),
 			CKUI.BRIGHT if selected else Color("#57313b"), 14, 2 if selected else 1, 0))
-		b.scale = Vector2.ONE * (1.05 if selected else 1.0)
+		b.scale = Vector2.ONE * (1.08 if selected else 1.0)
 		b.pivot_offset = b.custom_minimum_size / 2
-		s["key"].text = CKUI.key_label(CKInput.code("slot%d" % (i + 1)))
+		s["key"].text = CKUI.key_label(CKInput.code("slot%d" % (i + 1))) if i < Inventory.KEYED else ""
+		s["key"].visible = i < Inventory.KEYED
 		var ic: TextureRect = s["icon"]
 		ic.texture = CKUI.icon(d["iconId"], "circle") if d else CKUI.icon("key_prompt")
 		var unusable: bool = d.is_empty() or d.get("unavailableReason") != null or qty == 0
@@ -330,6 +351,49 @@ func show_combo(n: int) -> void:
 		_combo.scale = Vector2.ONE * 1.25
 		_combo.pivot_offset = Vector2(0, 20)
 		create_tween().tween_property(_combo, "scale", Vector2.ONE, 0.15)
+
+
+func _draw_reticle() -> void:
+	if not _crosshair.visible:
+		return
+	var c := _reticle.size / 2
+	var hot: bool = weapons != null and weapons.under_crosshair != null
+	var col := CKUI.BRIGHT if hot else Color(1, 1, 1, 0.9)
+	var gap := 6.0 + (weapons.bloom * 14.0 if weapons else 0.0)
+	for d in [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]:
+		_reticle.draw_line(c + d * gap, c + d * (gap + 9.0), Color(0, 0, 0, 0.6), 4.0, true)
+		_reticle.draw_line(c + d * gap, c + d * (gap + 9.0), col, 2.0, true)
+	_reticle.draw_circle(c, 2.0, col)
+	# lock bracket around the locked enemy
+	if weapons and weapons.locked and camera and not camera.is_position_behind(weapons.locked.global_position):
+		var p := camera.unproject_position(weapons.locked.global_position + Vector3(0, 1.25, 0))
+		var r := 22.0
+		for s in [Vector2(1, 1), Vector2(-1, 1), Vector2(1, -1), Vector2(-1, -1)]:
+			_reticle.draw_polyline(PackedVector2Array([p + Vector2(s.x * r, s.y * (r - 8)), p + s * r, p + Vector2(s.x * (r - 8), s.y * r)]),
+				Color("#ffc040"), 2.5, true)
+
+
+## Context control hints: [[action, text], ...] for what the Knight can do right now.
+func set_hints(list: Array) -> void:
+	_hints.visible = hints_enabled and not list.is_empty()
+	var key := str(list)
+	if key == _hints_key:
+		return
+	_hints_key = key
+	for c in _hints.get_children():
+		c.queue_free()
+	for h in list:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 5)
+		var code: String = CKInput.code(h[0]) if not String(h[0]).begins_with("=") else String(h[0]).substr(1)
+		# readable text key badges (the UI-pack keycaps are too small at this size)
+		var k := CKUI.label(CKUI.key_label(code), 13, Color.WHITE, true)
+		k.add_theme_stylebox_override("normal", CKUI.box(Color("#3d1823"), CKUI.BRIGHT, 5, 1, 5))
+		row.add_child(k)
+		var t := CKUI.label(h[1], 13, CKUI.TEXT)
+		t.add_theme_color_override("font_shadow_color", Color.BLACK)
+		row.add_child(t)
+		_hints.add_child(row)
 
 
 ## Red vignette when the Knight takes a hit.
@@ -445,6 +509,7 @@ func update_hud(now: int, heading: float, show_crosshair: bool) -> void:
 		_sel_sub.text = " · ".join(parts)
 	_crosshair.visible = show_crosshair
 	_grapple_mark.queue_redraw()
+	_reticle.queue_redraw()
 	if director:
 		_heading = heading
 		var st := director.stars()
@@ -453,6 +518,6 @@ func update_hud(now: int, heading: float, show_crosshair: bool) -> void:
 		_objective.get_parent().visible = director.objective != ""
 		_objective.text = director.objective
 		_compass_marks.queue_redraw()
-	for i in 8:
+	for i in mini(_slots.size(), inventory.hotbar.size()):
 		var sid: String = inventory.hotbar[i]
 		_slots[i]["cd"].value = inventory.cooldown_fraction(sid, now) if sid != "" else 0.0

@@ -127,8 +127,8 @@ func _unhandled_input(e: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif top() == "inventory" and _inv_sel != "" and e is InputEventKey and e.pressed:
 		var k: int = e.physical_keycode
-		if k >= KEY_1 and k <= KEY_8 and not get_viewport().gui_get_focus_owner() is LineEdit:
-			_assign(k - KEY_1)
+		if (k >= KEY_1 and k <= KEY_9 or k == KEY_0) and not get_viewport().gui_get_focus_owner() is LineEdit:
+			_assign(9 if k == KEY_0 else k - KEY_1)
 			get_viewport().set_input_as_handled()
 
 
@@ -298,7 +298,7 @@ func _screen_inventory(body: VBoxContainer) -> void:
 		_inv_sort = "status" if i == 1 else "name"
 		refresh())
 	bar.add_child(sort)
-	var hint := _muted("Select an item, then Assign to slot (or press 1-8). Enter searches.")
+	var hint := _muted("Every item is on your belt. Select one, then press 1-0 to put it on that key. Enter searches.")
 	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	bar.add_child(hint)
@@ -406,11 +406,11 @@ func _detail(d: Dictionary) -> Control:
 				_assign(inventory.selected_slot)
 			game.select_slot(inventory.hotbar.find(d["id"]))
 			refresh()))
-		v.add_child(_muted("Assign to slot:"))
+		v.add_child(_muted("Put it on number key:"))
 		var row := HBoxContainer.new()
-		for i in 8:
+		for i in Inventory.KEYED:
 			var b := Button.new()
-			b.text = str(i + 1)
+			b.text = str((i + 1) % 10)
 			b.custom_minimum_size = Vector2(34, 34)
 			if inventory.hotbar[i] == d["id"]:
 				b.add_theme_stylebox_override("normal", CKUI.box(Color("#3d1823"), CKUI.BRIGHT, 8, 1, 4))
@@ -499,11 +499,11 @@ func _screen_loadout(body: VBoxContainer) -> void:
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cols.add_child(right)
-	right.add_child(CKUI.section("Gadget slots"))
+	right.add_child(CKUI.section("Utility belt (number keys 1-0, wheel cycles the rest)"))
 	var grid := GridContainer.new()
 	grid.columns = 4
 	right.add_child(grid)
-	for i in 8:
+	for i in Inventory.KEYED:
 		var id: String = inventory.hotbar[i]
 		var d := inventory.def(id) if id != "" else {}
 		var b := CKUI.button("%s  %s" % [CKUI.key_label(CKInput.code("slot%d" % (i + 1))), d.get("displayName", "Empty")],
@@ -628,6 +628,14 @@ func _screen_settings(body: VBoxContainer) -> void:
 		s["invertY"] = on
 		game.apply_settings())
 	_row(v, "Invert camera Y", inv)
+	for pair in [["aimAssist", "Aim assist (RMB locks on, shots curve onto targets)"], ["controlHints", "Show control hints"]]:
+		var cbx := CheckBox.new()
+		var key: String = pair[0]
+		cbx.button_pressed = s.get(key, true)
+		cbx.toggled.connect(func(on):
+			s[key] = on
+			game.apply_settings())
+		_row(v, pair[1], cbx)
 	v.add_child(_muted("Click a key, then press the new key. If it is already used, the two actions swap. Esc cancels."))
 	var keys := GridContainer.new()
 	keys.columns = 2

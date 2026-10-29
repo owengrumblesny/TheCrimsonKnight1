@@ -29,6 +29,14 @@ var _decals: Array = []
 var _scorch: Texture2D
 var _pending_melee: Array = [] # {at, id}
 var _last_shot := -100000
+## aim assist (settings): soft lock on RMB, bullet magnetism, friction over enemies
+var aim_assist := true
+var director: Director
+## enemy under (or near) the crosshair this frame, and the locked enemy while RMB is held
+var under_crosshair: Node3D
+var locked: Node3D
+## 0..1 how open the crosshair is (spread + recent recoil), for the HUD
+var bloom := 0.0
 
 
 func _ready() -> void:
@@ -117,6 +125,7 @@ func _fire(id: String, now: int) -> void:
 		return
 	_ammo[id] -= 1
 	_last_shot = now
+	bloom = minf(1.0, bloom + 0.35)
 	_point_gun(now)
 	var muzzle := _muzzle()
 	var aim := _aim_point(d)
@@ -141,8 +150,58 @@ func _fire(id: String, now: int) -> void:
 
 
 ## Where the crosshair points: first surface along the camera ray (with spread), else max range.
+## Enemy nearest the screen centre within `px` pixels (and in range, in the open).
+func target_near_crosshair(px: float, max_range: float) -> Node3D:
+	if director == null:
+		return null
+	var c := cam.camera
+	var centre := c.get_viewport().get_visible_rect().size / 2
+	var best: Node3D = null
+	var bd := px
+	for e in director.enemies:
+		if not is_instance_valid(e) or e.is_down():
+			continue
+		var chest: Vector3 = e.global_position + Vector3(0, 1.25, 0)
+		if c.is_position_behind(chest) or chest.distance_to(c.global_position) > max_range:
+			continue
+		var d := c.unproject_position(chest).distance_to(centre)
+		if d < bd:
+			var q := PhysicsRayQueryParameters3D.create(c.global_position, chest)
+			q.collision_mask = 1
+			q.exclude = [player.get_rid()]
+			if get_world_3d().direct_space_state.intersect_ray(q).is_empty():
+				bd = d
+				best = e
+	return best
+
+
+## Per frame from the game: lock on RMB press, friction over targets, crosshair bloom.
+func update_aim(dt: float, aim_pressed: bool, aim_held: bool) -> void:
+	var id := current()
+	var ranged: bool = id != "" and defs[id]["kind"] != "melee"
+	bloom = maxf(0.0, bloom - dt * 2.5)
+	var vp_scale := cam.camera.get_viewport().get_visible_rect().size.y / 720.0
+	under_crosshair = target_near_crosshair(28.0 * vp_scale, 120.0) if ranged else null
+	if not ranged or not aim_assist:
+		locked = null
+	elif aim_pressed:
+		locked = target_near_crosshair(260.0 * vp_scale, 90.0) # soft lock: the nearest enemy roughly in view
+	if locked and (not is_instance_valid(locked) or locked.is_down()) and aim_held:
+		locked = target_near_crosshair(400.0 * vp_scale, 90.0) # target down: hop to the next one
+	if locked and (not aim_held or not is_instance_valid(locked) or locked.is_down()):
+		locked = null
+	cam.lock_point = locked.global_position + Vector3(0, 1.25, 0) if locked else null
+	CKInput.aim_friction = 0.45 if (aim_assist and under_crosshair and not locked) else 1.0
+
+
 func _aim_point(d: Dictionary) -> Vector3:
 	var c := cam.camera
+	# aim assist: shots that leave near an enemy curve onto his chest (bullet magnetism)
+	var vp_scale := c.get_viewport().get_visible_rect().size.y / 720.0
+	var magnet: Node3D = locked if locked else (target_near_crosshair(70.0 * vp_scale, d["range"]) if aim_assist else null)
+	if magnet:
+		var spread_m: float = d.get("spread", 0.0) * 8.0
+		return magnet.global_position + Vector3(randf_range(-spread_m, spread_m), 1.25 + randf_range(-spread_m, spread_m), randf_range(-spread_m, spread_m))
 	var spread: float = d.get("spread", 0.0) * (0.4 if player.aiming else 1.0)
 	var fwd := -c.global_basis.z
 	fwd = (fwd + c.global_basis.x * randf_range(-spread, spread) + c.global_basis.y * randf_range(-spread, spread)).normalized()

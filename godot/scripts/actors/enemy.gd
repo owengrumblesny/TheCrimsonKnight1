@@ -51,7 +51,7 @@ func _ready() -> void:
 	# enemies live on layer 2 (world + player + vehicles are layer 1): sight rays test layer 1 only, so
 	# squadmates never block each other's view
 	collision_layer = 2
-	collision_mask = 3
+	collision_mask = 19 # world (1) + enemies (2) + sidewalks (16)
 	floor_snap_length = 0.3
 	var shape := CapsuleShape3D.new()
 	shape.radius = 0.32
@@ -150,7 +150,7 @@ func knock_down(dir := Vector3.ZERO) -> void:
 	director.release_token(self)
 	velocity = Vector3.ZERO
 	collision_layer = 0
-	collision_mask = 1 # still rests on the ground
+	collision_mask = 17 # still rests on the ground (world + sidewalks)
 	if anim:
 		anim.play("NPC_Cower" if anim.has_animation("NPC_Cower") else idle_clip, 0.15)
 		anim.speed_scale = 0.0 # frozen in the fall

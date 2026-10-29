@@ -40,7 +40,7 @@ func _draw() -> void:
 	var c := size / 2
 	var font := get_theme_default_font()
 	for f in game.district.map_features:
-		var col := Color("#1e1d26") if f["kind"] == "road" else Color("#7a1020") if f["kind"] == "portal" else Color("#3a2a33")
+		var col := Color("#1e1d26") if f["kind"] == "road" else Color("#7a1020") if f["kind"] == "portal" else Color("#1d4024") if f["kind"] == "park" else Color("#6a4418") if f["kind"] == "place" else Color("#3a2a33")
 		draw_rect(Rect2(c + f["min"] * s, (f["max"] - f["min"]) * s), col)
 		if f["kind"] == "portal":
 			draw_string(font, c + Vector2(f["max"].x, (f["min"].y + f["max"].y) / 2) * s + Vector2(8, 6), "RED CITADEL ENTRANCE",

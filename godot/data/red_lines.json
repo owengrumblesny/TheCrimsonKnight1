@@ -191,5 +191,9 @@
   "adapt_gun": [
     "You're shooting a lot, so they've brought riot shields. Get in close.",
     "Riot shields inbound. Guns won't cut it. Hands, boss."
+  ],
+  "brain_booting": [
+    "Give me a second, my conversation core is still booting. Commands work right now though.",
+    "Still warming up my brain. Ask me again in a few seconds."
   ]
 }

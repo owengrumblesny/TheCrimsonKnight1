@@ -1,6 +1,6 @@
 extends Node
 ## Autoload "CKInput": builds the InputMap from the shared bindings table (config/controls.json plus the
-## hotbar/menu defaults from game/src/ui/inputBindings.ts) and exposes move/look axes like core/input.ts.
+## hotbar/menu defaults from the original web build) and exposes move/look axes.
 ## Bindings use KeyboardEvent.code names ("KeyW", "Digit1", "Mouse0") so saves stay compatible with the web build.
 
 signal bindings_changed

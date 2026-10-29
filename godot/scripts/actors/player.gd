@@ -20,6 +20,8 @@ var cam_yaw := PI
 var glide_held := false
 var status := ""
 var crouched := false
+## world point the head turns toward (set by the game: nearby threat, grapple point), or null = look ahead
+var look_point = null
 ## sprint + C: a knee slide that carries momentum under low obstacles (the capsule shrinks while sliding)
 var _slide_t := 0.0
 var _shape: CapsuleShape3D
@@ -59,6 +61,12 @@ var _lunge_t := 0.0
 var _lunge_vel := Vector3.ZERO
 ## set by the game while hand-to-hand is engaged: C dodges instead of crouching, RMB strikes instead of aiming
 var melee_engaged := false
+# character feel (Hero.feel / Hero.update_lean): smoothed acceleration and turn rate
+var _feel_speed := 0.0
+var _feel_heading := 0.0
+var _feel_accel := 0.0
+var _feel_turn := 0.0
+var _look_strength := 0.0 # set by _look_point: 1 for a real point of interest, less for the camera direction
 
 const GRAPPLE_RANGE := 70.0
 const GRAPPLE_MAX_SPEED := 30.0
@@ -80,7 +88,7 @@ func _ready() -> void:
 	add_child(col)
 	_shape = shape
 	_col = col
-	collision_mask = 3 # world (1) + enemies (2)
+	collision_mask = 19 # world (1) + enemies (2) + sidewalks (16: vehicles roll over the curb)
 	floor_max_angle = deg_to_rad(50)
 	floor_snap_length = 0.35
 	safe_margin = 0.02
@@ -583,6 +591,7 @@ func teleport(feet: Vector3) -> void:
 
 ## Per frame: choose the locomotion clip + rate and orient the visual.
 func _process(dt: float) -> void:
+	_update_feel(dt)
 	if frozen:
 		return
 	_land_time -= dt
@@ -614,6 +623,49 @@ func _process(dt: float) -> void:
 	hero.rotation.x += (pitch - hero.rotation.x) * minf(1.0, 5.0 * dt)
 	status = "%s%s%s%s | %s | %.1f m/s" % [mode, " crouch" if crouched else "", " aim" if aiming else "",
 		" walk" if walk_mode else "", hero.current, speed]
+
+
+## Feeds the hero's procedural layer. Frozen (driving, animation debug) turns all of it off; each part has
+## its own states: lean on foot only, the head everywhere but gliding / hanging, the cape everywhere but
+## gliding (the glide clip spreads it as a wing), foot IK only standing or walking on the floor.
+func _update_feel(dt: float) -> void:
+	var feel := hero.feel
+	if feel == null or dt <= 0.0:
+		return
+	var on_foot := not frozen and hero.get_parent() == self
+	var accel := (speed - _feel_speed) / dt
+	_feel_speed = speed
+	_feel_accel = lerpf(_feel_accel, accel, minf(1.0, dt * 8.0))
+	_feel_turn = lerpf(_feel_turn, wrapf(heading - _feel_heading, -PI, PI) / dt, minf(1.0, dt * 8.0))
+	_feel_heading = heading
+	var lean_on := on_foot and mode == "ground" and not crouched and not aiming and combat_t <= 0.0
+	hero.update_lean(dt, lean_on, speed if lean_on else 0.0, _feel_accel, _feel_turn)
+	feel.cape_on = 1.0 if on_foot and mode != "glide" else 0.0
+	feel.feet_on = 1.0 if on_foot and mode in ["ground", "action"] and _grounded and speed < 3.2 and _jump_timer < 0 else 0.0
+	feel.floor_y = global_position.y
+	feel.velocity = vel if on_foot and mode != "ledge" else Vector3.ZERO
+	if feel.ray_exclude.is_empty():
+		feel.ray_exclude = [get_rid()]
+	_look_strength = 0.0
+	var look = _look_point() if on_foot and mode not in ["glide", "ledge", "climb"] else null
+	# a sprinting Knight watches where he's going: the turn shrinks with speed
+	feel.look_on = _look_strength * lerpf(1.0, 0.35, clampf((speed - 3.0) / 6.0, 0.0, 1.0)) if look != null else 0.0
+	if look != null:
+		feel.look_target = look
+
+
+## What the Knight's head turns toward: the grapnel anchor while reeling, else look_point (the game's pick:
+## nearest alerted enemy within 12 m, else the grapple point), else where the camera looks.
+func _look_point():
+	_look_strength = 1.0
+	if mode == "grapple" and _grapple_point != null:
+		return _grapple_point
+	if look_point != null:
+		return look_point
+	if camera != null:
+		_look_strength = 0.6
+		return camera.global_position - camera.global_basis.z * 25.0
+	return null
 
 
 ## Velocity in the character's frame: x = left, y = forward.

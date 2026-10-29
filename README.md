@@ -8,7 +8,7 @@ You are Owen Grumbles, the Crimson Knight. You pilot the CR-X9, a strength-enhan
 - call in your vehicles: the CR-X1 Interceptor, the CR-B1 Cycle and the CR-A1 Specter jet;
 - talk to **R.E.D.**, a sassy AI who lives in your helmet.
 
-The game runs on **Godot 4.7** (GDScript, Jolt physics). An earlier version, built in Three.js, is still in `game/`.
+The game runs on **Godot 4.7** (GDScript, Jolt physics) as a native Windows and Linux game. The earlier Three.js web version has been retired and removed.
 
 ---
 
@@ -115,7 +115,6 @@ Everything can be rebound in Settings, and gamepads work.
 | `tools/blender/` | Python scripts that generate the hero, the vehicles and the rig/animation clips in Blender |
 | `config/` | Game data shared by both builds (vehicles, physics, assets, controls) |
 | `docs/` | Design specs, status reports, the dev log, and the honest gap list |
-| `game/` | The original Three.js web build (being retired) |
 | `references/`, `CRIMSON_KNIGHT_UI_PACK/`, `ui/` | The ChatGPT-made reference art and UI icon pack |
 
 Tests: `godot --headless --path . --script godot/tools/test_logic.gd`

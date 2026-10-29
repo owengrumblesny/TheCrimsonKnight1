@@ -160,6 +160,54 @@ func _street_spot() -> Vector3:
 	return spot
 
 
+## CR-B1 wall grapple: fire at the building ahead (within 45 m); the Cycle drives to the wall, winches up the
+## face on its cable and rolls over the edge onto the roof.
+func _bike_grapple(v: Vehicle) -> void:
+	var space := player.get_world_3d().direct_space_state
+	var fwd := v.global_basis.z
+	fwd.y = 0
+	fwd = fwd.normalized()
+	# first wall ahead that has a roof at least 3 m up (skips bus shelters, cabinets and other street props)
+	var from := v.global_position + Vector3(0, 1.0, 0)
+	var end := from + fwd * 45.0
+	var wall := Vector3.INF
+	var n := Vector3.ZERO
+	var top := -INF
+	for attempt in 5:
+		var q := PhysicsRayQueryParameters3D.create(from, end)
+		q.collision_mask = 1
+		q.exclude = [v.get_rid(), player.get_rid()]
+		var hit := space.intersect_ray(q)
+		if hit.is_empty():
+			break
+		var hn: Vector3 = hit["normal"]
+		hn.y = 0
+		if hn.length() < 0.5:
+			from = hit["position"] + fwd * 0.3
+			continue
+		hn = hn.normalized()
+		var t := _roof_height(space, hit["position"] - hn * 2.5)
+		if t != -INF and t - v.global_position.y >= 3.0:
+			wall = hit["position"]
+			n = hn
+			top = t
+			break
+		from = hit["position"] + fwd * 0.6
+	if wall == Vector3.INF:
+		notify.emit("No building to climb ahead: face a wall within 45 m", "grapple", "warn")
+		sound.emit("ui.deny")
+		return
+	if top - v.global_position.y > 150.0:
+		notify.emit("Too tall to winch up", "grapple", "warn")
+		sound.emit("ui.deny")
+		return
+	var base := Vector3(wall.x, v.global_position.y, wall.z) + n * 1.6
+	var roof := Vector3(wall.x, top, wall.z) - n * 3.5
+	v.winch(base, Vector3(wall.x, top, wall.z) + n * 0.9, roof, atan2(-n.x, -n.z))
+	sound.emit("gadget.throw")
+	notify.emit("%s: winching up the wall" % label(v), "grapple", "info")
+
+
 func _land_jet(v: Vehicle) -> void:
 	while is_instance_valid(v) and v.global_position.y > JET_PAD.y + 0.6 and not v.driver_in:
 		await get_tree().physics_frame
@@ -347,6 +395,8 @@ func drive(dt: float, look: Vector2) -> void:
 		notify.emit("Camera: %s" % v.view.capitalize(), "interceptor", "info")
 	if Input.is_action_just_pressed("eject"):
 		eject()
+	if Input.is_action_just_pressed("grapple") and v.kind == "bike" and v.mode in ["pursuit", "stealth"] and not v.winching():
+		_bike_grapple(v)
 	if _enter_time > 0:
 		_enter_time -= dt
 		if _enter_time <= 0:

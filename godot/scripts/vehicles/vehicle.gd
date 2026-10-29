@@ -338,6 +338,8 @@ func _physics_process(dt: float) -> void:
 	if kind == "jet":
 		return
 	_crash_check(dt)
+	if kind == "car":
+		_smash_ahead()
 	if not route.is_empty() and not driver_in:
 		_autopilot(dt)
 	var fwd_speed := linear_velocity.dot(global_basis.z)
@@ -536,6 +538,13 @@ func place(at: Vector3, heading: float) -> void:
 
 
 func _process(dt: float) -> void:
+	if winching() and is_instance_valid(_cable):
+		var mesh: ImmediateMesh = _cable.mesh
+		mesh.clear_surfaces()
+		mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+		mesh.surface_add_vertex(global_position + global_basis.y * 0.8)
+		mesh.surface_add_vertex(_cable_anchor)
+		mesh.surface_end()
 	var spd := speed()
 	# wheel visuals: spin from ground speed, steer pivots, suspension follows the physics wheels
 	for w in _wheels:
@@ -609,8 +618,40 @@ func _update_cameras(dt: float) -> void:
 	chase_cam.fov = 65.0 + 12.0 * k
 
 
+## The Interceptor ploughs through storefronts, partitions and furniture (Smashable) instead of stopping:
+## a box query just ahead of the bumper breaks them before contact, keeping most of the speed.
+func _smash_ahead() -> void:
+	var spd := linear_velocity.dot(global_basis.z)
+	if absf(spd) < 6.0:
+		return
+	var q := PhysicsShapeQueryParameters3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(4.4, 2.4, 2.6 + absf(spd) * 0.08)
+	q.shape = box
+	var ahead := (_hood.z + 1.6) if spd > 0 else -3.0
+	q.transform = Transform3D(global_basis, global_transform * Vector3(0, 1.0, ahead))
+	q.exclude = [get_rid()]
+	var hits := get_world_3d().direct_space_state.intersect_shape(q, 8)
+	var smashed := false
+	for h in hits:
+		var c: Object = h["collider"]
+		if c is Smashable and not c.broken:
+			c.smash(linear_velocity)
+			smashed = true
+			if OS.get_cmdline_user_args().has("--log"):
+				print("[ck] smashed %s at %.1f m/s" % [c.name, spd])
+	if smashed:
+		linear_velocity *= 0.93
+		_prev_vel = linear_velocity # not a crash
+		_jolt = 0.12
+		crashed.emit(0.25, global_transform * Vector3(0, 1.0, ahead))
+
+
 ## A sudden change in velocity is a crash: damage, sparks, a camera jolt (chase views) and a signal for sound.
 func _crash_check(dt: float) -> void:
+	if freeze or winching():
+		_prev_vel = linear_velocity
+		return
 	var dv := (linear_velocity - _prev_vel).length()
 	_prev_vel = linear_velocity
 	if dv > 9.0 and dt > 0.0:
@@ -630,6 +671,45 @@ func _crash_check(dt: float) -> void:
 
 
 var _jolt := 0.0
+var _winch_tw: Tween
+var _cable: MeshInstance3D
+var _cable_anchor := Vector3.ZERO
+
+
+func winching() -> bool:
+	return _winch_tw != null and _winch_tw.is_running()
+
+
+## Bike wall climb: drive to `base`, ride up the face to `lip`, roll onto `roof`, facing `heading` (kinematic).
+func winch(base: Vector3, lip: Vector3, roof: Vector3, heading: float) -> void:
+	freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
+	freeze = true
+	linear_velocity = Vector3.ZERO
+	var up_basis := Basis(Vector3.UP, heading) * Basis(Vector3.RIGHT, -PI / 2) # nose up the wall
+	var flat := Basis(Vector3.UP, heading)
+	var d0 := global_position.distance_to(base)
+	var climb := lip.y - base.y
+	_cable = MeshInstance3D.new()
+	var im := ImmediateMesh.new()
+	_cable.mesh = im
+	var cm := StandardMaterial3D.new()
+	cm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	cm.albedo_color = Color("#2a2a2e")
+	_cable.material_override = cm
+	_cable.top_level = true
+	add_child(_cable)
+	_winch_tw = create_tween()
+	_winch_tw.tween_property(self, "global_transform", Transform3D(flat, base), clampf(d0 / 18.0, 0.25, 2.0))
+	_winch_tw.tween_property(self, "global_transform", Transform3D(up_basis, base + Vector3(0, 1.2, 0) - flat.z * 0.4), 0.35).set_trans(Tween.TRANS_SINE)
+	_winch_tw.tween_property(self, "global_transform", Transform3D(up_basis, Vector3(base.x, lip.y - 0.6, base.z) - flat.z * 0.4), clampf(climb / 12.0, 0.8, 7.0))
+	_winch_tw.tween_property(self, "global_transform", Transform3D(flat, roof + Vector3(0, 0.45, 0)), 0.55).set_trans(Tween.TRANS_SINE)
+	_winch_tw.tween_callback(func():
+		freeze = false
+		linear_velocity = flat.z * 1.5
+		if is_instance_valid(_cable):
+			_cable.queue_free()
+		reset_physics_interpolation())
+	_cable_anchor = lip
 ## effects node for damage smoke (set by the drive controller)
 var _fx: Effects
 

@@ -240,13 +240,26 @@ const CRIMES := [
 	{"kind": "Gang standoff", "ids": ["npc_criminal_thug", "npc_enforcer"], "n": 4, "victim": false},
 	{"kind": "Weapons deal", "ids": ["npc_mercenary", "npc_stealth_operative", "npc_riot_trooper"], "n": 4, "victim": false},
 	{"kind": "Rogue security bots", "ids": ["npc_security_robot"], "n": 3, "victim": false},
+	{"kind": "Bank robbery", "ids": ["npc_mercenary", "npc_enforcer", "npc_criminal_thug"], "n": 5, "victim": true, "place": ["bank"]},
+	{"kind": "Store holdup", "ids": ["npc_criminal_thug", "npc_mercenary"], "n": 3, "victim": true, "place": ["store", "pawn", "diner"]},
+	{"kind": "Fight club raid", "ids": ["npc_enforcer", "npc_criminal_thug"], "n": 5, "victim": false, "place": ["gym"]},
 ]
+## District.places (enterable buildings), set by the game
+var places: Places
 
 
 func start_crime(def := {}) -> void:
 	if def.is_empty():
 		def = CRIMES[randi() % CRIMES.size()]
 	var at := street_point(80, 300)
+	if def.has("place") and places:
+		var pl := places.pick(player.global_position, def["place"], 60.0, 420.0)
+		if pl.is_empty():
+			def = CRIMES[0]
+		else:
+			at = pl["center"]
+			def = def.duplicate()
+			def["kind"] = "%s at %s" % [def["kind"], String(pl["name"]).capitalize()]
 	var squad_list := squad(def["ids"], at, def["n"], "NPC_Talk")
 	var victim: Node3D = null
 	if def["victim"]:

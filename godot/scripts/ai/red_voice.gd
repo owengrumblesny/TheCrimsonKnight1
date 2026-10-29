@@ -94,7 +94,7 @@ func start(dir: String) -> void:
 
 
 func _start_piper() -> void:
-	var exe := ai_dir.path_join("piper/piper/piper.exe")
+	var exe := ai_dir.path_join("piper/piper/piper" + (".exe" if OS.get_name() == "Windows" else ""))
 	var model := ai_dir.path_join("models/en_US-amy-low.onnx")
 	if not FileAccess.file_exists(exe) or not FileAccess.file_exists(model):
 		push_warning("R.E.D.: Piper not found in %s; voice is text only" % ai_dir)
@@ -109,7 +109,7 @@ func _start_piper() -> void:
 
 
 func _start_whisper() -> void:
-	var exe := ai_dir.path_join("whisper/Release/whisper-server.exe")
+	var exe := ai_dir.path_join("whisper/Release/whisper-server" + (".exe" if OS.get_name() == "Windows" else ""))
 	var model := ai_dir.path_join("models/ggml-base.en.bin")
 	if not FileAccess.file_exists(exe) or not FileAccess.file_exists(model):
 		push_warning("R.E.D.: whisper not found; voice commands off (typed chat still works)")

@@ -1,0 +1,14 @@
+{
+  "name": "crimson-knight",
+  "private": true,
+  "description": "Crimson Knight: Earth-RED (Godot 4.7.2). Build commands; see docs/BUILD.md. The old web build's own scripts are in game/package.json.",
+  "scripts": {
+    "build": "powershell -NoProfile -ExecutionPolicy Bypass -File build/build_windows.ps1",
+    "build:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File build/build_windows.ps1",
+    "build:installer": "powershell -NoProfile -ExecutionPolicy Bypass -File build/build_windows.ps1 -Installer",
+    "build:linux": "bash build/build_linux.sh",
+    "package:linux": "bash build/package_linux.sh",
+    "start": "powershell -NoProfile -Command \"$g = if ($env:GODOT) { $env:GODOT } else { Join-Path $env:LOCALAPPDATA 'Microsoft\\WinGet\\Packages\\GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe\\Godot_v4.7.2-stable_win64.exe' }; & $g --path .\"",
+    "test": "powershell -NoProfile -Command \"$g = if ($env:GODOT) { $env:GODOT } else { Join-Path $env:LOCALAPPDATA 'Microsoft\\WinGet\\Packages\\GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe\\Godot_v4.7.2-stable_win64_console.exe' }; & $g --headless --path . --script godot/tools/test_logic.gd; exit $LASTEXITCODE\""
+  }
+}

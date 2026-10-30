@@ -33,9 +33,13 @@ if (-not $SkipBuild) {
 $Setup = Join-Path $Repo 'dist\CrimsonKnight-Setup.exe'
 if (-not (Test-Path $Setup)) { throw "Missing $Setup" }
 
-git -C $Repo add config/version.json
-git -C $Repo -c user.name="Owen Grumbles" -c user.email="owengrumblesny@gmail.com" commit -m "Release $Tag" 2>$null
-git -C $Repo push origin master:main
+# git reports progress on stderr, and "nothing to commit" is fine when the version didn't change
+$ErrorActionPreference = 'Continue'
+git -C $Repo add config/version.json *> $null
+git -C $Repo -c user.name="Owen Grumbles" -c user.email="owengrumblesny@gmail.com" commit -m "Release $Tag" *> $null
+git -C $Repo push origin master:main *> $null
+if ($LASTEXITCODE -ne 0) { throw "git push failed." }
+$ErrorActionPreference = 'Stop'
 
 $linux = Get-ChildItem (Join-Path $Repo 'dist') -Filter 'CrimsonKnight-*-linux-x86_64.tar.gz' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime | Select-Object -Last 1
 $linuxAsset = $null
@@ -45,7 +49,14 @@ if ($linux) {
     Copy-Item $linux.FullName $linuxAsset -Force
 }
 
-if ((Get-Command gh -ErrorAction SilentlyContinue) -and (gh auth status 2>$null; $LASTEXITCODE -eq 0)) {
+$ghOk = $false
+if (Get-Command gh -ErrorAction SilentlyContinue) {
+    $ErrorActionPreference = 'Continue'
+    gh auth status *> $null
+    $ghOk = $LASTEXITCODE -eq 0
+    $ErrorActionPreference = 'Stop'
+}
+if ($ghOk) {
     $assets = @($Setup)
     if ($linuxAsset) { $assets += $linuxAsset }
     gh release create $Tag @assets --repo $Slug --title "Crimson Knight $Version" --notes $Notes

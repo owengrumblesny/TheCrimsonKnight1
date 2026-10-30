@@ -169,7 +169,7 @@ func _bike_grapple(v: Vehicle) -> void:
 	fwd = fwd.normalized()
 	# first wall ahead that has a roof at least 3 m up (skips bus shelters, cabinets and other street props)
 	var from := v.global_position + Vector3(0, 1.0, 0)
-	var end := from + fwd * 45.0
+	var end := from + fwd * 120.0
 	var wall := Vector3.INF
 	var n := Vector3.ZERO
 	var top := -INF
@@ -194,7 +194,7 @@ func _bike_grapple(v: Vehicle) -> void:
 			break
 		from = hit["position"] + fwd * 0.6
 	if wall == Vector3.INF:
-		notify.emit("No building to climb ahead: face a wall within 45 m", "grapple", "warn")
+		notify.emit("No building to climb ahead: face a wall within 120 m", "grapple", "warn")
 		sound.emit("ui.deny")
 		return
 	if top - v.global_position.y > 150.0:
@@ -211,8 +211,10 @@ func _bike_grapple(v: Vehicle) -> void:
 signal autodrive_ended(arrived: bool)
 
 
-## Street-grid route from `from` to `to` (both snapped to avenue centre lines): straight runs and right-angle
-## turns at crossings, ending on the road beside the target.
+## Street-grid route from `from` to `to`: corner points on the avenue centre lines (straight runs and right-angle
+## turns at crossings), then laned(): the right-hand lane, with an approach point before and an exit point after
+## every crossing so turns are taken through the middle of the intersection (traffic lights sit on its corners,
+## street lamps start 20 m back from it).
 static func grid_route(from: Vector3, to: Vector3) -> Array:
 	var S := District.SPACING
 	var ax := roundf(from.x / S) * S
@@ -222,21 +224,46 @@ static func grid_route(from: Vector3, to: Vector3) -> Array:
 	var ez := roundf(to.z / S) * S
 	var end_ns := absf(to.x - ex) < absf(to.z - ez)
 	var end := Vector3(ex, 0, to.z) if end_ns else Vector3(to.x, 0, ez)
-	var pts: Array = []
+	var start := Vector3(ax, 0, from.z) if start_ns else Vector3(from.x, 0, az)
+	var pts: Array = [start]
 	if start_ns and end_ns:
 		if absf(ax - ex) > 1.0:
 			var c := roundf(((from.z + end.z) / 2.0) / S) * S
-			pts = [Vector3(ax, 0, c), Vector3(ex, 0, c)]
+			pts += [Vector3(ax, 0, c), Vector3(ex, 0, c)]
 	elif start_ns and not end_ns:
-		pts = [Vector3(ax, 0, ez)]
+		pts.append(Vector3(ax, 0, ez))
 	elif not start_ns and end_ns:
-		pts = [Vector3(ex, 0, az)]
+		pts.append(Vector3(ex, 0, az))
 	else:
 		if absf(az - ez) > 1.0:
 			var c2 := roundf(((from.x + end.x) / 2.0) / S) * S
-			pts = [Vector3(c2, 0, az), Vector3(c2, 0, ez)]
+			pts += [Vector3(c2, 0, az), Vector3(c2, 0, ez)]
 	pts.append(end)
-	return pts
+	return laned(pts)
+
+
+## Centre-line corners -> lane-following waypoints (right-hand lane, approach/exit points around each turn).
+static func laned(c: Array) -> Array:
+	var lane: float = District.LANES[0]
+	var out: Array = []
+	for i in range(1, c.size()):
+		var a: Vector3 = c[i - 1]
+		var b: Vector3 = c[i]
+		var seg := b - a
+		if seg.length() < 1.0:
+			continue
+		var d := seg.normalized()
+		var right := Vector3(-d.z, 0, d.x)
+		var last := i == c.size() - 1
+		var back := minf(16.0, seg.length() * 0.45)
+		if not last:
+			out.append(b - d * back + right * lane) # approach the crossing in lane
+			var n: Vector3 = (c[i + 1] - b).normalized()
+			var right2 := Vector3(-n.z, 0, n.x)
+			out.append(b + n * minf(16.0, (c[i + 1] - b).length() * 0.45) + right2 * lane) # exit into the new lane
+		else:
+			out.append(b + right * lane)
+	return out
 
 
 ## R.E.D. takes the wheel: drive to `target` along the streets. Returns false if not in a car or bike.

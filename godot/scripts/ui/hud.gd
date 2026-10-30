@@ -30,6 +30,8 @@ var director: Director
 var _stars: Label
 var _rank: Label
 var _objective: Label
+## the objective panel (left column); R.E.D.'s panel stacks under it
+var objective_box: Control
 var _flash: ColorRect
 var _compass_marks: Control
 ## grapple target indicator: world point to mark (null = none) and the camera to project it
@@ -103,7 +105,8 @@ func _ready() -> void:
 	_prompt.visible = false
 	widgets.add_child(_prompt)
 	_notes = VBoxContainer.new()
-	CKUI.place(_notes, Vector4(1, 0, 1, 0), Vector4(-358, 16, -18, 16))
+	# notifications: centred under the compass and heat stars, clear of R.E.D. (left) and SYSTEMS (right)
+	CKUI.place(_notes, Vector4(.5, 0, .5, 0), Vector4(-175, 84, 175, 84))
 	_notes.add_theme_constant_override("separation", 6)
 	_notes.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_notes) # notifications stay visible with the HUD hidden
@@ -298,6 +301,7 @@ func _build_world_widgets() -> void:
 	var obj := PanelContainer.new()
 	obj.add_theme_stylebox_override("panel", CKUI.box(Color(CKUI.BG, 0.78), CKUI.BORDER, 8, 1, 8))
 	obj.position = Vector2(18, 122)
+	objective_box = obj
 	obj.custom_minimum_size = Vector2(330, 0)
 	_objective = CKUI.label("", 13)
 	_objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

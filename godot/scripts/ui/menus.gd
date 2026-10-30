@@ -651,6 +651,32 @@ func _screen_settings(body: VBoxContainer) -> void:
 			s[key] = on
 			game.apply_settings())
 		_row(v, pair[1], cbx)
+	# R.E.D. local AI: status and one-click download (for players who've never installed AI tools)
+	v.add_child(CKUI.section("R.E.D. AI (offline brain, voice and ears)"))
+	var ai_dir := RedAI.find_ai_dir()
+	var installed := RedInstaller.complete(ai_dir)
+	var ai_status := _muted("Installed and running locally." if installed else "Not installed: R.E.D. uses scripted lines only. The download is about %d MB, from the official llama.cpp, whisper.cpp and Piper releases. Nothing is sent online after that." % RedInstaller.TOTAL_MB)
+	v.add_child(ai_status)
+	var bar := ProgressBar.new()
+	bar.custom_minimum_size = Vector2(420, 12)
+	bar.show_percentage = false
+	bar.visible = game.ai_installer.busy
+	v.add_child(bar)
+	if not installed:
+		var dl := CKUI.button("Download R.E.D. AI (%d MB)" % RedInstaller.TOTAL_MB, "notification", "", func():
+			game.ai_installer.start()
+			bar.visible = true)
+		dl.disabled = game.ai_installer.busy
+		v.add_child(dl)
+		game.ai_installer.progress.connect(func(t: String, f: float):
+			if is_instance_valid(ai_status):
+				ai_status.text = t
+				bar.value = f * 100.0)
+		game.ai_installer.finished.connect(func(ok: bool, msg: String):
+			if is_instance_valid(ai_status):
+				ai_status.text = msg
+				bar.visible = false
+				dl.disabled = ok)
 	v.add_child(_muted("Click a key, then press the new key. If it is already used, the two actions swap. Esc cancels."))
 	var keys := GridContainer.new()
 	keys.columns = 2

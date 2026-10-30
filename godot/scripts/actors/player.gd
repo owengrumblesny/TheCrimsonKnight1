@@ -68,8 +68,8 @@ var _feel_accel := 0.0
 var _feel_turn := 0.0
 var _look_strength := 0.0 # set by _look_point: 1 for a real point of interest, less for the camera direction
 
-const GRAPPLE_RANGE := 70.0
-const GRAPPLE_MAX_SPEED := 30.0
+const GRAPPLE_RANGE := 120.0
+const GRAPPLE_MAX_SPEED := 42.0
 const GRAPPLE_ACCEL := 38.0
 const GLIDE_MIN := 7.0
 const GLIDE_MAX := 40.0
@@ -202,19 +202,21 @@ func find_grapple_target() -> Dictionary:
 		return {}
 	var p: Vector3 = hit["position"]
 	var n: Vector3 = hit["normal"]
-	if p.distance_to(global_position) > GRAPPLE_RANGE or p.y < global_position.y + 2.0:
+	if p.distance_to(global_position) > GRAPPLE_RANGE:
 		return {}
 	if n.y > 0.7:
+		if p.y < global_position.y + 2.0:
+			return {} # ground or a low ledge: nothing to pull up to
 		return {"point": p, "ledge": false, "normal": Vector3.ZERO} # a rooftop: land on it
 	# a wall: find the roof line above the hit point (probe down from above, just inside the wall)
 	var inside := p - Vector3(n.x, 0, n.z).normalized() * 0.4
-	var dq := PhysicsRayQueryParameters3D.create(inside + Vector3.UP * 45.0, inside + Vector3.DOWN * 0.5)
+	var dq := PhysicsRayQueryParameters3D.create(Vector3(inside.x, global_position.y + 160.0, inside.z), inside + Vector3.DOWN * 0.5)
 	dq.collision_mask = 1
 	var top := space.intersect_ray(dq)
 	if top.is_empty() or top["normal"].y < 0.7:
 		return {}
 	var edge: Vector3 = top["position"]
-	if edge.y - global_position.y > 60.0:
+	if edge.y - global_position.y > 140.0 or edge.y < global_position.y + 2.5:
 		return {}
 	var wall_n := Vector3(n.x, 0, n.z).normalized()
 	return {"point": Vector3(p.x, edge.y, p.z) + wall_n * 0.35, "ledge": true, "normal": wall_n}

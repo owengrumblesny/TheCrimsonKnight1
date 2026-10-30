@@ -28,7 +28,7 @@ R.E.D. is a sassy assistant in the Knight's helmet. She runs entirely on the pla
 | "help me fight", "combat assist" | **Combat assist**: she counters every telegraphed blow for you. Every ~9 s she reads the fight and calls a tactic (overdrive, armor, shield, scan, smoke, sonic). With the LLM running, the model picks the tactic from that fixed list (JSON-constrained) and says why; without it, a rule picks. She then carries it out |
 | "autopilot", "drive me", "take the wheel" | **Autodrive**: she drives the car or Cycle along the street grid to your waypoint, or to the nearest crime. On arrival she briefs you on the scene (LLM). Touch the controls to take the wheel back |
 | "assist off", "I got this" | Turns combat assist and autodrive off |
-| "knight vision", "thermal", "x-ray", "normal vision" | Helmet vision modes (also N) |
+| "knight vision", "thermal", "x-ray", "night vision", "normal vision" | Helmet vision modes (also N) |
 | "make it day", "make it night" | Skips the clock |
 | "helmet view", "first person" | Helmet camera (also H) |
 
@@ -50,6 +50,9 @@ Anything that isn't a command is **conversation**. It goes to the local LLM alon
 - **Settings:** each of the four parts can be turned on or off: voice, voice commands, conversation and callouts.
 
 Test hook: `--red --redsay="summon the car@200|tell me a joke@900"` (text@frame, separated by `|`).
+
+## Sharing the game: one-click AI download
+Players who've never installed AI tools don't need to. **Settings > R.E.D. AI > Download R.E.D. AI (about 1300 MB)** fetches the same engines and models from their official releases into the game's user folder (`%APPDATA%\Godotpp_userdata\Crimson Knighti` on Windows, `~/.local/share/godot/app_userdata/Crimson Knight/ai` on Linux). It shows progress, unpacks everything, and starts R.E.D. without a restart (`godot/scripts/ai/red_installer.gd`). Linux uses the ubuntu-x64 / linux_x86_64 builds and the system `tar`. So you can share `dist/windows` without its 1.3 GB `ai/` folder.
 
 ## Re-downloading `ai/`
 - llama.cpp `llama-b11982-bin-win-cpu-x64.zip` (github.com/ggml-org/llama.cpp releases) → `ai/llama/`

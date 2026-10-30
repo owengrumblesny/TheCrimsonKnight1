@@ -439,11 +439,30 @@ func _autopilot(dt: float) -> void:
 		return
 	var local := global_basis.inverse() * to
 	var ang := atan2(local.x, local.z) # + = target to the left (VehicleBody3D steering sign)
-	steer_in = clampf(ang * 1.6, -1.0, 1.0)
 	var spd := speed()
+	# obstacle sense: three short rays ahead at bumper height (lamps, signs, trees, parked cars, props);
+	# steer away from whichever side is blocked and slow down
+	var avoid := 0.0
+	var blocked := false
+	if autodrive:
+		var look_d := clampf(spd * 0.7, 6.0, 16.0)
+		var space := get_world_3d().direct_space_state
+		for k in [-1.0, 0.0, 1.0]:
+			var from := global_transform * Vector3(k * 1.1, 0.8, _hood.z)
+			var dir := (global_basis * Vector3(k * 0.18, 0, 1)).normalized()
+			var q := PhysicsRayQueryParameters3D.create(from, from + dir * look_d)
+			q.collision_mask = 1
+			q.exclude = [get_rid()]
+			var h := space.intersect_ray(q)
+			if not h.is_empty() and absf(h["normal"].y) < 0.6 and not (h["collider"] is Smashable):
+				blocked = blocked or k == 0.0
+				avoid += (1.0 if k <= 0.0 else -1.0) * (1.0 - global_position.distance_to(h["position"]) / look_d)
+	steer_in = clampf(ang * 1.6 + avoid * 1.4, -1.0, 1.0)
 	var want := 22.0 if not last else clampf(to.length() * 0.9, 3.0, 22.0)
 	if absf(ang) > 0.5:
 		want = minf(want, 8.0) # corner
+	if blocked:
+		want = minf(want, 5.0)
 	throttle = clampf((want - spd) * 0.25, -1.0, 1.0)
 	_stuck_t = _stuck_t + dt if absf(spd) < 1.0 else 0.0
 	if _stuck_t > 4.0:

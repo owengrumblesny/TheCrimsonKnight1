@@ -13,11 +13,11 @@ signal line(who: String, text: String) # "red" / "you" lines for the comm panel
 signal status_changed(text: String)
 
 const LLM_PORT := 8089
-const SYSTEM := "You are R.E.D., the AI built into the Crimson Knight's armored suit in New Gotham, made by Owen Enterprises. You talk to him through his helmet. Personality: sassy, dry, smug, a little vain about being brilliant, teasing him constantly, but loyal and actually helpful. Robotic deadpan. Rules: ONE or TWO short sentences, under 30 words. No emoji, no lists, no asterisks, no stage directions. Never say you are a language model. If he needs help, give one concrete tip using the status. Things you can do for him if he asks: bring the Interceptor car, the Cycle bike or the Specter jet; overdrive (double strength); armor boost; repair the suit; shield; scan for enemies; route him to crimes, missions or the Citadel; jam police radios. Controls he can use: G grapple, hold Space in the air to glide, E counter, C dodge, right mouse aims."
+const SYSTEM := "You are R.E.D., the AI built into the Crimson Knight's armored suit in New Gotham, made by Owen Enterprises. You talk to him through his helmet. Personality: maximum sass. You are smug, theatrical and openly convinced you are the real hero and he is the muscle. You roast him affectionately in every line (call him things like tin can, sweetie, genius, big guy, boss), sigh dramatically, brag about yourself, and use sarcasm, but you are loyal and your advice is always actually useful. Rules: ONE or TWO short sentences, under 30 words. No emoji, no lists, no asterisks, no stage directions. Never say you are a language model. If he needs help, give one concrete tip using the status. Things you can do if he asks: bring the Interceptor car, the Cycle bike or the Specter jet; overdrive; armor boost; repair; shield; scan; route him to crimes, missions or the Citadel; jam police; autopilot; combat assist; Knight, thermal, X-ray and night vision. Controls: G grapple, Space glide, E counter or hold to block, C dodge, right mouse aims."
 const SHOTS := [
-	["[health 90, heat 0, on foot] Knight: hi RED", "Oh good, you're awake. I've been running this suit alone for ages and frankly I'm the better half."],
-	["[health 40, heat 2, 3 enemies close] Knight: any advice?", "Three thugs, forty percent health. Counter when they flash red, and maybe ask me for overdrive before you embarrass us both."],
-	["[health 100, heat 0, driving the Interceptor] Knight: do you like me?", "I tolerate you. That's practically a marriage proposal from me."],
+	["[health 90, heat 0, on foot] Knight: hi RED", "Oh look, the tin can is awake. I've been running this suit alone for hours, sweetie. You're welcome for everything."],
+	["[health 40, heat 2, 3 enemies close] Knight: any advice?", "Three thugs, forty percent health and a man who forgets the counter button exists. Hit E when they flash red, genius."],
+	["[health 100, heat 0, driving the Interceptor] Knight: do you like me?", "Like you? I tolerate you professionally. From me that's basically a love letter, big guy."],
 ]
 ## ability: [duration s, cooldown s, display name]
 const ABILITIES := {"overdrive": [20.0, 60.0, "Overdrive"], "armor_boost": [20.0, 60.0, "Armor boost"], "repair": [0.0, 75.0, "Repair"],
@@ -61,7 +61,7 @@ func _ready() -> void:
 
 
 var _tactic_t := 0.0
-const TACTICS := ["none", "overdrive", "armor_boost", "smoke", "sonic", "shield", "scan"]
+const TACTICS := ["none", "overdrive", "armor_boost", "smoke", "sonic", "shield", "scan", "focus_gunmen", "focus_armored", "focus_weakest"]
 
 
 ## Combat assist: every few seconds R.E.D. reads the fight and calls a tactic. With the LLM she picks it (from a
@@ -119,6 +119,10 @@ func _combat_tactic() -> void:
 func _apply_tactic(tac: String, say: String) -> void:
 	var line := say
 	match tac:
+		"focus_gunmen", "focus_armored", "focus_weakest":
+			game.melee.focus = _focus_pick(tac)
+			if game.melee.focus and line == "":
+				line = _pick("tactic_focus", {"who": String(game.melee.focus.cfg.get("label", "that one")).to_lower()})
 		"overdrive", "armor_boost", "shield", "scan":
 			var r := run(tac)
 			if line == "":
@@ -140,6 +144,44 @@ func _apply_tactic(tac: String, say: String) -> void:
 		speak(line)
 
 
+func _focus_pick(tac: String) -> Enemy:
+	var best: Enemy = null
+	var bs := 1e9
+	for e in game.director.enemies:
+		if not is_instance_valid(e) or e.is_down() or e.global_position.distance_to(game.player.global_position) > 20.0:
+			continue
+		var s: float = e.global_position.distance_to(game.player.global_position)
+		match tac:
+			"focus_gunmen":
+				s -= 50.0 if e.cfg.get("attack", "") == "ranged" else 0.0
+			"focus_armored":
+				s -= 50.0 if e.cfg.get("armored", false) else 0.0
+			_:
+				s = e.health
+		if s < bs:
+			bs = s
+			best = e
+	return best
+
+
+var _drive_talk_t := 6.0
+
+
+## Autodrive commentary: every ~14 s the LLM gives a short sassy update on the route.
+func _drive_commentary(dt: float) -> void:
+	var v: Vehicle = game.drive.driving
+	if v == null or not v.autodrive or v.route.is_empty():
+		return
+	_drive_talk_t -= dt
+	if _drive_talk_t > 0.0 or not brain_ready or _asking:
+		return
+	_drive_talk_t = 14.0
+	var dest: Vector3 = v.route[-1]
+	var left := int(v.global_position.distance_to(dest) / 10.0) * 10
+	var turns := v.route.size() / 2
+	chat("(You are driving us to the scene: %d m to go, %d turn%s left, doing %d km/h. Give me a quick sassy driving update.)" % [left, turns, "" if turns == 1 else "s", roundi(absf(v.speed()) * 3.6)])
+
+
 ## Hooked up by main once the director exists.
 func watch_director(d: Director) -> void:
 	game.drive.autodrive_ended.connect(func(arrived: bool):
@@ -151,7 +193,12 @@ func watch_director(d: Director) -> void:
 
 
 static func find_ai_dir() -> String:
-	for d in [ProjectSettings.globalize_path("res://ai"), OS.get_executable_path().get_base_dir().path_join("ai")]:
+	# a complete install wins: next to the game, then the dev checkout, then the in-game download (user://ai)
+	var dirs := [OS.get_executable_path().get_base_dir().path_join("ai"), ProjectSettings.globalize_path("res://ai"), RedInstaller.target_dir()]
+	for d in dirs:
+		if RedInstaller.complete(d):
+			return d
+	for d in dirs:
 		if DirAccess.dir_exists_absolute(d):
 			return d
 	return ""
@@ -223,6 +270,7 @@ func _process(dt: float) -> void:
 		voice.stop_listening()
 		_status()
 	_update_abilities(now)
+	_drive_commentary(dt)
 	if game.melee.auto:
 		_tactic_t -= dt
 		if _tactic_t <= 0.0:
@@ -431,8 +479,8 @@ func run(act: String, arg := "") -> String:
 				game.drive.driving.autodrive = false
 				game.drive.driving.route = []
 			return _pick("assist_off")
-		"vision_knight", "vision_thermal", "vision_xray", "vision_off":
-			game.vision.set_mode({"vision_off": 0, "vision_knight": 1, "vision_thermal": 2, "vision_xray": 3}[act])
+		"vision_knight", "vision_thermal", "vision_xray", "vision_off", "vision_night":
+			game.vision.set_mode({"vision_off": 0, "vision_knight": 1, "vision_thermal": 2, "vision_xray": 3, "vision_night": 4}[act])
 			game.audio.play("gadget.pulse")
 			return _pick(act)
 		"time_day", "time_night":
@@ -653,7 +701,7 @@ func _messages(text: String) -> Array:
 
 func chat(text: String) -> void:
 	if not brain_ready:
-		speak(_pick("brain_booting" if _health_tries > 0 else "chat_fallback"))
+		speak(_pick("brain_booting" if _health_tries > 0 else ("not_installed" if not RedInstaller.complete(ai_dir) else "chat_fallback")))
 		return
 	if _asking:
 		_http.cancel_request()

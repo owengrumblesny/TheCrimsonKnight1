@@ -1,13 +1,13 @@
 class_name Vision
 extends CanvasLayer
-## CR-X9 helmet vision (N cycles): Normal → Knight vision → Thermal → X-ray.
+## CR-X9 helmet vision (N cycles): Normal → Knight vision → Thermal → X-ray → Night vision.
 ##  - A full-screen shader recolours the view (godot/shaders/vision.gdshader).
 ##  - People get an overlay material that draws through walls: Knight vision shows hostiles orange and
 ##    civilians blue; thermal shows every body hot (yellow-white core, red edge); X-ray shows hostiles as pale
 ##    cyan "scans" so you can track them inside buildings.
 ##  - The helmet camera (H) adds the visor frame from the same shader.
 
-const MODES := ["Normal", "Knight vision", "Thermal", "X-ray"]
+const MODES := ["Normal", "Knight vision", "Thermal", "X-ray", "Night vision"]
 
 var mode := 0
 var helmet := false
@@ -57,7 +57,9 @@ func set_helmet(on: bool) -> void:
 func _process(dt: float) -> void:
 	_t += dt
 	_mat.set_shader_parameter("time", _t)
-	if mode == 0 or not sources.is_valid():
+	if mode == 0 or mode == 4 or not sources.is_valid():
+		if mode == 4 and not _tagged.is_empty():
+			_clear() # night vision amplifies light; it does not see through walls
 		return
 	_refresh_t -= dt
 	if _refresh_t > 0.0:

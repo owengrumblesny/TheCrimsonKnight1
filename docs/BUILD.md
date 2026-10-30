@@ -80,3 +80,7 @@ The game looks for `llama-server`, `whisper-server` and `piper` without `.exe` o
 - The first export imports every asset into `.godot/` (several minutes on a fresh checkout or worktree); later exports are quick.
 - The export writes `dist/.gdignore` so Godot never scans the exported builds or the copied `ai/` as project files.
 - Shell scripts are kept LF and PowerShell/Inno files CRLF via `build/.gitattributes`.
+
+
+## Sharing with friends
+Zip `dist/windows/` without the `ai/` folder (`build_windows.ps1 -NoAI`): about 320 MB. On first run, friends open **Settings > R.E.D. AI** and press **Download**. The game fetches and installs R.E.D.'s local AI by itself (see `docs/RED_AI.md`).

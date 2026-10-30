@@ -101,7 +101,7 @@ func _draw() -> void:
 			_text(s + Vector2(16, -12), "%s  %dm" % [pl["name"], roundi(d2)], 10, Color(CYAN, fade))
 	# ---- SYSTEMS panel (right side, under the notifications) ----
 	var x := vp.x - 238.0
-	var y := 250.0
+	var y := 40.0
 	draw_rect(Rect2(x - 8, y - 18, 230, 196), Color(0.02, 0.06, 0.09, 0.45 * a))
 	_bracket(Vector2(x + 107, y + 80), Vector2(115, 98), Color(CYAN, 0.6 * a), 10.0, 1.2)
 	_text(Vector2(x, y - 4), "CR-X9  SYSTEMS", 11, Color(1, 0.4, 0.45, a))
@@ -178,6 +178,9 @@ func _draw() -> void:
 		draw_colored_polygon(PackedVector2Array([at2 + Vector2(0, -5), at2 + Vector2(4, 0), at2 + Vector2(0, 5), at2 + Vector2(-4, 0)]), Color(1, 0.85, 0.3, a))
 	draw_colored_polygon(PackedVector2Array([rc + Vector2(0, -6), rc + Vector2(4, 4), rc + Vector2(-4, 4)]), Color(1, 1, 1, a))
 	_text(rc + Vector2(-RADAR_R, -RADAR_R - 6), "TACTICAL  %dm" % roundi(RADAR_RANGE), 9, Color(DIM, a))
+	# ---- helmet-only: arc gauges round the reticle, data streams, boot sequence ----
+	if game.cam.helmet:
+		_helmet_extras(vp, centre, a)
 	# ---- frame corners (the "visor" edge) ----
 	var m := 10.0
 	var fc := Color(1, 0.3, 0.38, 0.35 * a)
@@ -187,3 +190,42 @@ func _draw() -> void:
 		var dy := 1.0 if s.y == 0 else -1.0
 		draw_line(corner, corner + Vector2(dx * 40, 0), fc, 2.0)
 		draw_line(corner, corner + Vector2(0, dy * 40), fc, 2.0)
+
+
+var _helmet_on_t := -10.0
+
+
+func _helmet_extras(vp: Vector2, centre: Vector2, a: float) -> void:
+	var v: Vitals = game.vitals
+	var gr := 118.0
+	# suit (left) and power (right) arc gauges
+	draw_arc(centre, gr, PI * 0.72, PI * 1.28, 32, Color(DIM, 0.25 * a), 4.0, true)
+	draw_arc(centre, gr, PI * 0.72, PI * 0.72 + PI * 0.56 * clampf(v.health / 100.0, 0, 1), 32, Color(CYAN, 0.75 * a), 4.0, true)
+	draw_arc(centre, gr, -PI * 0.28, PI * 0.28, 32, Color(DIM, 0.25 * a), 4.0, true)
+	draw_arc(centre, gr, PI * 0.28 - PI * 0.56 * clampf(v.energy / 100.0, 0, 1), PI * 0.28, 32, Color(AMBER, 0.75 * a), 4.0, true)
+	_text(centre + Vector2(-gr - 34, 4), "%d" % roundi(v.health), 11, Color(CYAN, a))
+	_text(centre + Vector2(gr + 10, 4), "%d" % roundi(v.energy), 11, Color(AMBER, a))
+	# glowing tick ring
+	for i in 36:
+		var ang := i * TAU / 36.0 + _t * 0.15
+		var p0 := centre + Vector2(cos(ang), sin(ang)) * (gr + 10)
+		var p1 := centre + Vector2(cos(ang), sin(ang)) * (gr + (16 if i % 3 == 0 else 13))
+		draw_line(p0, p1, Color(CYAN, (0.35 if i % 3 == 0 else 0.15) * a), 1.2, true)
+	# data streams scrolling up the edges
+	for side in [0, 1]:
+		var x := 26.0 if side == 0 else vp.x - 70.0
+		for k in 14:
+			var yy := fmod(k * 22.0 - _t * 40.0 + side * 11.0, vp.y * 0.5) + vp.y * 0.25
+			var val := int(abs(sin(k * 12.9 + floorf(_t * 2.0) + side * 3.1)) * 65535.0)
+			_text(Vector2(x, yy), "%04X" % val, 9, Color(CYAN, 0.18 * a))
+	# boot sequence for the first 2.5 s after the visor comes on
+	var since := _t - _helmet_on_t
+	if since < 2.5:
+		var lines := ["CR-X9 VISOR  ONLINE", "R.E.D. LINK  ESTABLISHED", "OPTICS  CALIBRATED", "THREAT MATRIX  ACTIVE"]
+		for i in lines.size():
+			if since > i * 0.4:
+				_text(centre + Vector2(-110, -80 + i * 16), lines[i], 12, Color(1, 0.4, 0.45, clampf(2.5 - since, 0.0, 1.0)))
+
+
+func helmet_booted() -> void:
+	_helmet_on_t = _t

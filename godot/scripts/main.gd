@@ -52,6 +52,7 @@ var anim_debug: AnimDebug
 var red: RedAI
 var vision: Vision
 var holo: HoloHUD
+var ai_installer: RedInstaller
 ## the ten talking villains and the 20 landmarks (godot/scripts/villains/)
 var villains: VillainSystem
 var vweapons: VehicleWeapons
@@ -261,6 +262,14 @@ func _ready() -> void:
 				if is_instance_valid(v) and v.global_position.distance_to(p) < 90.0:
 					out.append([v, true])
 		return out
+	ai_installer = RedInstaller.new()
+	add_child(ai_installer)
+	ai_installer.finished.connect(func(ok: bool, msg: String):
+		notify(msg, "notification", "info" if ok else "warn")
+		if ok:
+			red.stop_engines()
+			red.start_engines(settings["redVoice"], settings["redListen"], settings["redBrain"])
+			red.speak(red._pick("installed")))
 	red = RedAI.new()
 	red.game = self
 	add_child(red)
@@ -316,6 +325,9 @@ func _ready() -> void:
 			anim_debug.select(args["animdebug"])).call_deferred()
 	if args.has("mission"):
 		director.mission_index = int(args["mission"])
+	if args.has("waypoint"): # test aid: --waypoint=x,z
+		var wp := String(args["waypoint"]).split(",")
+		director.waypoint = Vector3(float(wp[0]), 0, float(wp[1]))
 	if args.has("squad"): # test aid: an alerted squad 7 m ahead of the Knight
 		(func():
 			for e in director.squad(["npc_criminal_thug", "npc_enforcer", "npc_mercenary"], player.global_position + Vector3(0, 0, -7), int(args["squad"])):
@@ -377,6 +389,8 @@ func set_helmet(on: bool) -> void:
 	cam.helmet = on
 	player.hero.visible = not on
 	vision.set_helmet(on)
+	if on and holo:
+		holo.helmet_booted()
 	hud.visor = on
 	audio.play("armor.activate" if on else "ui.close")
 
@@ -614,6 +628,9 @@ func _process(dt: float) -> void:
 		hud.vehicle_text = hud.vehicle_text + ["Guns %s%s" % ["OVERHEATED" if vweapons.overheated else "%d%% heat" % roundi(vweapons.heat * 100),
 			"" if mr < 0 else (" · missiles ready" if mr == 0 else " · missiles %.0f s" % ceilf(mr))]]
 	hud.set_hints(_control_hints())
+	# left column: objective box, then R.E.D. under it (never on top of each other)
+	var ob: Control = hud.objective_box
+	red_panel.position.y = (ob.position.y + ob.size.y + 8.0) if ob.visible and ob.size.y > 4.0 else 124.0
 	hud.camera = cam.camera
 	hud.grapple_point = player.grapple_target.get("point") if not drive.driving and not player.grapple_target.is_empty() else null
 	player.can_exert = vitals.energy > 1

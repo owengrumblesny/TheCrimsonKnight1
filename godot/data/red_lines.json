@@ -1,9 +1,9 @@
 {
   "_note": "R.E.D. (the CR-X9 suit AI) scripted lines. One is picked at random per event; {x} placeholders are filled in by red_ai.gd. Keep them short: they are spoken.",
   "greet": [
-    "R.E.D. online. Suit's warm, city's cold, and you're late. Hold Y to talk, or press Enter to type.",
-    "Good evening, Knight. I've already run the numbers on tonight. You're welcome. Hold Y if you need me.",
-    "Systems green. Ego green. Let's go make New Gotham slightly less terrible."
+    "R.E.D. online. Suit's warm, city's cold, and you're late, tin can. Hold Y to talk, Enter to type.",
+    "Good evening, genius. I ran tonight's numbers while you were napping. Hold Y if you need adult supervision.",
+    "Systems green. Ego green. Mine, obviously. Let's go save New Gotham before you trip over it."
   ],
   "summon_crx1_interceptor": [
     "Interceptor's on its way. Try not to scratch the paint this time.",
@@ -26,7 +26,8 @@
   "overdrive": [
     "Overdrive engaged. Double strike power for twenty seconds. Go be dramatic.",
     "Rerouting reactor power to your fists. Try not to punch through a wall.",
-    "Overdrive's on. Hit them like they owe you money."
+    "Overdrive's on. Hit them like they owe you money.",
+    "Overdrive. Twice the punch, same tiny brain. Go get them, big guy."
   ],
   "armor_boost": [
     "Armor plating hardened. You're half as squishy for twenty seconds.",
@@ -35,7 +36,8 @@
   "repair": [
     "Nano-repair running. Hold still. Or don't, I'm not your mother.",
     "Patching you up. That's {hp} percent and counting.",
-    "Repair cycle done. Please stop getting shot, it's embarrassing for both of us."
+    "Repair cycle done. Please stop getting shot, it's embarrassing for both of us.",
+    "Patching you up again. At this point I should bill you, sweetie."
   ],
   "repair_full": [
     "You're at full health. Hypochondria isn't a suit malfunction.",
@@ -126,7 +128,8 @@
   ],
   "low_health": [
     "Health critical. Say patch me up, or keep bleeding, your call.",
-    "You're at {hp} percent. I'd prefer you alive. Ask for a repair."
+    "You're at {hp} percent. I'd prefer you alive. Ask for a repair.",
+    "You're at {hp} percent. I refuse to break in a new Knight, so ask me for a repair."
   ],
   "heat_up": [
     "Heat's rising: {stars} stars. Ask me to jam the police if it gets annoying.",
@@ -146,7 +149,8 @@
   "enemies_alert": [
     "They've spotted you. {n} hostiles. Counter when you see the red marks.",
     "You've been made. Fight smart: counter, dodge, then hit hard.",
-    "Company. {n} of them. Want overdrive? Just say so."
+    "Company. {n} of them. Want overdrive? Just say so.",
+    "Oh good, a crowd. Counter when they flash red. I know, reading is hard."
   ],
   "buff_end": [
     "{ability} ended. Back to regular you.",
@@ -175,7 +179,8 @@
   ],
   "didnt_hear": [
     "I didn't catch that. Hold Y while you talk.",
-    "Static. Try again, louder and with feeling."
+    "Static. Try again, louder and with feeling.",
+    "I didn't catch that. Try words. In order. Into the microphone."
   ],
   "brain_ready": [
     "Conversation core loaded. Go on, say something clever."
@@ -249,5 +254,19 @@
   "tactic_sonic": [
     "Too many of them. Sonic burst, they're stunned. Go.",
     "Crowd control: sonic pulse. Clean up."
+  ],
+  "vision_night": [
+    "Night vision on. Everything's green and grainy, like a 2009 music video.",
+    "Low-light amplification up. Darkness is officially cancelled."
+  ],
+  "tactic_focus": [
+    "Take out the {who} first. Trust me, I did the math.",
+    "Focus the {who}. The rest are background noise."
+  ],
+  "not_installed": [
+    "My big brilliant brain isn't installed yet, tin can. Settings, R.E.D. AI, Download. I'll wait. Impatiently."
+  ],
+  "installed": [
+    "Brain installed. Ears installed. Voice installed. I'm complete, and frankly, magnificent."
   ]
 }

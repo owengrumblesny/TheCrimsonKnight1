@@ -27,6 +27,8 @@ var power := 1.0
 var blocking := false
 ## R.E.D. combat assist: counters every telegraphed blow automatically (enabled by asking R.E.D.)
 var auto := false
+## R.E.D. focus call: strikes prefer this enemy while it is in reach
+var focus: Enemy
 ## light combo order and heavy rotation: [clip, lock s, impact s, reach bonus m, knockback]
 const LIGHTS := [["CK_PunchR", 0.3, 0.2, 0.0, 1.0], ["CK_PunchL", 0.3, 0.2, 0.0, 1.0], ["CK_KickFront", 0.42, 0.3, 0.8, 2.2],
 	["CK_Elbow", 0.3, 0.23, -0.3, 1.0], ["CK_PunchR", 0.3, 0.2, 0.0, 1.0], ["CK_KneeStrike", 0.36, 0.22, -0.4, 1.4]]
@@ -88,6 +90,8 @@ func _pick_target() -> Enemy:
 		if facing < 0.2 and d > 2.5:
 			continue
 		var score := d - facing * 3.0 # prefer what the camera points at
+		if auto and e == focus:
+			score -= 6.0
 		if score < best_score:
 			best_score = score
 			best = e

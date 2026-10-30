@@ -53,6 +53,7 @@ var red: RedAI
 var vision: Vision
 var holo: HoloHUD
 var ai_installer: RedInstaller
+var extender: CityExtender
 ## the ten talking villains and the 20 landmarks (godot/scripts/villains/)
 var villains: VillainSystem
 var vweapons: VehicleWeapons
@@ -132,6 +133,10 @@ func _ready() -> void:
 	var pa: Array = CKData.json("world")["redCitadelPortal"]
 	portal = Vector3(pa[0], pa[1], pa[2])
 	await loading.step("NPC population")
+	extender = CityExtender.new()
+	extender.name = "CityExtender"
+	extender.district = district
+	add_child(extender)
 	npcs = NpcCrowd.new()
 	add_child(npcs)
 	npcs.build()
@@ -668,6 +673,8 @@ func _process(dt: float) -> void:
 	district.visible = not underground # sector streaming: the city does not render underground
 	npcs.visible = not underground
 	director.update(dt, underground)
+	if not underground:
+		extender.update(player.global_position, dt)
 	street.visible = not underground
 	if not underground:
 		street.update(dt)

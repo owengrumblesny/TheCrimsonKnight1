@@ -29,6 +29,8 @@ const ROAD_HALF := 9.0
 const WALK := 12.0
 const FACADE := 15.0
 const LANES := [2.2, 6.6]
+## CityExtender keeps generating blocks past the grid edge
+const ENDLESS := true
 ## open lots kept free of kit buildings: [centre, radius] (Citadel Square, the gang alley, the merc yard)
 const CLEAR := [[Vector2(0, -135), 42.0], [Vector2(-40, -26), 15.0], [Vector2(95, 31), 24.0]]
 
@@ -117,9 +119,10 @@ func build() -> void:
 	for kind in lots:
 		instanced(kind, lots[kind], {"collide": true, "map_kind": "building", "chunk": 40, "vis_end": LOD_DIST})
 		instanced(kind + "_lod1", lots[kind], {"collide": false, "shadow": false, "chunk": 40, "vis_begin": LOD_DIST})
-	# simplified distant skyline beyond the grid (LOD1 only, no collision)
+	# simplified distant skyline beyond the grid (LOD1 only, no collision); off now that CityExtender builds
+	# real blocks out to the horizon
 	var sky := {}
-	for i in 72:
+	for i in (0 if ENDLESS else 72):
 		var a := (i / 72.0) * TAU + _rand() * 0.04
 		var r := half + 140 + _rand() * 120
 		var kind: String = ["kit_office_tower", "kit_gothic_tower", "kit_apartment"][i % 3]

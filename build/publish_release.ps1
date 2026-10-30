@@ -63,9 +63,11 @@ if ($ghOk) {
     if ($LASTEXITCODE -ne 0) { throw "gh release create failed." }
 } else {
     # no gh: use the token git's credential manager already holds for github.com
-    # a BOM on the first piped line makes git reject it, so pipe plain UTF-8 without one
-    $OutputEncoding = New-Object System.Text.UTF8Encoding($false)
-    $cred = @("protocol=https", "host=github.com", "") | git credential fill
+    # PowerShell's pipe mangles the first line for git, so feed the request from a plain file (host name only)
+    $req = [IO.Path]::GetTempFileName()
+    [IO.File]::WriteAllText($req, "protocol=https`nhost=github.com`n`n", (New-Object System.Text.UTF8Encoding($false)))
+    $cred = cmd /c "git credential fill < `"$req`""
+    Remove-Item $req -Force
     $token = (($cred | Where-Object { $_ -like 'password=*' }) -replace '^password=', '')
     if (-not $token) { throw "No GitHub credentials found. Run: gh auth login" }
     $h = @{ Authorization = "Bearer $token"; Accept = 'application/vnd.github+json'; 'User-Agent' = 'CrimsonKnight-Release' }

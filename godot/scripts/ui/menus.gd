@@ -651,6 +651,36 @@ func _screen_settings(body: VBoxContainer) -> void:
 			s[key] = on
 			game.apply_settings())
 		_row(v, pair[1], cbx)
+	# updates: game (GitHub Releases) and R.E.D. AI dependencies (live manifest)
+	v.add_child(CKUI.section("Updates"))
+	var up: Updater = game.updater
+	var up_status := _muted("Crimson Knight v%s. %s" % [up.current, ("Update available: v%s" % up.latest["version"]) if not up.latest.is_empty() else "Checks GitHub for updates when you press Play."])
+	v.add_child(up_status)
+	var up_bar := ProgressBar.new()
+	up_bar.custom_minimum_size = Vector2(420, 12)
+	up_bar.show_percentage = false
+	up_bar.visible = false
+	v.add_child(up_bar)
+	var row_up := HBoxContainer.new()
+	row_up.add_theme_constant_override("separation", 10)
+	v.add_child(row_up)
+	row_up.add_child(CKUI.button("Check now", "notification", "", func():
+		up_status.text = "Checking…"
+		await up.check()
+		if is_instance_valid(up_status):
+			up_status.text = ("Update available: v%s" % up.latest["version"]) if not up.latest.is_empty() else "You're up to date (v%s)." % up.current))
+	if not up.latest.is_empty():
+		row_up.add_child(CKUI.button("Update to v%s (%d MB)" % [up.latest["version"], int(up.latest["size"]) >> 20], "notification", "", func():
+			up_bar.visible = true
+			up.update_now()))
+		up.progress.connect(func(t: String, f: float):
+			if is_instance_valid(up_status):
+				up_status.text = t
+				up_bar.value = f * 100.0)
+	if game.ai_update > 0:
+		row_up.add_child(CKUI.button("Update R.E.D. AI (v%d)" % game.ai_update, "notification", "", func():
+			game.red.stop_engines()
+			game.ai_installer.start(true)))
 	# R.E.D. local AI: status and one-click download (for players who've never installed AI tools)
 	v.add_child(CKUI.section("R.E.D. AI (offline brain, voice and ears)"))
 	var ai_dir := RedAI.find_ai_dir()

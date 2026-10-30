@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "about": "R.E.D. local AI downloads. The game reads the live copy of this file from the GitHub repo (main branch), so bumping 'version' and changing URLs here updates every player's AI dependencies without a new game release.",
+  "models": [
+    [
+      "models/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      1117320736
+    ],
+    [
+      "models/ggml-base.en.bin",
+      "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin",
+      147964211
+    ],
+    [
+      "models/en_US-amy-low.onnx",
+      "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/low/en_US-amy-low.onnx",
+      63104526
+    ],
+    [
+      "models/en_US-amy-low.onnx.json",
+      "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/low/en_US-amy-low.onnx.json",
+      4164
+    ]
+  ],
+  "windows": [
+    [
+      "LLM server",
+      "https://github.com/ggml-org/llama.cpp/releases/download/b11982/llama-b11982-bin-win-cpu-x64.zip",
+      "llama-server",
+      "llama"
+    ],
+    [
+      "speech recognition",
+      "https://github.com/ggml-org/whisper.cpp/releases/download/b5454/whisper-bin-x64.zip",
+      "whisper-server",
+      "whisper/Release"
+    ],
+    [
+      "voice",
+      "https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_windows_amd64.zip",
+      "piper",
+      "piper/piper"
+    ]
+  ],
+  "linux": [
+    [
+      "LLM server",
+      "https://github.com/ggml-org/llama.cpp/releases/download/b11982/llama-b11982-bin-ubuntu-x64.tar.gz",
+      "llama-server",
+      "llama"
+    ],
+    [
+      "speech recognition",
+      "https://github.com/ggml-org/whisper.cpp/releases/download/b5454/whisper-bin-ubuntu-x64.tar.gz",
+      "whisper-server",
+      "whisper/Release"
+    ],
+    [
+      "voice",
+      "https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_linux_x86_64.tar.gz",
+      "piper",
+      "piper/piper"
+    ]
+  ]
+}

@@ -36,23 +36,19 @@ WizardStyle=modern
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
-[Types]
-Name: "full"; Description: "Full (game + R.E.D. AI)"
-Name: "compact"; Description: "Game only"
-Name: "custom"; Description: "Custom"; Flags: iscustom
-
-[Components]
-Name: "game"; Description: "Crimson Knight"; Types: full compact custom; Flags: fixed
-Name: "red"; Description: "R.E.D. AI voice + brain (1.3 GB)"; Types: full
-
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
+; R.E.D.'s local AI is not packed into Setup (it is 1.3 GB): the game downloads it from the official releases on
+; first launch when this is ticked (Settings > R.E.D. AI can do it any time), and keeps it updated
+Name: "redai"; Description: "Download R.E.D.'s offline AI on first launch (voice, brain, ears: about 1.3 GB)"; GroupDescription: "R.E.D. AI:"
 
 [Files]
-Source: "{#Src}\{#AppExe}"; DestDir: "{app}"; Components: game; Flags: ignoreversion
+Source: "{#Src}\{#AppExe}"; DestDir: "{app}"; Flags: ignoreversion
 ; Godot writes a console wrapper when debug/export_console_wrapper is on; ship it when present
-Source: "{#Src}\CrimsonKnight.console.exe"; DestDir: "{app}"; Components: game; Flags: ignoreversion skipifsourcedoesntexist
-Source: "{#Src}\ai\*"; DestDir: "{app}\ai"; Components: red; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
+Source: "{#Src}\CrimsonKnight.console.exe"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+
+[INI]
+Filename: "{app}\install.ini"; Section: "red"; Key: "autodownload"; String: "1"; Tasks: redai
 
 [Icons]
 Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExe}"
@@ -65,3 +61,4 @@ Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags
 [UninstallDelete]
 ; R.E.D. writes nothing into {app}; saves and settings live in %APPDATA%\Godot\app_userdata and are kept
 Type: dirifempty; Name: "{app}\ai"
+Type: files; Name: "{app}\install.ini"

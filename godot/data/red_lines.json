@@ -268,5 +268,8 @@
   ],
   "installed": [
     "Brain installed. Ears installed. Voice installed. I'm complete, and frankly, magnificent."
+  ],
+  "update_available": [
+    "Breaking news: version {v} of me is out. Settings, Updates. Don't make me wait, tin can."
   ]
 }

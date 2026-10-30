@@ -54,6 +54,8 @@ var vision: Vision
 var holo: HoloHUD
 var ai_installer: RedInstaller
 var extender: CityExtender
+var updater: Updater
+var ai_update := 0
 ## the ten talking villains and the 20 landmarks (godot/scripts/villains/)
 var villains: VillainSystem
 var vweapons: VehicleWeapons
@@ -267,6 +269,16 @@ func _ready() -> void:
 				if is_instance_valid(v) and v.global_position.distance_to(p) < 90.0:
 					out.append([v, true])
 		return out
+	updater = Updater.new()
+	add_child(updater)
+	updater.update_available.connect(func(v: String, _notes: String, mb: int):
+		notify("Update available: v%s (%d MB). Settings > Updates" % [v, mb], "notification", "info")
+		red.speak(red._pick("update_available", {"v": v})))
+	updater.ai_update_available.connect(func(v: int):
+		ai_update = v
+		ai_installer.manifest = updater.ai_manifest
+		notify("R.E.D. AI update available. Settings > Updates", "notification", "info"))
+	updater.failed.connect(func(msg: String): notify(msg, "notification", "warn"))
 	ai_installer = RedInstaller.new()
 	add_child(ai_installer)
 	ai_installer.finished.connect(func(ok: bool, msg: String):
@@ -472,6 +484,15 @@ func play() -> void:
 		director.start_mission(director.mission_index)
 	started = true
 	audio.start_ambience()
+	if not (args.has("frames") or args.has("bench")):
+		updater.check()
+		# Setup's "download R.E.D. AI on first launch" box writes install.ini next to the game
+		var ini := ConfigFile.new()
+		if ini.load(OS.get_executable_path().get_base_dir().path_join("install.ini")) == OK and ini.get_value("red", "autodownload", 0) == 1 				and not RedInstaller.complete(RedAI.find_ai_dir()) and not settings.get("aiAutoTried", false):
+			settings["aiAutoTried"] = true
+			apply_settings()
+			ai_installer.start()
+			notify("Downloading R.E.D.'s AI in the background (about %d MB)…" % RedInstaller.TOTAL_MB, "notification", "info")
 	if (settings["helmetDefault"] and not args.has("frames")) or args.has("helmet"):
 		if not cam.helmet:
 			set_helmet(true)

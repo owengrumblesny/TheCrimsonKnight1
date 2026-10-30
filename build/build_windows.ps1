@@ -95,7 +95,8 @@ if ($Installer) {
         ) | Where-Object { Test-Path $_ } | Select-Object -First 1
     }
     if (-not $Iscc) { Fail "Inno Setup 6 (ISCC.exe) not found. Install it (see docs/BUILD.md) or set `$env:ISCC." }
-    & $Iscc (Join-Path $PSScriptRoot 'installer\crimson_knight.iss')
+    $Ver = (Get-Content (Join-Path $Repo 'config\version.json') -Raw | ConvertFrom-Json).version
+    & $Iscc "/DAppVersion=$Ver" (Join-Path $PSScriptRoot 'installer\crimson_knight.iss')
     if ($LASTEXITCODE -ne 0) { Fail "Inno Setup failed (exit $LASTEXITCODE)." }
     Write-Host "Built $(Join-Path $Repo 'dist\CrimsonKnight-Setup.exe')" -ForegroundColor Green
 }

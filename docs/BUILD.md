@@ -84,3 +84,15 @@ The game looks for `llama-server`, `whisper-server` and `piper` without `.exe` o
 
 ## Sharing with friends
 Zip `dist/windows/` without the `ai/` folder (`build_windows.ps1 -NoAI`): about 320 MB. On first run, friends open **Settings > R.E.D. AI** and press **Download**. The game fetches and installs R.E.D.'s local AI by itself (see `docs/RED_AI.md`).
+
+
+## Setup.exe, releases and auto-update
+`powershell -ExecutionPolicy Bypass -File build/build_windows.ps1 -NoAI -Installer` builds `dist/CrimsonKnight-Setup.exe` (needs Inno Setup 6: `winget install JRSoftware.InnoSetup --scope user`). Setup holds the game only. Its ticked-by-default "Download R.E.D.'s offline AI on first launch" task makes the game fetch the 1.3 GB AI itself on first Play.
+
+To ship an update to everyone:
+```bash
+powershell -ExecutionPolicy Bypass -File build/publish_release.ps1 -Version 0.9.1 -Notes "What changed"
+```
+This bumps `config/version.json`, builds, pushes, and creates GitHub Release `v0.9.1` with `CrimsonKnight-Setup.exe` attached. Installed games check the latest release when Play is pressed, R.E.D. announces it, and **Settings > Updates > Update to v0.9.1** downloads Setup, runs it silently over the install, and relaunches the game.
+
+**R.E.D. AI dependency updates need no release:** edit `config/ai_manifest.json` (bump `"version"`, change URLs) and push to main. Games read the live copy, and **Settings > Updates > Update R.E.D. AI** re-downloads the engines and only the models whose URL changed.

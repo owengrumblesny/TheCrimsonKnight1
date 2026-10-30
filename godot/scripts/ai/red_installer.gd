@@ -30,12 +30,22 @@ const LINUX := [
 const TOTAL_MB := 1300
 
 var busy := false
+## the download list: config/ai_manifest.json, replaced by the live copy from GitHub when the updater fetched one
+var manifest: Dictionary = CKData.json("ai_manifest") if CKData.json("ai_manifest") is Dictionary else {}
+## re-download everything (dependency update)
+var _force := false
 var _http: HTTPRequest
 var _dir := ""
 
 
 static func target_dir() -> String:
 	return OS.get_user_data_dir().path_join("ai")
+
+
+## AI dependency version recorded by the last successful install in `dir` (0 = unknown / none).
+static func installed_version(dir: String) -> int:
+	var j = JSON.parse_string(FileAccess.get_file_as_string(dir.path_join("version.json"))) if FileAccess.file_exists(dir.path_join("version.json")) else null
+	return int(j.get("version", 0)) if j is Dictionary else 0
 
 
 ## True when every engine and model R.E.D. needs is present in `dir`.
@@ -70,9 +80,10 @@ func _process(_dt: float) -> void:
 var _label := ""
 
 
-func start() -> void:
+func start(force := false) -> void:
 	if busy:
 		return
+	_force = force
 	if not OS.get_name() in ["Windows", "Linux"]:
 		finished.emit(false, "Automatic install supports Windows and Linux only")
 		return
@@ -94,13 +105,14 @@ func _download(url: String, path: String) -> bool:
 
 
 func _run() -> void:
-	var engines: Array = WINDOWS if OS.get_name() == "Windows" else LINUX
+	var engines: Array = manifest.get("windows" if OS.get_name() == "Windows" else "linux", WINDOWS if OS.get_name() == "Windows" else LINUX)
+	var models: Array = manifest.get("models", MODELS)
 	var ext := ".exe" if OS.get_name() == "Windows" else ""
-	var steps := engines.size() + MODELS.size()
+	var steps := engines.size() + models.size()
 	var n := 0
 	for e in engines:
 		n += 1
-		if FileAccess.file_exists(_dir.path_join(e[3]).path_join(e[2] + ext)):
+		if not _force and FileAccess.file_exists(_dir.path_join(e[3]).path_join(e[2] + ext)):
 			continue
 		_label = "R.E.D. %s (%d/%d)" % [e[0], n, steps]
 		var tmp := _dir.path_join("_dl_" + String(e[2]))
@@ -125,16 +137,28 @@ func _run() -> void:
 		if OS.get_name() == "Linux":
 			OS.execute("chmod", ["-R", "u+x", dest])
 		_rm(tmp)
-	for m in MODELS:
+	var had: Dictionary = {}
+	var vj = JSON.parse_string(FileAccess.get_file_as_string(_dir.path_join("version.json"))) if FileAccess.file_exists(_dir.path_join("version.json")) else null
+	if vj is Dictionary:
+		had = vj.get("urls", {})
+	for m in models:
 		n += 1
 		var path := _dir.path_join(m[0])
-		if _size(path) >= int(m[2]) * 0.99:
+		# keep a model that's complete and still the same download (only changed models are fetched again)
+		if _size(path) >= int(m[2]) * 0.99 and (not _force or had.get(m[0], m[1]) == m[1]):
 			continue
 		_label = "R.E.D. %s (%d/%d)" % [String(m[0]).get_file(), n, steps]
 		if not await _download(m[1], path + ".part"):
 			return _fail("Couldn't download %s." % String(m[0]).get_file())
 		DirAccess.remove_absolute(path)
 		DirAccess.rename_absolute(path + ".part", path)
+	var urls := {}
+	for m in models:
+		urls[m[0]] = m[1]
+	var vf := FileAccess.open(_dir.path_join("version.json"), FileAccess.WRITE)
+	if vf:
+		vf.store_string(JSON.stringify({"version": int(manifest.get("version", 1)), "urls": urls}))
+		vf.close()
 	busy = false
 	progress.emit("R.E.D. AI installed", 1.0)
 	finished.emit(true, "R.E.D.'s brain, ears and voice are installed.")

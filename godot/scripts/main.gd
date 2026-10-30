@@ -586,8 +586,9 @@ func _process(dt: float) -> void:
 				Input.action_press(hold[0])
 			continue
 		var at := tap.split("@")
-		if at.size() == 2 and int(at[1]) in [frame, frame - 1]:
-			# a real input event, so menu hotkeys (_unhandled_input) see it too; it lands next frame
+		if at.size() == 2 and int(at[1]) in [frame, frame - 2]:
+			# a real input event, so menu hotkeys (_unhandled_input) see it too; it lands next frame and is
+			# released two frames later (a same-frame release could hide the press from later checks)
 			var ev := InputEventAction.new()
 			ev.action = at[0]
 			ev.pressed = int(at[1]) == frame

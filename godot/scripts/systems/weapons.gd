@@ -216,7 +216,10 @@ func _aim_point(d: Dictionary) -> Vector3:
 func _point_gun(now: int) -> void:
 	var id := current()
 	var held: Node3D = player.hero._held
-	if id == "" or held == null or defs[id]["kind"] == "melee" or not (player.aiming or now - _last_shot < 600):
+	if id == "" or held == null or defs[id]["kind"] == "melee" or not (player.aiming or player.combat_t > 0.0):
+		# back to the normal grip in the hand (the aim override left it twisted before)
+		if held and held.has_meta("grip"):
+			held.quaternion = held.quaternion.slerp(held.get_meta("grip"), 0.25)
 		return
 	var c := cam.camera
 	var target := c.global_position - c.global_basis.z * 40.0

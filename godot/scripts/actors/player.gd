@@ -598,6 +598,9 @@ func _process(dt: float) -> void:
 		return
 	_land_time -= dt
 	combat_t = maxf(0.0, combat_t - dt)
+	if hero.arm_aim:
+		var gun_up := (aiming or combat_t > 0.0) and mode in ["ground", "air", "slide", "vault"] and hero._held != null
+		hero.arm_aim.weight = move_toward(hero.arm_aim.weight, 1.0 if gun_up else 0.0, dt * (9.0 if gun_up else 4.0))
 	if mode == "ground" and _jump_timer < 0 and not (_land_time > 0 and speed < 0.5):
 		var s := speed
 		var clip: String

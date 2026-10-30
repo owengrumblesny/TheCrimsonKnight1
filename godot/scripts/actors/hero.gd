@@ -15,6 +15,8 @@ var lod_level := -1
 var _lods: Array = [[], [], []]
 var _held: Node3D
 var _socket_align := {}
+## right-arm aim layer (gun up while aiming / firing, over any locomotion clip)
+var arm_aim: ArmAim
 ## procedural layer after the clips: head look, lean, cape spring, foot IK (driven by the Player)
 var feel: HeroFeel
 # body lean springs (rad / rad per s): x = pitch about the feet, y = roll into turns
@@ -36,6 +38,10 @@ func _ready() -> void:
 	feel.name = "Feel"
 	skeleton.add_child(feel)
 	anim.animation_finished.connect(func(n: StringName): clip_finished.emit(String(n)))
+	if skeleton:
+		arm_aim = ArmAim.new()
+		skeleton.add_child(arm_aim)
+		arm_aim.setup(anim, skeleton)
 	set_lod(0)
 	play("CK_Idle", 0.0)
 
@@ -131,6 +137,7 @@ func hold(model_id: String) -> void:
 		var qr := global_basis.get_rotation_quaternion()
 		_socket_align[attach] = qs.inverse() * qr
 	gear.quaternion = _socket_align[attach]
+	gear.set_meta("grip", gear.quaternion)
 	ba.add_child(gear)
 	for m in gear.find_children("*", "GeometryInstance3D", true, false):
 		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON

@@ -63,7 +63,9 @@ if ($ghOk) {
     if ($LASTEXITCODE -ne 0) { throw "gh release create failed." }
 } else {
     # no gh: use the token git's credential manager already holds for github.com
-    $cred = "protocol=https`nhost=github.com`n`n" | git credential fill
+    # a BOM on the first piped line makes git reject it, so pipe plain UTF-8 without one
+    $OutputEncoding = New-Object System.Text.UTF8Encoding($false)
+    $cred = @("protocol=https", "host=github.com", "") | git credential fill
     $token = (($cred | Where-Object { $_ -like 'password=*' }) -replace '^password=', '')
     if (-not $token) { throw "No GitHub credentials found. Run: gh auth login" }
     $h = @{ Authorization = "Bearer $token"; Accept = 'application/vnd.github+json'; 'User-Agent' = 'CrimsonKnight-Release' }

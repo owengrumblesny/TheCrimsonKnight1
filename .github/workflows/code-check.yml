@@ -1,0 +1,91 @@
+# Runs on every commit or pull request that touches GDScript, shaders, Python, or the game's data.
+# Fails if any script no longer parses or compiles, a test fails, or the game can't boot.
+name: Code check
+
+on:
+  push:
+    paths:
+      - "**.gd"
+      - "**.gdshader"
+      - "**.py"
+      - "project.godot"
+      - "config/**"
+      - "godot/data/**"
+      - ".github/workflows/code-check.yml"
+  pull_request:
+    paths:
+      - "**.gd"
+      - "**.gdshader"
+      - "**.py"
+      - "project.godot"
+      - "config/**"
+      - "godot/data/**"
+      - ".github/workflows/code-check.yml"
+
+env:
+  GODOT_VERSION: 4.7.2-stable
+
+jobs:
+  python:
+    name: Python lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install ruff
+        run: pip install ruff
+      - name: Lint (real errors only - syntax, undefined names, broken comparisons)
+        run: ruff check tools --select E9,F63,F7,F82 --output-format github
+      - name: Compile every Python file
+        run: python -m compileall -q tools
+
+  godot:
+    name: Godot scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache Godot and the import cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/godot-bin
+            .godot
+          key: godot-${{ env.GODOT_VERSION }}-${{ hashFiles('config/asset_manifest.json') }}
+          restore-keys: godot-${{ env.GODOT_VERSION }}-
+      - name: Install Godot
+        run: |
+          if [ ! -x ~/godot-bin/godot ]; then
+            mkdir -p ~/godot-bin
+            curl -sSL -o /tmp/godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+            unzip -q /tmp/godot.zip -d ~/godot-bin
+            mv ~/godot-bin/Godot_v${GODOT_VERSION}_linux.x86_64 ~/godot-bin/godot
+          fi
+          ~/godot-bin/godot --version
+      - name: Import the project (registers classes, finds broken assets)
+        run: timeout 900 ~/godot-bin/godot --headless --path . --import 2>&1 | tee import.log | tail -5
+      - name: Fail on script errors from the import
+        run: |
+          if grep -E "SCRIPT ERROR|Parse Error" import.log; then
+            echo "::error::GDScript errors during import"
+            exit 1
+          fi
+      - name: Logic tests
+        run: timeout 300 ~/godot-bin/godot --headless --path . --script godot/tools/test_logic.gd 2>&1 | tee logic.log | tail -3; grep -q ", 0 failed" logic.log
+      - name: Villain tests
+        run: timeout 300 ~/godot-bin/godot --headless --path . --script godot/tools/test_villains.gd 2>&1 | tee villains.log | tail -3; grep -q ", 0 failed" villains.log
+      - name: Boot the real game (a parse error here hangs, so the timeout fails it)
+        run: |
+          timeout 200 ~/godot-bin/godot --headless --path . -- --frames=30 --nomissions --quality=low 2>&1 | tee boot.log | tail -3
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            echo "::error::Game failed to boot (exit $status)"
+            exit 1
+          fi
+          if grep -E "SCRIPT ERROR|Parse Error" boot.log; then
+            echo "::error::GDScript errors while booting"
+            exit 1
+          fi
